@@ -6,12 +6,15 @@
 #
 CC=  gcc  # gcc or g++
 
-CFLAGS=-g -Wall -DNORMALUNIX -DLINUX # -DUSEASM 
-LDFLAGS=-L/usr/X11R6/lib
-LIBS=-lXext -lX11 -lnsl -lm
+#CFLAGS=-g -Wall -DNORMALUNIX -DLINUX # -DUSEASM
+CFLAGS=-O3 -ffast-math -fomit-frame-pointer -m486 -Wall -DNORMALUNIX -s -DPHILL -DNEWCHEAT -DFLIGHT -DQUAD #-DFIELD -DPHILLDEBUG
+#LDFLAGS=-L/usr/X11R6/lib
+#LIBS=-lXext -lX11 -lnsl -lm
+LDFLAGS=-s
+LIBS=-lemu -lalleg
 
 # subdirectory for objects
-O=linux
+O=dos
 
 # not too sophisticated dependency
 OBJS=				\
@@ -75,17 +78,18 @@ OBJS=				\
 		$(O)/s_sound.o		\
 		$(O)/z_zone.o			\
 		$(O)/info.o				\
-		$(O)/sounds.o
+		$(O)/sounds.o		\
+		$(O)/util.o
 
-all:	 $(O)/linuxxdoom
+all:	 $(O)/dosdoom
 
 clean:
 	rm -f *.o *~ *.flc
-	rm -f linux/*
+	rm -f dos/*
 
-$(O)/linuxxdoom:	$(OBJS) $(O)/i_main.o
+$(O)/dosdoom:	$(OBJS) $(O)/i_main.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(O)/i_main.o \
-	-o $(O)/linuxxdoom $(LIBS)
+	-o $(O)/dosdoom $(LIBS)
 
 $(O)/%.o:	%.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -93,3 +97,4 @@ $(O)/%.o:	%.c
 #############################################################
 #
 #############################################################
+

@@ -610,8 +610,10 @@ void IdentifyVersion (void)
 
     home = getenv("HOME");
     if (!home)
-      I_Error("Please set $HOME to your home directory");
-    sprintf(basedefault, "%s/.doomrc", home);
+      sprintf(basedefault,"default.chi");
+    else
+      sprintf(basedefault, "%s\\default.chi", home);
+
 #endif
 
     if (M_CheckParm ("-shdev"))
@@ -1045,8 +1047,8 @@ void D_DoomMain (void)
 		if (W_CheckNumForName(name[i])<0)
 		    I_Error("\nThis is not the registered version.");
     }
-    
-    // Iff additonal PWAD files are used, print modified banner
+#ifndef PHILL
+    // If additonal PWAD files are used, print modified banner
     if (modifiedgame)
     {
 	/*m*/printf (
@@ -1059,7 +1061,7 @@ void D_DoomMain (void)
 	    );
 	getchar ();
     }
-	
+#endif
 
     // Check and print which version is executed.
     switch ( gamemode )
@@ -1169,3 +1171,4 @@ void D_DoomMain (void)
 
     D_DoomLoop ();  // never returns
 }
+
