@@ -3,16 +3,23 @@
 //
 // $Id: r_segs.c,v 1.16 1998/05/03 23:02:01 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -155,8 +162,8 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
     if (maskedtexturecol[dc_x] != MAXSHORT)
       {
         if (!fixedcolormap)      // calculate lighting
-          {
-            unsigned index = spryscale>>LIGHTSCALESHIFT;
+          {                             // killough 11/98:
+            unsigned index = spryscale>>(LIGHTSCALESHIFT+hires);
 
             if (index >=  MAXLIGHTSCALE )
               index = MAXLIGHTSCALE-1;
@@ -218,6 +225,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
 static void R_RenderSegLoop (void)
 {
   fixed_t  texturecolumn = 0;   // shut up compiler warning
+
   for ( ; rw_x < rw_stopx ; rw_x++)
     {
       // mark floor / ceiling areas
@@ -268,8 +276,9 @@ static void R_RenderSegLoop (void)
           angle_t angle =(rw_centerangle+xtoviewangle[rw_x])>>ANGLETOFINESHIFT;
           texturecolumn = rw_offset-FixedMul(finetangent[angle],rw_distance);
           texturecolumn >>= FRACBITS;
+
           // calculate lighting
-          index = rw_scale>>LIGHTSCALESHIFT;
+          index = rw_scale>>(LIGHTSCALESHIFT+hires);  // killough 11/98
 
           if (index >=  MAXLIGHTSCALE )
             index = MAXLIGHTSCALE-1;
@@ -363,16 +372,14 @@ static fixed_t R_PointToDist(fixed_t x, fixed_t y)
 {
   fixed_t dx = abs(x - viewx);
   fixed_t dy = abs(y - viewy);
-
   if (dy > dx)
     {
       fixed_t t = dx;
       dx = dy;
       dy = t;
     }
-
-  return FixedDiv(dx, finesine[(tantoangle[FixedDiv(dy,dx) >> DBITS]
-                                + ANG90) >> ANGLETOFINESHIFT]);
+  return dx ? FixedDiv(dx, finesine[(tantoangle[FixedDiv(dy,dx) >> DBITS]
+				     + ANG90) >> ANGLETOFINESHIFT]) : 0;
 }
 
 //
@@ -413,7 +420,7 @@ void R_StoreWallRange(const int start, const int stop)
     offsetangle = ANG90;
 
   distangle = ANG90 - offsetangle;
-  hyp = R_PointToDist (curline->v1->x, curline->v1->y);
+  hyp = R_PointToDist (curline->v1->x, curline->v1->y);  
   sineval = finesine[distangle>>ANGLETOFINESHIFT];
   rw_distance = FixedMul(hyp, sineval);
 
@@ -422,20 +429,9 @@ void R_StoreWallRange(const int start, const int stop)
   ds_p->curline = curline;
   rw_stopx = stop+1;
 
-  {     // killough 1/6/98, 2/1/98: remove limit on openings
-    extern short *openings;
-    extern size_t maxopenings;
-    size_t pos = lastopening - openings;
-    size_t need = (rw_stopx - start)*4 + pos;
-    if (need > maxopenings)
-      {
-        do
-          maxopenings = maxopenings ? maxopenings*2 : 16384;
-        while (need > maxopenings);
-        openings = realloc(openings, maxopenings * sizeof(*openings));
-        lastopening = openings + pos;
-      }
-  }  // killough: end of code to remove limits on openings
+  // killough 1/6/98, 2/1/98: remove limit on openings
+  // killough 8/1/98: Replaced code with a static limit 
+  // guaranteed to be big enough
 
   // calculate scale at both ends and step
   ds_p->scale1 = rw_scale =
@@ -477,8 +473,7 @@ void R_StoreWallRange(const int start, const int stop)
       rw_midtexturemid += sidedef->rowoffset;
 
       {      // killough 3/27/98: reduce offset
-        fixed_t h;
-        h = textureheight[sidedef->midtexture];
+        fixed_t h = textureheight[sidedef->midtexture];
         if (h & (h-FRACUNIT))
           rw_midtexturemid %= h;
       }
@@ -604,8 +599,7 @@ void R_StoreWallRange(const int start, const int stop)
 
       // killough 3/27/98: reduce offset
       {
-        fixed_t h;
-        h = textureheight[sidedef->toptexture];
+        fixed_t h = textureheight[sidedef->toptexture];
         if (h & (h-FRACUNIT))
           rw_toptexturemid %= h;
       }

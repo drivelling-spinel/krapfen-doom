@@ -3,16 +3,23 @@
 //
 // $Id: p_lights.c,v 1.11 1998/05/18 09:04:41 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -178,7 +185,7 @@ void P_SpawnFireFlicker (sector_t*  sector)
 
   P_AddThinker (&flick->thinker);
 
-  flick->thinker.function.acp1 = (actionf_p1) T_FireFlicker;
+  flick->thinker.function = T_FireFlicker;
   flick->sector = sector;
   flick->maxlight = sector->lightlevel;
   flick->minlight = P_FindMinSurroundingLight(sector,sector->lightlevel)+16;
@@ -204,7 +211,7 @@ void P_SpawnLightFlash (sector_t* sector)
 
   P_AddThinker (&flash->thinker);
 
-  flash->thinker.function.acp1 = (actionf_p1) T_LightFlash;
+  flash->thinker.function = T_LightFlash;
   flash->sector = sector;
   flash->maxlight = sector->lightlevel;
 
@@ -238,7 +245,7 @@ void P_SpawnStrobeFlash
   flash->sector = sector;
   flash->darktime = fastOrSlow;
   flash->brighttime = STROBEBRIGHT;
-  flash->thinker.function.acp1 = (actionf_p1) T_StrobeFlash;
+  flash->thinker.function = T_StrobeFlash;
   flash->maxlight = sector->lightlevel;
   flash->minlight = P_FindMinSurroundingLight(sector, sector->lightlevel);
   
@@ -273,7 +280,7 @@ void P_SpawnGlowingLight(sector_t*  sector)
   g->sector = sector;
   g->minlight = P_FindMinSurroundingLight(sector,sector->lightlevel);
   g->maxlight = sector->lightlevel;
-  g->thinker.function.acp1 = (actionf_p1) T_Glow;
+  g->thinker.function = T_Glow;
   g->direction = -1;
 
   sector->special &= ~31; //jff 3/14/98 clear non-generalized sector type
@@ -326,34 +333,22 @@ int EV_StartLightStrobing(line_t* line)
 //
 int EV_TurnTagLightsOff(line_t* line)
 {
-  int     i;
-  int     j;
-  int     min;
-  sector_t*   sector;
-  sector_t*   tsec;
-  line_t*   templine;
-
-  sector = sectors;
-
+  int j;
+  
   // search sectors for those with same tag as activating line
-  for (j = 0;j < numsectors; j++, sector++)
-  {
-    if (sector->tag == line->tag)
+
+  // killough 10/98: replaced inefficient search with fast search
+  for (j = -1; (j = P_FindSectorFromLineTag(line,j)) >= 0;)
     {
-      min = sector->lightlevel;
+      sector_t *sector = sectors + j, *tsec;
+      int i, min = sector->lightlevel;
       // find min neighbor light level
       for (i = 0;i < sector->linecount; i++)
-      {
-        templine = sector->lines[i];
-        tsec = getNextSector(templine,sector);
-        if (!tsec)
-          continue;
-        if (tsec->lightlevel < min)
-          min = tsec->lightlevel;
-      }
+	if ((tsec = getNextSector(sector->lines[i], sector)) &&
+	    tsec->lightlevel < min)
+	  min = tsec->lightlevel;
       sector->lightlevel = min;
     }
-  }
   return 1;
 }
 
@@ -368,48 +363,76 @@ int EV_TurnTagLightsOff(line_t* line)
 //
 // jff 2/12/98 added int return value, fixed return
 //
-int EV_LightTurnOn
-( line_t* line,
-  int   bright )
+int EV_LightTurnOn(line_t *line, int bright)
 {
-  int   i;
-  int   j;
-  sector_t* sector;
-  sector_t* temp;
-  line_t* templine;
-
-  sector = sectors;
+  int i;
 
   // search all sectors for ones with same tag as activating line
-  for (i=0;i<numsectors;i++, sector++)
-  {
-    int tbright = bright; //jff 5/17/98 search for maximum PER sector
-    if (sector->tag == line->tag)
+
+  // killough 10/98: replace inefficient search with fast search
+  for (i = -1; (i = P_FindSectorFromLineTag(line,i)) >= 0;)
     {
-      // bright = 0 means to search
-      // for highest light level
-      // surrounding sector
+      sector_t *temp, *sector = sectors+i;
+      int j, tbright = bright; //jff 5/17/98 search for maximum PER sector
+
+      // bright = 0 means to search for highest light level surrounding sector
+
       if (!bright)
-      {
-        for (j = 0;j < sector->linecount; j++)
-        {
-          templine = sector->lines[j];
-          temp = getNextSector(templine,sector);
+	for (j = 0;j < sector->linecount; j++)
+	  if ((temp = getNextSector(sector->lines[j],sector)) &&
+	      temp->lightlevel > tbright)
+	    tbright = temp->lightlevel;
 
-          if (!temp)
-            continue;
-
-          if (temp->lightlevel > tbright)
-            tbright = temp->lightlevel;
-        }
-      }
-      sector-> lightlevel = tbright;
+      sector->lightlevel = tbright;
+      
       //jff 5/17/98 unless compatibility optioned 
       //then maximum near ANY tagged sector
-      if (compatibility)
-        bright = tbright;
+      
+      if (comp[comp_model])
+	bright = tbright;
     }
-  }
+  return 1;
+}
+
+// killough 10/98:
+//
+// EV_LightTurnOnPartway()
+//
+// Turn sectors tagged to line lights on to specified or max neighbor level
+//
+// Passed the activating line, and a light level fraction between 0 and 1.
+// Sets the light to min on 0, max on 1, and interpolates in-between.
+// Used for doors with gradual lighting effects.
+//
+// Returns true
+
+int EV_LightTurnOnPartway(line_t *line, fixed_t level)
+{
+  int i;
+
+  if (level < 0)          // clip at extremes 
+    level = 0;
+  if (level > FRACUNIT)
+    level = FRACUNIT;
+
+  // search all sectors for ones with same tag as activating line
+  for (i = -1; (i = P_FindSectorFromLineTag(line,i)) >= 0;)
+    {
+      sector_t *temp, *sector = sectors+i;
+      int j, bright = 0, min = sector->lightlevel;
+
+      for (j = 0; j < sector->linecount; j++)
+	if ((temp = getNextSector(sector->lines[j],sector)))
+	  {
+	    if (temp->lightlevel > bright)
+	      bright = temp->lightlevel;
+	    if (temp->lightlevel < min)
+	      min = temp->lightlevel;
+	  }
+
+      sector->lightlevel =   // Set level in-between extremes
+	(level * bright + (FRACUNIT-level) * min) >> FRACBITS;
+    }
   return 1;
 }
 

@@ -3,16 +3,23 @@
 //
 // $Id: r_main.c,v 1.13 1998/05/07 00:47:52 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -334,29 +341,30 @@ void R_ExecuteSetViewSize (void)
   if (setblocks == 11)
     {
       scaledviewwidth = SCREENWIDTH;
-      viewheight = SCREENHEIGHT;
+      scaledviewheight = SCREENHEIGHT;                    // killough 11/98
     }
   else
     {
       scaledviewwidth = setblocks*32;
-      viewheight = (setblocks*168/10) & ~7;
+      scaledviewheight = (setblocks*168/10) & ~7;        // killough 11/98
     }
-    
-  viewwidth = scaledviewwidth;
-        
+
+  viewwidth = scaledviewwidth << hires;                  // killough 11/98
+  viewheight = scaledviewheight << hires;                // killough 11/98
+
   centery = viewheight/2;
   centerx = viewwidth/2;
   centerxfrac = centerx<<FRACBITS;
   centeryfrac = centery<<FRACBITS;
   projection = centerxfrac;
 
-  R_InitBuffer (scaledviewwidth, viewheight);
+  R_InitBuffer(scaledviewwidth, scaledviewheight);       // killough 11/98
         
   R_InitTextureMapping();
     
   // psprite scales
-  pspritescale = FRACUNIT*viewwidth/SCREENWIDTH;
-  pspriteiscale = FRACUNIT*SCREENWIDTH/viewwidth;
+  pspritescale = FixedDiv(viewwidth, SCREENWIDTH);       // killough 11/98
+  pspriteiscale= FixedDiv(SCREENWIDTH, viewwidth);       // killough 11/98
     
   // thing clipping
   for (i=0 ; i<viewwidth ; i++)
@@ -381,8 +389,8 @@ void R_ExecuteSetViewSize (void)
     {
       int j, startmap = ((LIGHTLEVELS-1-i)*2)*NUMCOLORMAPS/LIGHTLEVELS;
       for (j=0 ; j<MAXLIGHTSCALE ; j++)
-        {
-          int t, level = startmap - j*SCREENWIDTH/viewwidth/DISTMAP;
+        {                                       // killough 11/98:
+          int t, level = startmap - j*SCREENWIDTH/scaledviewwidth/DISTMAP;
             
           if (level < 0)
             level = 0;
@@ -507,8 +515,8 @@ void R_RenderPlayerView (player_t* player)
     { // killough 2/10/98: add flashing red HOM indicators
       char c[47*47];
       extern int lastshottic;
-      int i,color=(gametic % 20) < 9 ? 0xb0 : 0;
-      memset(*screens+viewwindowy*SCREENWIDTH,color,viewheight*SCREENWIDTH);
+      int i , color = !flashing_hom || (gametic % 20) < 9 ? 0xb0 : 0;
+      memset(*screens+viewwindowy*linesize,color,viewheight*linesize);
       for (i=0;i<47*47;i++)
         {
           char t =
@@ -569,8 +577,8 @@ void R_RenderPlayerView (player_t* player)
           c[i] = t=='/' ? color : t;
         }
       if (gametic-lastshottic < TICRATE*2 && gametic-lastshottic > TICRATE/8)
-        V_DrawBlock(viewwindowx +  viewwidth/2 - 24,
-                    viewwindowy + viewheight/2 - 24, 0, 47, 47, c);
+        V_DrawBlock((viewwindowx +  viewwidth/2 - 24)>>hires,
+                    (viewwindowy + viewheight/2 - 24)>>hires, 0, 47, 47, c);
       R_DrawViewBorder();
     }
 

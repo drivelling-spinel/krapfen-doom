@@ -1,18 +1,25 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: p_switch.c,v 1.24 1998/05/11 14:04:46 jim Exp $
+// $Id: p_switch.c,v 1.25 1998/06/01 14:48:19 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //  Switches, buttons. Two-state animation. Exits.
@@ -20,7 +27,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: p_switch.c,v 1.24 1998/05/11 14:04:46 jim Exp $";
+rcsid[] = "$Id: p_switch.c,v 1.25 1998/06/01 14:48:19 jim Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -94,7 +101,7 @@ void P_InitSwitchList(void)
 // Passed the linedef the button is on, which texture on the sidedef contains
 // the button, the texture number of the button, and the time the button is
 // to remain active in gametics.
-// No return.
+// No return value.
 //
 void P_StartButton
 ( line_t*       line,
@@ -131,7 +138,7 @@ void P_StartButton
 // Passed the line which the switch is on, and whether its retriggerable.
 // If not retriggerable, this function clears the line special to insure that
 //
-// No return
+// No return value
 //
 void P_ChangeSwitchTexture
 ( line_t*       line,
@@ -214,7 +221,11 @@ P_UseSpecialLine
 ( mobj_t*       thing,
   line_t*       line,
   int           side )
-{               
+{
+
+  if (side) //jff 6/1/98 fix inadvertent deletion of side test
+    return false;
+
   //jff 02/04/98 add check here for generalized floor/ceil mover
   if (!demo_compatibility)
   {
@@ -381,6 +392,14 @@ P_UseSpecialLine
         
     case 11:
       // Exit level
+
+      // killough 10/98: prevent zombies from exiting levels
+      if (thing->player && thing->player->health <= 0 && !comp[comp_zombie])
+	{
+	  S_StartSound(thing, sfx_noway);
+	  return false;
+	}
+ 
       P_ChangeSwitchTexture(line,0);
       G_ExitLevel ();
       break;
@@ -453,6 +472,14 @@ P_UseSpecialLine
         
     case 51:
       // Secret EXIT
+
+      // killough 10/98: prevent zombies from exiting levels
+      if (thing->player && thing->player->health <= 0 && !comp[comp_zombie])
+	{
+	  S_StartSound(thing, sfx_noway);
+	  return false;
+	}
+ 
       P_ChangeSwitchTexture(line,0);
       G_SecretExitLevel ();
       break;
@@ -1108,6 +1135,9 @@ P_UseSpecialLine
 //----------------------------------------------------------------------------
 //
 // $Log: p_switch.c,v $
+// Revision 1.25  1998/06/01  14:48:19  jim
+// Fix switch use from back side
+//
 // Revision 1.24  1998/05/11  14:04:46  jim
 // Fix endianess of speed field in SWITCH predefined lump
 //

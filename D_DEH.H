@@ -2,6 +2,24 @@
 //
 // $Id: d_deh.h,v 1.5 1998/05/04 21:36:33 thldrmn Exp $
 //
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+//
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
+//
 // Dehacked file support
 // New for the TeamTNT "Boom" engine
 //
@@ -805,7 +823,6 @@ extern char *s_C5TEXT; // = C5TEXT;
 "BLAZE THROUGH THIS ONE!\n"
 extern char *s_C6TEXT; // = C6TEXT;
 
-
 // after map 06 
 
 //#define P1TEXT  \
@@ -822,7 +839,6 @@ extern char *s_C6TEXT; // = C6TEXT;
 "moving, keep fighting, keep killing.\n"\
 "Oh yes, keep living, too."
 extern char *s_P1TEXT; // = P1TEXT;
-
 
 // after map 11
 
@@ -1014,8 +1030,10 @@ extern char *bgflatE4;
 
 // char*        bgflat06 = "SLIME16";
 extern char *bgflat06;
+
 // char*        bgflat11 = "RROCK14";
 extern char *bgflat11;
+
 // char*        bgflat20 = "RROCK07";
 extern char *bgflat20;
 // char*        bgflat30 = "RROCK17";
@@ -1056,4 +1074,3 @@ extern char *savegamename;
 //   
 //
 //--------------------------------------------------------------------
-

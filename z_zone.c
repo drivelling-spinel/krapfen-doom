@@ -3,16 +3,24 @@
 //
 // $Id: z_zone.c,v 1.13 1998/05/12 06:11:55 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
+//
 //
 // DESCRIPTION:
 //      Zone Memory Allocation. Neat.
@@ -114,31 +122,36 @@ static size_t purgable_memory;
 static size_t inactive_memory;
 static size_t virtual_memory;
 
-static void Z_PrintStats(void)            // Print allocation statistics
-{
-  unsigned long total_memory = free_memory + active_memory +
-                               purgable_memory + inactive_memory +
-                               virtual_memory;
-  double s = 100.0 / total_memory;
+int printstats;                    // killough 8/23/98
 
-  dprintf("%-5lu\t%6.01f%%\tstatic\n"
-          "%-5lu\t%6.01f%%\tpurgable\n"
-          "%-5lu\t%6.01f%%\tfree\n"
-          "%-5lu\t%6.01f%%\tfragmentary\n"
-          "%-5lu\t%6.01f%%\tvirtual\n"
-          "%-5lu\t\ttotal\n",
-          active_memory,
-          active_memory*s,
-          purgable_memory,
-          purgable_memory*s,
-          free_memory,
-          free_memory*s,
-          inactive_memory,
-          inactive_memory*s,
-          virtual_memory,
-          virtual_memory*s,
-          total_memory
-          );
+void Z_PrintStats(void)            // Print allocation statistics
+{
+  if (printstats)
+    {
+      unsigned long total_memory = free_memory + active_memory +
+	purgable_memory + inactive_memory +
+	virtual_memory;
+      double s = 100.0 / total_memory;
+      
+      dprintf("%-5lu\t%6.01f%%\tstatic\n"
+	      "%-5lu\t%6.01f%%\tpurgable\n"
+	      "%-5lu\t%6.01f%%\tfree\n"
+	      "%-5lu\t%6.01f%%\tfragmentary\n"
+	      "%-5lu\t%6.01f%%\tvirtual\n"
+	      "%-5lu\t\ttotal\n",
+	      active_memory,
+	      active_memory*s,
+	      purgable_memory,
+	      purgable_memory*s,
+	      free_memory,
+	      free_memory*s,
+	      inactive_memory,
+	      inactive_memory*s,
+	      virtual_memory,
+	      virtual_memory*s,
+	      total_memory
+	      );
+    }
 }
 #endif
 
@@ -496,7 +509,7 @@ void (Z_FreeTags)(int lowtag, int hightag, const char *file, int line)
 
 #ifdef ZONEIDCHECK
         if (block->id != ZONEID)
-          I_Error("Z_Free: freed a pointer without ZONEID\n"
+          I_Error("Z_FreeTags: Changed a tag without ZONEID\n"
                   "Source: %s:%d"
 
 #ifdef INSTRUMENTED
@@ -535,7 +548,7 @@ void (Z_ChangeTag)(void *ptr, int tag, const char *file, int line)
 
 #ifdef ZONEIDCHECK
   if (block->id != ZONEID)
-    I_Error ("Z_ChangeTag: freed a pointer without ZONEID"
+    I_Error ("Z_ChangeTag: Changed a tag without ZONEID"
              "\nSource: %s:%d"
 
 #ifdef INSTRUMENTED

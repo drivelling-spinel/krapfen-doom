@@ -3,16 +3,23 @@
 //
 // $Id: i_system.h,v 1.7 1998/05/03 22:33:43 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //      System specific interface stuff.
@@ -23,10 +30,6 @@
 #define __I_SYSTEM__
 
 #include "d_ticcmd.h"
-
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 // Called by DoomMain.
 void I_Init(void);
@@ -84,6 +87,10 @@ void I_Quit (void);
 void I_Error(const char *error, ...) __attribute__((format(printf,1,2)));
 
 extern int mousepresent;                // killough
+
+extern int leds_always_off;   // killough 10/98
+
+void I_ResetLEDs(void);       // killough 10/98
 
 void I_EndDoom(void);         // killough 2/22/98: endgame screen
 

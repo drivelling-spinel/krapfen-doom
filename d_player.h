@@ -3,26 +3,33 @@
 //
 // $Id: d_player.h,v 1.3 1998/05/04 21:34:15 thldrmn Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
+//
 //
 // DESCRIPTION:
 //
 //
 //-----------------------------------------------------------------------------
 
-
 #ifndef __D_PLAYER__
 #define __D_PLAYER__
-
 
 // The player data structure depends on a number
 // of other structs: items (internal inventory),
@@ -39,11 +46,6 @@
 // is buffered within the player data struct,
 // as commands per game tick.
 #include "d_ticcmd.h"
-
-#ifdef __GNUG__
-#pragma interface
-#endif
-
 
 //
 // Player states.
@@ -94,6 +96,12 @@ typedef struct player_s
   fixed_t             deltaviewheight;
   // bounded/scaled total momentum.
   fixed_t             bob;    
+
+  // killough 10/98: used for realistic bobbing (i.e. not simply overall speed)
+  // mo->momx and mo->momy represent true momenta experienced by player.
+  // This only represents the thrust that the player applies himself.
+  // This avoids anomolies with such things as Boom ice and conveyors.
+  fixed_t            momx, momy;      // killough 10/98
 
   // This is only used between levels,
   // mo->health is used during levels.

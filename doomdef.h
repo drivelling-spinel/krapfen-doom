@@ -3,16 +3,24 @@
 //
 // $Id: doomdef.h,v 1.23 1998/05/14 08:02:00 phares Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
+//
 //
 // DESCRIPTION:
 //  Internally used data structures for virtually everything,
@@ -86,8 +94,8 @@ typedef enum {
 // allows us to avoid the overhead of dynamic allocation
 // when multiple screen sizes are supported
 
-#define MAX_SCREENWIDTH  320
-#define MAX_SCREENHEIGHT 200
+#define MAX_SCREENWIDTH  640
+#define MAX_SCREENHEIGHT 400
 
 #define SCREENWIDTH      320
 #define SCREENHEIGHT     200
@@ -127,6 +135,13 @@ typedef enum {
 #define MTF_HARD                4
 // Deaf monsters/do not react to sound.
 #define MTF_AMBUSH              8
+
+// killough 11/98
+#define MTF_NOTSINGLE          16
+#define MTF_NOTDM              32
+#define MTF_NOTCOOP            64
+#define MTF_FRIEND            128
+#define MTF_RESERVED          256
 
 typedef enum {
   sk_none=-1, //jff 3/24/98 create unpicked skill setting
@@ -256,6 +271,8 @@ typedef enum {
   ss_enem,
   ss_mess,
   ss_chat,
+  ss_gen,       // killough 10/98
+  ss_comp,      // killough 10/98
   ss_max
 } ss_types;
 

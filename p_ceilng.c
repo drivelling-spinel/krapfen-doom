@@ -3,17 +3,23 @@
 //
 // $Id: p_ceilng.c,v 1.14 1998/05/09 10:58:10 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 //
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:  
 //   Ceiling aninmation (lowering, crushing, raising)
@@ -45,7 +51,7 @@ ceilinglist_t *activeceilings;
 // Action routine that moves ceilings. Called once per tick.
 //
 // Passed a ceiling_t structure that contains all the info about the move.
-// see P_SPEC.H for fields. No return.
+// see P_SPEC.H for fields. No return value.
 //
 // jff 02/08/98 all cases with labels beginning with gen added to support 
 // generalized line type behaviors.
@@ -274,7 +280,7 @@ int EV_DoCeiling
     ceiling = Z_Malloc (sizeof(*ceiling), PU_LEVSPEC, 0);
     P_AddThinker (&ceiling->thinker);
     sec->ceilingdata = ceiling;               //jff 2/22/98
-    ceiling->thinker.function.acp1 = (actionf_p1)T_MoveCeiling;
+    ceiling->thinker.function = T_MoveCeiling;
     ceiling->sector = sec;
     ceiling->crush = false;
   
@@ -368,7 +374,7 @@ int P_ActivateInStasisCeiling(line_t *line)
     if (ceiling->tag == line->tag && ceiling->direction == 0)
     {
       ceiling->direction = ceiling->olddirection;
-      ceiling->thinker.function.acp1 = (actionf_p1) T_MoveCeiling;
+      ceiling->thinker.function = T_MoveCeiling;
       //jff 4/5/98 return if activated
       rtn=1;
     }
@@ -396,7 +402,7 @@ int EV_CeilingCrushStop(line_t* line)
     {
       ceiling->olddirection = ceiling->direction;
       ceiling->direction = 0;
-      ceiling->thinker.function.acv = (actionf_v)NULL;
+      ceiling->thinker.function = NULL;
       rtn=1;
     }
   }

@@ -3,16 +3,23 @@
 //
 // $Id: v_video.h,v 1.9 1998/05/06 11:12:54 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //  Gamma correction LUT.
@@ -79,7 +86,7 @@ typedef enum
 extern byte *screens[5];
 extern int  dirtybox[4];
 extern byte gammatable[5][256];
-extern int  usegamma;
+extern int  usegamma, hires;        // killough 11/98
 
 //jff 4/24/98 loads color translation lumps
 void V_InitColorTranslation(void);
@@ -88,9 +95,14 @@ void V_InitColorTranslation(void);
 void V_Init (void);
 
 void V_CopyRect(int srcx,  int srcy,  int srcscrn, int width, int height,
-                int destx, int desty, int destscrn);
+		int destx, int desty, int destscrn);
 
-void V_DrawPatch(int x, int y, int scrn, patch_t *patch);
+// killough 11/98: Consolidated V_DrawPatch and V_DrawPatchFlipped
+
+void V_DrawPatchGeneral(int x,int y,int scrn,patch_t *patch, boolean flipped);
+
+#define V_DrawPatch(x,y,s,p)        V_DrawPatchGeneral(x,y,s,p,false)
+#define V_DrawPatchFlipped(x,y,s,p) V_DrawPatchGeneral(x,y,s,p,true)
 
 #define V_DrawPatchDirect V_DrawPatch       /* killough 5/2/98 */
 
@@ -105,7 +117,7 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height, byte *src);
 
 void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest);
 
-void V_MarkRect(int x, int y, int width,int height);
+#define V_MarkRect(x,y,width,height)  /* killough 11/98: unused */
 
 #endif
 

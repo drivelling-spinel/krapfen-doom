@@ -3,17 +3,23 @@
 //
 // $Id: f_wipe.c,v 1.3 1998/05/03 22:11:24 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 //
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //      Mission begin melt/wipe screen special effect.
@@ -185,6 +191,10 @@ static int (*const wipes[])(int, int, int) = {
 int wipe_ScreenWipe(int wipeno, int x, int y, int width, int height, int ticks)
 {
   static boolean go;                               // when zero, stop the wipe
+
+  if (hires)     // killough 11/98: hires support
+    width <<= 1, height <<= 1, ticks <<= 1;
+
   if (!go)                                         // initial stuff
     {
       go = 1;
