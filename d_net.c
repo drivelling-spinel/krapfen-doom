@@ -3,16 +3,23 @@
 //
 // $Id: d_net.c,v 1.12 1998/05/21 12:12:09 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -179,9 +186,9 @@ void HSendPacket
     );
 
     for (i=0 ; i<doomcom->datalength ; i++)
-      fprintf (debugfile,"%i ",((byte *)netbuffer)[i]);
+      fprintf(debugfile,"%i ",((byte *)netbuffer)[i]);
 
-    fprintf (debugfile,"\n");
+    fprintf(debugfile,"\n");
   }
   I_NetCmd ();
 }
@@ -215,14 +222,14 @@ boolean HGetPacket (void)
   if (doomcom->datalength != NetbufferSize ())
   {
     if (debugfile)
-      fprintf (debugfile,"bad packet length %i\n",doomcom->datalength);
+      fprintf(debugfile,"bad packet length %i\n",doomcom->datalength);
     return false;
   }
 
   if (NetbufferChecksum () != (netbuffer->checksum&NCMD_CHECKSUM) )
   {
     if (debugfile)
-      fprintf (debugfile,"bad packet checksum\n");
+      fprintf(debugfile,"bad packet checksum\n");
     return false;
   }
 
@@ -232,7 +239,7 @@ boolean HGetPacket (void)
     int i;
           
     if (netbuffer->checksum & NCMD_SETUP)
-      fprintf (debugfile,"setup packet\n");
+      fprintf(debugfile,"setup packet\n");
     else
     {
       if (netbuffer->checksum & NCMD_RETRANSMIT)
@@ -240,14 +247,14 @@ boolean HGetPacket (void)
       else
         realretrans = -1;
 
-      fprintf (debugfile,"get %i = (%i + %i, R %i)[%i] ",
-               doomcom->remotenode,
-               ExpandTics(netbuffer->starttic),
-               netbuffer->numtics, realretrans, doomcom->datalength);
+      fprintf(debugfile,"get %i = (%i + %i, R %i)[%i] ",
+	      doomcom->remotenode,
+	      ExpandTics(netbuffer->starttic),
+	      netbuffer->numtics, realretrans, doomcom->datalength);
 
       for (i=0 ; i<doomcom->datalength ; i++)
-        fprintf (debugfile,"%i ",((byte *)netbuffer)[i]);
-      fprintf (debugfile,"\n");
+        fprintf(debugfile,"%i ",((byte *)netbuffer)[i]);
+      fprintf(debugfile,"\n");
     }
   }
   return true;        
@@ -307,7 +314,7 @@ void GetPackets (void)
     {
       resendto[netnode] = ExpandTics(netbuffer->retransmitfrom);
       if (debugfile)
-        fprintf (debugfile,"retransmit from %i\n", resendto[netnode]);
+        fprintf(debugfile,"retransmit from %i\n", resendto[netnode]);
       resendcount[netnode] = RESENDCOUNT;
     }
     else
@@ -320,9 +327,9 @@ void GetPackets (void)
     if (realend < nettics[netnode])
     {
       if (debugfile)
-        fprintf (debugfile,
-                 "out of order packet (%i + %i)\n" ,
-                 realstart,netbuffer->numtics);
+        fprintf(debugfile,
+		"out of order packet (%i + %i)\n" ,
+		realstart,netbuffer->numtics);
       continue;
     }
 
@@ -331,9 +338,9 @@ void GetPackets (void)
     {
       // stop processing until the other system resends the missed tics
       if (debugfile)
-        fprintf (debugfile,
-                 "missed tics from %i (%i - %i)\n",
-                 netnode, realstart, nettics[netnode]);
+        fprintf(debugfile,
+		"missed tics from %i (%i - %i)\n",
+		netnode, realstart, nettics[netnode]);
       remoteresend[netnode] = true;
       continue;
     }
@@ -481,7 +488,7 @@ void D_ArbitrateNetStart (void)
   if (doomcom->consoleplayer)
   {
     // listen for setup info from key player
-    printf ("listening for network start info...\n");
+    printf("listening for network start info...\n");
     while (1)
     {
       CheckAbort ();
@@ -489,13 +496,8 @@ void D_ArbitrateNetStart (void)
           continue;
       if (netbuffer->checksum & NCMD_SETUP)
       {
-        printf
-        (
-          "Received %d %d\n",
-          netbuffer->retransmitfrom,netbuffer->starttic
-        );
-//      if (netbuffer->player != VERSION)
-//        I_Error ("Different DOOM versions cannot play a net game!");
+        printf("Received %d %d\n",
+	       netbuffer->retransmitfrom,netbuffer->starttic);
         startskill = netbuffer->retransmitfrom & 15;
         deathmatch = (netbuffer->retransmitfrom & 0xc0) >> 6;
         nomonsters = (netbuffer->retransmitfrom & 0x20) > 0;
@@ -503,36 +505,17 @@ void D_ArbitrateNetStart (void)
         startmap = netbuffer->starttic & 0x3f;
         startepisode = 1 + (netbuffer->starttic >> 6);
 
-        // killough 5/2/98: Read the options, and then
-        // get the compatibility option at the end.
+        // killough 5/2/98: Read the options
+	//
+	// killough 11/98: NOTE: this code produces no inconsistency errors.
+	// However, TeamTNT's code =does= produce inconsistencies. Go figur.
 
-        compatibility = *G_ReadOptions((char *) netbuffer->cmds);
+        G_ReadOptions((char *) netbuffer->cmds);
 
-        // killough 5/2/98
-        //
-        // variable_friction, allow_pushers are not options
-        // except they are cheats that can be saved during
-        // savegames -- they cannot be different across 
-        // players in netgames, so don't care about them
-        //
-        // fastparm and others are not too interesting either.
-        // all interesting ones have default_* versions.
-
-        if (compatibility != default_compatibility)
-          printf("orig_doom_compatibility turned %s\n", 
-                  compatibility ? "on" : "off");
-          
-        if (monsters_remember != default_monsters_remember)
-          printf("monsters_remember turned %s\n", 
-                  monsters_remember ? "on" : "off");
-
-        if (weapon_recoil != default_weapon_recoil)
-          printf("weapon_recoil turned %s\n",
-                  weapon_recoil ? "on" : "off");
-
-        if (player_bobbing != default_player_bobbing)
-          printf("player_bobbing turned %s\n",
-                  player_bobbing ? "on" : "off");
+	// killough 12/98: removed obsolete compatibility flag and
+	// removed printf()'s, since there are too many options to
+	// make it manageable. It will be understood that the main
+	// player controls the sync-critical options.
 
         return;
       }
@@ -541,7 +524,7 @@ void D_ArbitrateNetStart (void)
   else
   {
     // key player, send the setup info
-    printf ("sending network start info...\n");
+    puts("sending network start info...");
 
     do
     {
@@ -563,15 +546,11 @@ void D_ArbitrateNetStart (void)
         // BACKUPTICS needs to increased, or we need to send several
         // packets instead of one.
 
-        if (GAME_OPTION_SIZE+1 > sizeof netbuffer->cmds)
+        if (GAME_OPTION_SIZE > sizeof netbuffer->cmds)
           I_Error("D_ArbitrateNetStart: GAME_OPTION_SIZE"
                   " too large w.r.t. BACKUPTICS");
 
-        // killough 5/2/98: Write out the options
-        // and append the compatibility option
-        // (the +1 in the above calculation, BTW).
-
-        *G_WriteOptions((char *) netbuffer->cmds) = compatibility;
+        G_WriteOptions((char *) netbuffer->cmds);    // killough 12/98
 
         // killough 5/2/98: Always write the maximum number of tics.
         netbuffer->numtics = BACKUPTICS;

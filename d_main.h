@@ -3,16 +3,23 @@
 //
 // $Id: d_main.h,v 1.7 1998/05/06 15:32:19 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -25,20 +32,16 @@
 
 #include "d_event.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
-
-#define MAXWADFILES 256        /* make it ridiculously large -- killough */
-extern char *wadfiles[MAXWADFILES];
+extern char **wadfiles;       // killough 11/98
 
 // jff make startskill globally visible
 extern skill_t startskill;
 
 void D_AddFile(char *file);
 
-char *D_DoomExeDir(void); // killough 2/16/98: path to executable's dir
-
+char *D_DoomExeDir(void);       // killough 2/16/98: path to executable's dir
+char *D_DoomExeName(void);      // killough 10/98: executable's name
+void NormalizeSlashes(char *);  // killough 11/98
 extern char basesavegame[];     // killough 2/16/98: savegame path
 
 //jff 1/24/98 make command line copies of play modes available

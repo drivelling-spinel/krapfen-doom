@@ -3,17 +3,23 @@
 //
 // $Id: st_stuff.c,v 1.46 1998/05/06 16:05:40 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
 //
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //      Status bar code.
@@ -635,6 +641,11 @@ void ST_doPaletteStuff(void)
   byte*       pal;
   int cnt = plyr->damagecount;
 
+#ifdef BETA
+  // killough 7/14/98: beta version did not cause red berserk palette
+  if (!beta_emulation)
+#endif
+
   if (plyr->powers[pw_strength])
     {
       // slowly fade the berzerk out
@@ -659,6 +670,12 @@ void ST_doPaletteStuff(void)
         palette += STARTBONUSPALS;
       }
     else
+#ifdef BETA
+      // killough 7/14/98: beta version did not cause green palette
+      if (beta_emulation)
+        palette = 0;
+      else
+#endif
       if (plyr->powers[pw_ironfeet] > 4*32 || plyr->powers[pw_ironfeet] & 8)
         palette = RADIATIONPAL;
       else
@@ -1098,7 +1115,8 @@ void ST_Init(void)
 {
   veryfirsttime = 0;
   ST_loadData();
-  screens[4] = Z_Malloc(ST_WIDTH*ST_HEIGHT, PU_STATIC, 0);
+  // killough 11/98: allocate enough for hires
+  screens[4] = Z_Malloc(ST_WIDTH*ST_HEIGHT*4, PU_STATIC, 0);
 }
 
 //----------------------------------------------------------------------------

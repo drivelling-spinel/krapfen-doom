@@ -3,16 +3,24 @@
 //
 // $Id: z_zone.h,v 1.7 1998/05/08 20:32:12 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
+//
 //
 // DESCRIPTION:
 //      Zone Memory Allocation, perhaps NeXT ObjectiveC inspired.
@@ -29,6 +37,7 @@
 
 #ifndef __GNUC__
 #define __attribute__(x)
+#define __inline__
 #endif
 
 // Remove all definitions before including system definitions
@@ -85,6 +94,11 @@ void Z_DumpHistory(char *);
 void dprintf(const char *, ...) __attribute__((format(printf,1,2)));
 
 void Z_ZoneHistory(char *);
+
+#ifdef INSTRUMENTED
+extern int printstats;        // killough 8/23/98
+void Z_PrintStats(void);      // killough 8/23/98
+#endif
 
 #endif
 

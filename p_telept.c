@@ -3,16 +3,23 @@
 //
 // $Id: p_telept.c,v 1.13 1998/05/12 06:10:43 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -23,7 +30,7 @@
 static const char
 rcsid[] = "$Id: p_telept.c,v 1.13 1998/05/12 06:10:43 killough Exp $";
 
-#include "doomdef.h"
+#include "doomstat.h"
 #include "p_spec.h"
 #include "p_maputl.h"
 #include "p_map.h"
@@ -55,7 +62,7 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
 
   for (i = -1; (i = P_FindSectorFromLineTag(line, i)) >= 0;)
     for (thinker=thinkercap.next; thinker!=&thinkercap; thinker=thinker->next)
-      if (thinker->function.acp1 == (actionf_p1) P_MobjThinker &&
+      if (thinker->function == P_MobjThinker &&
           (m = (mobj_t *) thinker)->type == MT_TELEPORTMAN  &&
             m->subsector->sector-sectors == i)
         {
@@ -66,10 +73,10 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
           if (player && player->mo != thing)
             player = NULL;
 
-          if (!P_TeleportMove(thing, m->x, m->y))
+          if (!P_TeleportMove(thing, m->x, m->y, false)) // killough 8/9/98
             return 0;
 
-          thing->z = thing->floorz;  // fixme: not needed?
+          thing->z = thing->floorz;
 
           if (player)
             player->viewz = thing->z + player->viewheight;
@@ -85,12 +92,21 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
                                    thing->z, MT_TFOG),
                        sfx_telept);
 
-          if (player)                    // don't move for a bit
-            thing->reactiontime = 18;
+          if (thing->player)       // don't move for a bit // killough 10/98
+#ifdef BETA
+	    // killough 10/98: beta teleporters were a bit faster
+	    thing->reactiontime = beta_emulation ? 4 : 18;
+#else
+  	    thing->reactiontime = 18;
+#endif
 
           thing->angle = m->angle;
 
           thing->momx = thing->momy = thing->momz = 0;
+
+	  // killough 10/98: kill all bobbing momentum too
+	  if (player)
+	    player->momx = player->momy = 0;
 
           return 1;
         }
@@ -117,7 +133,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
 
   for (i = -1; (i = P_FindSectorFromLineTag(line, i)) >= 0;)
     for (th = thinkercap.next; th != &thinkercap; th = th->next)
-      if (th->function.acp1 == (actionf_p1) P_MobjThinker &&
+      if (th->function == P_MobjThinker &&
           (m = (mobj_t *) th)->type == MT_TELEPORTMAN  &&
           m->subsector->sector-sectors == i)
         {
@@ -143,7 +159,7 @@ int EV_SilentTeleport(line_t *line, int side, mobj_t *thing)
           player_t *player = thing->player;
 
           // Attempt to teleport, aborting if blocked
-          if (!P_TeleportMove(thing, m->x, m->y))
+          if (!P_TeleportMove(thing, m->x, m->y, false)) // killough 8/9/98
             return 0;
 
           // Rotate thing according to difference in angles
@@ -262,12 +278,12 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
         // Make sure we are on correct side of exit linedef.
         while (P_PointOnLineSide(x, y, l) != side && --fudge>=0)
           if (abs(l->dx) > abs(l->dy))
-            y -= l->dx < 0 != side ? -1 : 1;
+            y -= (l->dx < 0) != side ? -1 : 1;
           else
-            x += l->dy < 0 != side ? -1 : 1;
+            x += (l->dy < 0) != side ? -1 : 1;
 
         // Attempt to teleport, aborting if blocked
-        if (!P_TeleportMove(thing, x, y))
+        if (!P_TeleportMove(thing, x, y, false)) // killough 8/9/98
           return 0;
 
         // Adjust z position to be same height above ground as before.

@@ -3,29 +3,31 @@
 //
 // $Id: w_wad.h,v 1.10 1998/05/06 11:32:05 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //      WAD I/O functions.
 //
 //-----------------------------------------------------------------------------
 
-
 #ifndef __W_WAD__
 #define __W_WAD__
-
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 //
 // TYPES
@@ -94,10 +96,12 @@ void*   W_CacheLumpNum (int lump, int tag);
 
 #define W_CacheLumpName(name,tag) W_CacheLumpNum (W_GetNumForName(name),(tag))
 
-
+void NormalizeSlashes(char *);                    // killough 11/98
 char *AddDefaultExtension(char *, const char *);  // killough 1/18/98
 void ExtractFileBase(const char *, char *);       // killough
 unsigned W_LumpNameHash(const char *s);           // killough 1/31/98
+
+void I_BeginRead(void), I_EndRead(void); // killough 10/98
 
 // Function to write all predefined lumps to a PWAD if requested
 extern void WritePredefinedLumpWad(const char *filename); // jff 5/6/98

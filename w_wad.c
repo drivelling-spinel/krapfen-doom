@@ -3,16 +3,23 @@
 //
 // $Id: w_wad.c,v 1.20 1998/05/06 11:32:00 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //      Handles WAD file header, directory, lump I/O.
@@ -27,9 +34,6 @@ rcsid[] = "$Id: w_wad.c,v 1.20 1998/05/06 11:32:00 jim Exp $";
 #include <fcntl.h>
 #include <sys/stat.h>
 
-#ifdef __GNUG__
-#pragma implementation "w_wad.h"
-#endif
 #include "w_wad.h"
 
 //
@@ -43,13 +47,13 @@ void       **lumpcache;      // killough
 
 static int filelength(int handle)
 {
-  struct stat   fileinfo;
+  struct stat fileinfo;
   if (fstat(handle,&fileinfo) == -1)
     I_Error("Error fstating");
   return fileinfo.st_size;
 }
 
-void ExtractFileBase (const char *path, char *dest)
+void ExtractFileBase(const char *path, char *dest)
 {
   const char *src = path + strlen(path) - 1;
   int length;
@@ -88,6 +92,33 @@ char *AddDefaultExtension(char *path, const char *ext)
   return strcat(path,ext);
 }
 
+// NormalizeSlashes
+//
+// Remove trailing slashes, translate backslashes to slashes
+// The string to normalize is passed and returned in str
+//
+// killough 11/98: rewritten
+
+void NormalizeSlashes(char *str)
+{
+  char *p;
+
+  // Convert backslashes to slashes
+  for (p = str; *p; p++)
+    if (*p == '\\')
+      *p = '/';
+
+  // Remove trailing slashes
+  while (p > str && *--p == '/')
+    *p = 0;
+
+  // Collapse multiple slashes
+  for (p = str; (*str++ = *p);)
+    if (*p++ == '/')
+      while (*p == '/')
+	p++;
+}
+
 //
 // LUMP BASED ROUTINES.
 //
@@ -104,7 +135,7 @@ char *AddDefaultExtension(char *path, const char *ext)
 // Reload hack removed by Lee Killough
 //
 
-static void W_AddFile(const char *filename) // killough 1/31/98: static, const
+static void W_AddFile(const char *name) // killough 1/31/98: static, const
 {
   wadinfo_t   header;
   lumpinfo_t* lump_p;
@@ -114,18 +145,26 @@ static void W_AddFile(const char *filename) // killough 1/31/98: static, const
   int         startlump;
   filelump_t  *fileinfo, *fileinfo2free=NULL; //killough
   filelump_t  singleinfo;
+  char        *filename = strcpy(malloc(strlen(name)+5), name);
+
+  NormalizeSlashes(AddDefaultExtension(filename, ".wad"));  // killough 11/98
 
   // open the file and add to directory
 
   if ((handle = open(filename,O_RDONLY | O_BINARY)) == -1)
     {
-      if (strlen(filename)<=4 ||      // add error check -- killough
-          strcasecmp(filename+strlen(filename)-4 , ".lmp" ) )
-        I_Error("Error: couldn't open %s\n",filename);  // killough
-      return;
+      if (strlen(name) > 4 && !strcasecmp(name+strlen(name)-4 , ".lmp" ))
+	{
+	  free(filename);
+	  return;
+	}
+      // killough 11/98: allow .lmp extension if none existed before
+      NormalizeSlashes(AddDefaultExtension(strcpy(filename, name), ".lmp"));
+      if ((handle = open(filename,O_RDONLY | O_BINARY)) == -1)
+	I_Error("Error: couldn't open %s\n",name);  // killough
     }
 
-  fprintf (stderr," adding %s\n",filename);
+  printf(" adding %s\n",filename);   // killough 8/8/98
   startlump = numlumps;
 
   // killough:
@@ -144,7 +183,7 @@ static void W_AddFile(const char *filename) // killough 1/31/98: static, const
       read(handle, &header, sizeof(header));
       if (strncmp(header.identification,"IWAD",4) &&
           strncmp(header.identification,"PWAD",4))
-        I_Error ("Wad file %s doesn't have IWAD or PWAD id\n", filename);
+        I_Error("Wad file %s doesn't have IWAD or PWAD id\n", filename);
       header.numlumps = LONG(header.numlumps);
       header.infotableofs = LONG(header.infotableofs);
       length = header.numlumps*sizeof(filelump_t);
@@ -153,6 +192,8 @@ static void W_AddFile(const char *filename) // killough 1/31/98: static, const
       read(handle, fileinfo, length);
       numlumps += header.numlumps;
     }
+
+    free(filename);           // killough 11/98
 
     // Fill in lumpinfo
     lumpinfo = realloc(lumpinfo, numlumps*sizeof(lumpinfo_t));
@@ -422,11 +463,14 @@ void W_ReadLump(int lump, void *dest)
       int c;
 
       // killough 1/31/98: Reload hack (-wart) removed
+      // killough 10/98: Add flashing disk indicator
 
+      I_BeginRead();
       lseek(l->handle, l->position, SEEK_SET);
       c = read(l->handle, dest, l->size);
       if (c < l->size)
         I_Error("W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
+      I_EndRead();
     }
 }
 
@@ -435,7 +479,7 @@ void W_ReadLump(int lump, void *dest)
 //
 // killough 4/25/98: simplified
 
-void *W_CacheLumpNum (int lump, int tag)
+void *W_CacheLumpNum(int lump, int tag)
 {
 #ifdef RANGECHECK
   if ((unsigned)lump >= numlumps)

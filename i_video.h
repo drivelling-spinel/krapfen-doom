@@ -3,16 +3,23 @@
 //
 // $Id: i_video.h,v 1.4 1998/05/03 22:40:58 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //      System specific interface stuff.
@@ -22,11 +29,9 @@
 #ifndef __I_VIDEO__
 #define __I_VIDEO__
 
-#include "doomtype.h"
+#include <allegro.h>
 
-#ifdef __GNUG__
-#pragma interface
-#endif
+#include "doomtype.h"
 
 // Called by D_DoomMain,
 // determines the hardware configuration
@@ -49,7 +54,13 @@ void I_ReadScreen (byte* scr);
 int I_DoomCode2ScanCode(int);   // killough
 int I_ScanCode2DoomCode(int);   // killough
 
+void I_ResetScreen(void);   // killough 10/98
+
 extern int use_vsync;  // killough 2/8/98: controls whether vsync is called
+extern int page_flip;  // killough 8/15/98: enables page flipping (320x200)
+extern int disk_icon;  // killough 10/98
+extern int hires;      // killough 11/98
+extern BITMAP *screens0_bitmap;   // killough 12/98
 
 #endif
 

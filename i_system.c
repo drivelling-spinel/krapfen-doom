@@ -3,16 +3,23 @@
 //
 // $Id: i_system.c,v 1.14 1998/05/03 22:33:13 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -28,6 +35,7 @@ rcsid[] = "$Id: i_system.c,v 1.14 1998/05/03 22:33:13 killough Exp $";
 extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 #include <stdarg.h>
 #include <gppconio.h>
+#include <sys/nearptr.h>
 
 #include "i_system.h"
 #include "i_sound.h"
@@ -35,11 +43,8 @@ extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 #include "m_misc.h"
 #include "g_game.h"
 #include "w_wad.h"
-
-#ifdef __GNUG__
-#pragma implementation "i_system.h"
-#endif
-#include "i_system.h"
+#include "v_video.h"
+#include "m_argv.h"
 
 ticcmd_t *I_BaseTiccmd(void)
 {
@@ -50,14 +55,6 @@ ticcmd_t *I_BaseTiccmd(void)
 void I_WaitVBL(int count)
 {
   rest((count*500)/TICRATE);
-}
-
-void I_BeginRead(void)
-{
-}
-
-void I_EndRead(void)
-{
 }
 
 // Most of the following has been rewritten by Lee Killough
@@ -131,10 +128,25 @@ void I_Shutdown(void)
   remove_timer();
 }
 
+void I_ResetLEDs(void)
+{
+  // Either keep the keyboard LEDs off all the time, or update them
+  // right now, and in the future, with respect to key_shifts flag.
+  //
+  // killough 10/98: moved to here
+
+  set_leds(leds_always_off ? 0 : -1);
+}
+
 void I_Init(void)
 {
   extern int key_autorun;
+  int clock_rate = realtic_clock_rate, p;
 
+  if ((p = M_CheckParm("-speed")) && p < myargc-1 &&
+      (p = atoi(myargv[p+1])) >= 10 && p <= 1000)
+    clock_rate = p;
+    
   //init timer
   LOCK_VARIABLE(realtic);
   LOCK_FUNCTION(I_timer);
@@ -145,9 +157,9 @@ void I_Init(void)
   if (fastdemo)
     I_GetTime = I_GetTime_FastDemo;
   else
-    if (realtic_clock_rate != 100)
+    if (clock_rate != 100)
       {
-        I_GetTime_Scale = ((long long) realtic_clock_rate << 24) / 100;
+        I_GetTime_Scale = ((long long) clock_rate << 24) / 100;
         I_GetTime = I_GetTime_Scaled;
       }
     else
@@ -180,9 +192,8 @@ void I_Init(void)
         break;
       }
 
-  // Either keep the keyboard LEDs off all the time, or update them
-  // right now, and in the future, with respect to key_shifts flag.
-  set_leds(leds_always_off ? 0 : -1);
+  I_ResetLEDs();
+
   // killough 3/6/98: end of keyboard / autorun state changes
 
   //init the mouse
@@ -226,7 +237,7 @@ void I_Quit (void)
   M_SaveDefaults ();
 
   if (*errmsg)
-    fprintf (stderr, "%s\n", errmsg);
+    puts(errmsg);   // killough 8/8/98
   else
     I_EndDoom();
 }
@@ -253,21 +264,16 @@ void I_Error(const char *error, ...) // killough 3/20/98: add const
 }
 
 // killough 2/22/98: Add support for ENDBOOM, which is PC-specific
+// killough 8/1/98: change back to ENDOOM
 
 void I_EndDoom(void)
 {
-  int lump = W_CheckNumForName("ENDBOOM"); //jff 4/1/98 sign our work
-  if (lump != -1)
-    {
-      const char (*endoom)[2] = W_CacheLumpNum(lump, PU_STATIC);
-      int i, l = W_LumpLength(lump) / 2;
-      for (i=0; i<l; i++)
-        {
-          textattr(endoom[i][1]);
-          putch(endoom[i][0]);
-        }
-      putch('\b');   // hack workaround for extra newline at bottom of screen
-      putch('\r');
+  int lump;
+  if (lumpinfo && (lump = W_CheckNumForName("ENDOOM")) != -1) // killough 10/98
+    {  // killough 8/19/98: simplify
+      memcpy(0xb8000 + (byte *) __djgpp_conventional_base,
+	     W_CacheLumpNum(lump, PU_CACHE), 0xf00);
+      gotoxy(0,24);
     }
 }
 

@@ -3,16 +3,23 @@
 //
 // $Id: r_bsp.c,v 1.17 1998/05/03 22:47:33 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -288,9 +295,9 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
       tempsec->floorheight   = s->floorheight;
       tempsec->ceilingheight = s->ceilingheight;
 
-      if ((underwater && (tempsec->  floorheight = sec->floorheight,
-                          tempsec->ceilingheight = s->floorheight-1,
-                          !back)) || viewz <= s->floorheight)
+      // killough 11/98: prevent sudden light changes from non-water sectors:
+      if (underwater && (tempsec->  floorheight = sec->floorheight,
+			 tempsec->ceilingheight = s->floorheight-1, !back))
         {                   // head-below-floor hack
           tempsec->floorpic    = s->floorpic;
           tempsec->floor_xoffs = s->floor_xoffs;
@@ -442,21 +449,21 @@ static void R_AddLine (seg_t *line)
       || backsector->floorheight >= frontsector->ceilingheight)
     goto clipsolid;
 
-    // This fixes the automap floor height bug -- killough 1/18/98:
-    // killough 4/7/98: optimize: save result in doorclosed for use in r_segs.c
+  // This fixes the automap floor height bug -- killough 1/18/98:
+  // killough 4/7/98: optimize: save result in doorclosed for use in r_segs.c
   if ((doorclosed = R_DoorClosed()))
     goto clipsolid;
 
-    // Window.
+  // Window.
   if (backsector->ceilingheight != frontsector->ceilingheight
       || backsector->floorheight != frontsector->floorheight)
     goto clippass;
 
-    // Reject empty lines used for triggers
-    //  and special events.
-    // Identical floor and ceiling on both sides,
-    // identical light levels on both sides,
-    // and no middle texture.
+  // Reject empty lines used for triggers
+  //  and special events.
+  // Identical floor and ceiling on both sides,
+  // identical light levels on both sides,
+  // and no middle texture.
   if (backsector->ceilingpic == frontsector->ceilingpic
       && backsector->floorpic == frontsector->floorpic
       && backsector->lightlevel == frontsector->lightlevel
@@ -616,11 +623,14 @@ static void R_Subsector(int num)
 
   // killough 3/7/98: Add (x,y) offsets to flats, add deep water check
   // killough 3/16/98: add floorlightlevel
+  // killough 10/98: add support for skies transferred from sidedefs
 
   floorplane = frontsector->floorheight < viewz || // killough 3/7/98
     (frontsector->heightsec != -1 &&
      sectors[frontsector->heightsec].ceilingpic == skyflatnum) ?
     R_FindPlane(frontsector->floorheight,
+		frontsector->floorpic == skyflatnum &&  // kilough 10/98
+		frontsector->sky & PL_SKYFLAT ? frontsector->sky :
                 frontsector->floorpic,
                 floorlightlevel,                // killough 3/16/98
                 frontsector->floor_xoffs,       // killough 3/7/98
@@ -632,13 +642,28 @@ static void R_Subsector(int num)
     (frontsector->heightsec != -1 &&
      sectors[frontsector->heightsec].floorpic == skyflatnum) ?
     R_FindPlane(frontsector->ceilingheight,     // killough 3/8/98
+		frontsector->ceilingpic == skyflatnum &&  // kilough 10/98
+		frontsector->sky & PL_SKYFLAT ? frontsector->sky :
                 frontsector->ceilingpic,
                 ceilinglightlevel,              // killough 4/11/98
                 frontsector->ceiling_xoffs,     // killough 3/7/98
                 frontsector->ceiling_yoffs
                 ) : NULL;
 
-  R_AddSprites (frontsector);
+  // killough 9/18/98: Fix underwater slowdown, by passing real sector 
+  // instead of fake one. Improve sprite lighting by basing sprite
+  // lightlevels on floor & ceiling lightlevels in the surrounding area.
+  //
+  // 10/98 killough:
+  //
+  // NOTE: TeamTNT fixed this bug incorrectly, messing up sprite lighting!!!
+  // That is part of the 242 effect!!!  If you simply pass sub->sector to
+  // the old code you will not get correct lighting for underwater sprites!!!
+  // Either you must pass the fake sector and handle validcount here, on the
+  // real sector, or you must account for the lighting in some other way, 
+  // like passing it as an argument.
+
+  R_AddSprites(sub->sector, (floorlightlevel+ceilinglightlevel)/2);
 
   while (count--)
     R_AddLine (line++);
@@ -666,10 +691,10 @@ void R_RenderBSPNode(int bspnum)
 
       // Possibly divide back space.
 
-      if (!R_CheckBBox(bsp->bbox[side^1]))
+      if (!R_CheckBBox(bsp->bbox[side^=1]))
         return;
 
-      bspnum = bsp->children[side^1];
+      bspnum = bsp->children[side];
     }
   R_Subsector(bspnum == -1 ? 0 : bspnum & ~NF_SUBSECTOR);
 }

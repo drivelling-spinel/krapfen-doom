@@ -3,16 +3,23 @@
 //
 // $Id: r_data.h,v 1.6 1998/05/03 22:55:43 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //  Refresh module, data I/O, caching, retrieval of graphics
@@ -20,34 +27,23 @@
 //
 //-----------------------------------------------------------------------------
 
-
 #ifndef __R_DATA__
 #define __R_DATA__
 
 #include "r_defs.h"
 #include "r_state.h"
 
-#ifdef __GNUG__
-#pragma interface
-#endif
-
 // Retrieve column data for span blitting.
-byte*
-R_GetColumn
-( int           tex,
-  int           col );
-
+byte *R_GetColumn(int tex, int col);
 
 // I/O, setting up the stuff.
 void R_InitData (void);
 void R_PrecacheLevel (void);
 
-
 // Retrieval.
 // Floor/ceiling opaque texture tiles,
 // lookup by name. For animation?
 int R_FlatNumForName (const char* name);   // killough -- const added
-
 
 // Called by P_Ticker for switches and animations,
 // returns the texture number for the texture name.
@@ -56,6 +52,8 @@ int R_CheckTextureNumForName (const char *name);
 
 void R_InitTranMap(int);      // killough 3/6/98: translucency initialization
 int R_ColormapNumForName(const char *name);      // killough 4/4/98
+
+void R_InitColormaps(void);   // killough 8/9/98
 
 extern byte *main_tranmap, *tranmap;
 

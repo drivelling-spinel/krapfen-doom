@@ -3,16 +3,23 @@
 //
 // $Id: p_tick.h,v 1.5 1998/05/15 00:36:22 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //-----------------------------------------------------------------------------
 
@@ -20,10 +27,6 @@
 #define __P_TICK__
 
 #include "d_think.h"
-
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 // Called by C_Ticker, can call G_PlayerExited.
 // Carries out all thinking of monsters and players.
@@ -36,6 +39,20 @@ void P_InitThinkers(void);
 void P_AddThinker(thinker_t *thinker);
 void P_RemoveThinker(thinker_t *thinker);
 void P_RemoveThinkerDelayed(thinker_t *thinker);    // killough 4/25/98
+
+void P_UpdateThinker(thinker_t *thinker);   // killough 8/29/98
+
+void P_SetTarget(mobj_t **mo, mobj_t *target);   // killough 11/98
+
+// killough 8/29/98: threads of thinkers, for more efficient searches
+typedef enum {
+  th_misc,
+  th_friends,
+  th_enemies,
+  NUMTHCLASS
+} th_class;
+
+extern thinker_t thinkerclasscap[];
 
 #endif
 

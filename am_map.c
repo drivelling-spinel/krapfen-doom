@@ -3,16 +3,23 @@
 //
 // $Id: am_map.c,v 1.24 1998/05/10 12:05:24 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:  
 //   the automap code
@@ -56,6 +63,7 @@ int mapcolor_sprt;    // general sprite color
 int mapcolor_hair;    // crosshair color
 int mapcolor_sngl;    // single player arrow color
 int mapcolor_plyr[4]; // colors for player arrows in multiplayer
+int mapcolor_frnd;    // colors for friends of player
 
 //jff 3/9/98 add option to not show secret sectors until entered
 int map_secret_after;
@@ -193,8 +201,6 @@ mline_t thintriangle_guy[] =
 int ddt_cheating = 0;         // killough 2/7/98: make global, rename to ddt_*
 
 int automap_grid = 0;
-
-static int leveljuststarted = 1;       // kluge until AM_LevelInit() is called
 
 boolean automapactive = false;
 
@@ -566,11 +572,15 @@ void AM_clearMarks(void)
 //
 void AM_LevelInit(void)
 {
-  leveljuststarted = 0;
-
   f_x = f_y = 0;
-  f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
-  f_h = SCREENHEIGHT-32;       // to allow runtime setting of width/height
+
+  // killough 2/7/98: get rid of finit_ vars
+  // to allow runtime setting of width/height
+  //
+  // killough 11/98: ... finally add hires support :)
+
+  f_w = (SCREENWIDTH) << hires;
+  f_h = (SCREENHEIGHT-ST_HEIGHT) << hires;
 
   AM_findMinMaxBoundaries();
   scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
@@ -608,13 +618,14 @@ void AM_Stop (void)
 //
 void AM_Start()
 {
-  static int lastlevel = -1, lastepisode = -1;
+  static int lastlevel = -1, lastepisode = -1, last_hires = -1;
 
   if (!stopped)
     AM_Stop();
   stopped = false;
-  if (lastlevel != gamemap || lastepisode != gameepisode)
+  if (lastlevel != gamemap || lastepisode != gameepisode || hires!=last_hires)
   {
+    last_hires = hires;          // killough 11/98
     AM_LevelInit();
     lastlevel = gamemap;
     lastepisode = gameepisode;
@@ -832,6 +843,19 @@ void AM_doFollowPlayer(void)
     f_oldloc.x = plr->mo->x;
     f_oldloc.y = plr->mo->y;
   }
+}
+
+//
+// killough 10/98: return coordinates, to allow use of a non-follow-mode
+// pointer. Allows map inspection without moving player to the location.
+//
+
+int map_point_coordinates;
+
+void AM_Coordinates(const mobj_t *mo, fixed_t *x, fixed_t *y, fixed_t *z)
+{
+  *z = followplayer || !map_point_coordinates ? *x = mo->x, *y = mo->y, mo->z :
+    R_PointInSubsector(*x = m_x+m_w/2, *y = m_y+m_h/2)->sector->floorheight;
 }
 
 //
@@ -1549,7 +1573,8 @@ void AM_drawPlayers(void)
     their_color++;
     p = &players[i];
 
-    if ( (deathmatch && !singledemo) && p != plr)
+    // killough 9/29/98: use !demoplayback so internal demos are no different
+    if ( (deathmatch && !demoplayback) && p != plr)
       continue;
 
     if (!playeringame[i])
@@ -1651,7 +1676,8 @@ void AM_drawThings
         NUMTHINTRIANGLEGUYLINES,
         16<<FRACBITS,
         t->angle,
-        mapcolor_sprt,
+	// killough 8/8/98: mark friends specially
+	t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : mapcolor_sprt,
         t->x,
         t->y
       );
@@ -1670,31 +1696,36 @@ void AM_drawThings
 // killough 2/22/98:
 // Rewrote AM_drawMarks(). Removed limit on marks.
 //
+// killough 11/98: added hires support
+
 void AM_drawMarks(void)
 {
   int i;
   for (i=0;i<markpointnum;i++) // killough 2/22/98: remove automap mark limit
     if (markpoints[i].x != -1)
-    {
-      int w = 5;
-      int h = 6;
-      int fx = CXMTOF(markpoints[i].x);
-      int fy = CYMTOF(markpoints[i].y);
-      int j = i;
-
-      do
       {
-        int d = j % 10;
-        if (d==1)           // killough 2/22/98: less spacing for '1'
-          fx++;
+	int w = 5 << hires;
+	int h = 6 << hires;
+	int fx = CXMTOF(markpoints[i].x);
+	int fy = CYMTOF(markpoints[i].y);
+	int j = i;
 
-        if (fx >= f_x && fx < f_w - w && fy >= f_y && fy < f_h - h)
-          V_DrawPatch(fx, fy, FB, marknums[d]);
-        fx -= w-1;          // killough 2/22/98: 1 space backwards
-        j /= 10;
+	do
+	  {
+	    int d = j % 10;
+
+	    if (d==1)           // killough 2/22/98: less spacing for '1'
+	      fx += 1<<hires;
+
+	    if (fx >= f_x && fx < f_w - w && fy >= f_y && fy < f_h - h)
+	      V_DrawPatch(fx >> hires, fy >> hires, FB, marknums[d]);
+
+	    fx -= w - (1<<hires);     // killough 2/22/98: 1 space backwards
+
+	    j /= 10;
+	  }
+	while (j>0);
       }
-      while (j>0);
-    }
 }
 
 //

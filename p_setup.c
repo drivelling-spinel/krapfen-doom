@@ -3,16 +3,24 @@
 //
 // $Id: p_setup.c,v 1.16 1998/05/07 00:56:49 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
+//
 //
 //
 // DESCRIPTION:
@@ -177,12 +185,11 @@ void P_LoadSegs (int lump)
       if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=-1)
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
-        li->backsector = 0;
+	li->backsector = 0;
     }
 
   Z_Free (data);
 }
-
 
 //
 // P_LoadSubsectors
@@ -257,6 +264,9 @@ void P_LoadSectors (int lump)
 
       // killough 4/4/98: colormaps:
       ss->bottommap = ss->midmap = ss->topmap = 0;
+
+      // killough 10/98: sky textures coming from sidedefs:
+      ss->sky = 0;
     }
 
   Z_Free (data);
@@ -426,6 +436,14 @@ void P_LoadLineDefs2(int lump)
   register line_t *ld = lines;
   for (;i--;ld++)
     {
+      // killough 11/98: fix common wad errors (missing sidedefs):
+
+      if (ld->sidenum[0] == -1)
+	ld->sidenum[0] = 0;  // Substitute dummy sidedef for missing right side
+
+      if (ld->sidenum[1] == -1)
+	ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
+
       ld->frontsector = ld->sidenum[0]!=-1 ? sides[ld->sidenum[0]].sector : 0;
       ld->backsector  = ld->sidenum[1]!=-1 ? sides[ld->sidenum[1]].sector : 0;
       switch (ld->special)
@@ -514,104 +532,166 @@ void P_LoadSideDefs2(int lump)
   Z_Free (data);
 }
 
-// killough 5/3/98: tests whether a linedef is inside a block.
-static boolean IsLineDefInside(const line_t *l, int x, int y)
-{
-  int dx = l->dx >> FRACBITS;
-  int dy = l->dy >> FRACBITS;
-  int a = (l->v1->x >> FRACBITS) - x;
-  int b = (l->v1->y >> FRACBITS) - y;
-
-  if (abs(a*2+dx)-abs(dx) > MAPBLOCKUNITS ||
-      abs(b*2+dy)-abs(dy) > MAPBLOCKUNITS )
-    return 0;
-
-  a *= dy;
-  b *= dx;
-  a -= b;
-  b = dx + dy;
-  b <<= MAPBTOFRAC-1;
-  if (((a-b)^(a+b)) < 0)
-    return 1;
-  dy -= dx;
-  dy <<= MAPBTOFRAC-1;
-  b = a+dy;
-  a -= dy;
-  return (a^b) < 0;
-}
+//
+// killough 10/98:
+//
+// Rewritten to use faster algorithm.
+//
+// New procedure uses Bresenham-like algorithm on the linedefs, adding the
+// linedef to each block visited from the beginning to the end of the linedef.
+//
+// The algorithm's complexity is on the order of nlines*total_linedef_length.
+//
+// Please note: This section of code is not interchangable with TeamTNT's
+// code which attempts to fix the same problem.
 
 static void P_CreateBlockMap(void)
 {
-  long minx = LONG_MAX, miny = LONG_MAX, maxx = LONG_MIN, maxy = LONG_MIN;
-  long i, tot, *bmap, nalloc, bx, by, count;
+  register int i;
+  fixed_t minx = INT_MAX, miny = INT_MAX, maxx = INT_MIN, maxy = INT_MIN;
 
   // First find limits of map
 
-  for (i=0; i<numlines; i++)
+  for (i=0; i<numvertexes; i++)
     {
-      vertex_t *v;
-      fixed_t t;
-      v = lines[i].v1;
-      t = v->x >> FRACBITS;
-      if (t < minx)
-        minx = t;
+      if (vertexes[i].x >> FRACBITS < minx)
+	minx = vertexes[i].x >> FRACBITS;
       else
-        if (t > maxx)
-          maxx = t;
-      t = v->y >> FRACBITS;
-      if (t < miny)
-        miny = t;
+	if (vertexes[i].x >> FRACBITS > maxx)
+	  maxx = vertexes[i].x >> FRACBITS;
+      if (vertexes[i].y >> FRACBITS < miny)
+	miny = vertexes[i].y >> FRACBITS;
       else
-        if (t > maxy)
-          maxy = t;
-      v = lines[i].v2;
-      t = v->x >> FRACBITS;
-      if (t < minx)
-        minx = t;
-      else
-        if (t > maxx)
-          maxx = t;
-      t = v->y >> FRACBITS;
-      if (t < miny)
-        miny = t;
-      else
-        if (t > maxy)
-          maxy = t;
+	if (vertexes[i].y >> FRACBITS > maxy)
+	  maxy = vertexes[i].y >> FRACBITS;
     }
+
+  // Save blockmap parameters
 
   bmaporgx = minx << FRACBITS;
   bmaporgy = miny << FRACBITS;
   bmapwidth  = ((maxx-minx) >> MAPBTOFRAC) + 1;
   bmapheight = ((maxy-miny) >> MAPBTOFRAC) + 1;
-  count = tot = bmapwidth * bmapheight + 4;
-  nalloc = tot + numlines*2 + 2;
-  bmap = malloc(sizeof(*bmap) * nalloc);
 
-  // Brute-force algorithm for now -- a better way would be a Bresenham-like
-  // traversal of the linedef, through the blocks it touches, moving either
-  // horizontally or vertically one block at each step. killough 3/30/98
+  // Compute blockmap, which is stored as a 2d array of variable-sized lists.
+  //
+  // Pseudocode:
+  //
+  // For each linedef:
+  //
+  //   Map the starting and ending vertices to blocks.
+  //
+  //   Starting in the starting vertex's block, do:
+  //
+  //     Add linedef to current block's list, dynamically resizing it.
+  //
+  //     If current block is the same as the ending vertex's block, exit loop.
+  //
+  //     Move to an adjacent block by moving towards the ending block in 
+  //     either the x or y direction, to the block which contains the linedef.
 
-  minx += MAPBLOCKUNITS/2;
-  miny += MAPBLOCKUNITS/2;
-  for (i=4, by=0; by<bmapheight; by++, miny += MAPBLOCKUNITS)
+  {
+    typedef struct { int n, nalloc, *list; } bmap_t;  // blocklist structure
+    unsigned tot = bmapwidth * bmapheight;            // size of blockmap
+    bmap_t *bmap = calloc(sizeof *bmap, tot);         // array of blocklists
+
+    for (i=0; i < numlines; i++)
+      {
+	// starting coordinates
+	int x = (lines[i].v1->x >> FRACBITS) - minx;
+	int y = (lines[i].v1->y >> FRACBITS) - miny;
+	
+	// x-y deltas
+	int adx = lines[i].dx >> FRACBITS, dx = adx < 0 ? -1 : 1;
+	int ady = lines[i].dy >> FRACBITS, dy = ady < 0 ? -1 : 1; 
+
+	// difference in preferring to move across y (>0) instead of x (<0)
+	int diff = !adx ? 1 : !ady ? -1 :
+	  (((x >> MAPBTOFRAC) << MAPBTOFRAC) + 
+	   (dx > 0 ? MAPBLOCKUNITS-1 : 0) - x) * (ady = abs(ady)) * dx -
+	  (((y >> MAPBTOFRAC) << MAPBTOFRAC) + 
+	   (dy > 0 ? MAPBLOCKUNITS-1 : 0) - y) * (adx = abs(adx)) * dy;
+
+	// starting block, and pointer to its blocklist structure
+	int b = (y >> MAPBTOFRAC)*bmapwidth + (x >> MAPBTOFRAC);
+
+	// ending block
+	int bend = (((lines[i].v2->y >> FRACBITS) - miny) >> MAPBTOFRAC) *
+	  bmapwidth + (((lines[i].v2->x >> FRACBITS) - minx) >> MAPBTOFRAC);
+
+	// delta for pointer when moving across y
+	dy *= bmapwidth;
+
+	// deltas for diff inside the loop
+	adx <<= MAPBTOFRAC;
+	ady <<= MAPBTOFRAC;
+
+	// Now we simply iterate block-by-block until we reach the end block.
+	while ((unsigned) b < tot)    // failsafe -- should ALWAYS be true
+	  {
+	    // Increase size of allocated list if necessary
+	    if (bmap[b].n >= bmap[b].nalloc)
+	      bmap[b].list = realloc(bmap[b].list, 
+				     (bmap[b].nalloc = bmap[b].nalloc ? 
+				      bmap[b].nalloc*2 : 8)*sizeof*bmap->list);
+
+	    // Add linedef to end of list
+	    bmap[b].list[bmap[b].n++] = i;
+
+	    // If we have reached the last block, exit
+	    if (b == bend)
+	      break;
+
+	    // Move in either the x or y direction to the next block
+	    if (diff < 0) 
+	      diff += ady, b += dx;
+	    else
+	      diff -= adx, b += dy;
+	  }
+      }
+
+    // Compute the total size of the blockmap.
+    //
+    // Compression of empty blocks is performed by reserving two offset words
+    // at tot and tot+1.
+    //
+    // 4 words, unused if this routine is called, are reserved at the start.
+
     {
-      long x = minx;
-      for (bx=0; bx<bmapwidth; bx++, i++, x += MAPBLOCKUNITS)
-        {
-          int j;
-          bmap[i] = count;
-          if (count+numlines+2 >= nalloc)
-            bmap = realloc(bmap, sizeof(*bmap) * (nalloc*=2));
-          bmap[count++] = 0;
-          for (j=0; j<numlines; j++)
-            if (IsLineDefInside(lines+j, x, miny))
-              bmap[count++] = j;
-          bmap[count++] = -1;
-        }
+      int count = tot+6;  // we need at least 1 word per block, plus reserved's
+
+      for (i = 0; i < tot; i++)
+	if (bmap[i].n)
+	  count += bmap[i].n + 2; // 1 header word + 1 trailer word + blocklist
+
+      // Allocate blockmap lump with computed count
+      blockmaplump = Z_Malloc(sizeof(*blockmaplump) * count, PU_LEVEL, 0);
+    }									 
+
+    // Now compress the blockmap.
+    {
+      int ndx = tot += 4;         // Advance index to start of linedef lists
+      bmap_t *bp = bmap;          // Start of uncompressed blockmap
+
+      blockmaplump[ndx++] = 0;    // Store an empty blockmap list at start
+      blockmaplump[ndx++] = -1;   // (Used for compression)
+
+      for (i = 4; i < tot; i++, bp++)
+	if (bp->n)                                      // Non-empty blocklist
+	  {
+	    blockmaplump[blockmaplump[i] = ndx++] = 0;  // Store index & header
+	    do
+	      blockmaplump[ndx++] = bp->list[--bp->n];  // Copy linedef list
+	    while (bp->n);
+	    blockmaplump[ndx++] = -1;                   // Store trailer
+	    free(bp->list);                             // Free linedef list
+	  }
+	else            // Empty blocklist: point to reserved empty blocklist
+	  blockmaplump[i] = tot;
+
+      free(bmap);    // Free uncompressed blockmap
     }
-  blockmaplump = Z_Malloc(sizeof(*blockmaplump) * count, PU_LEVEL, 0);
-  memcpy(blockmaplump, bmap, count * sizeof(*bmap));
-  free(bmap);
+  }
 }
 
 //
@@ -620,8 +700,7 @@ static void P_CreateBlockMap(void)
 // killough 3/1/98: substantially modified to work
 // towards removing blockmap limit (a wad limitation)
 //
-// killough 3/30/98: Rewritten to remove blockmap limit,
-// though current algorithm is brute-force and unoptimal.
+// killough 3/30/98: Rewritten to remove blockmap limit
 //
 
 void P_LoadBlockMap (int lump)
@@ -673,74 +752,164 @@ void P_LoadBlockMap (int lump)
 // Finds block bounding boxes for sectors.
 //
 // killough 5/3/98: reformatted, cleaned up
+// killough 8/24/98: rewrote to use faster algorithm
+
+static void AddLineToSector(sector_t *s, line_t *l)
+{
+  M_AddToBox(s->blockbox, l->v1->x, l->v1->y);
+  M_AddToBox(s->blockbox, l->v2->x, l->v2->y);
+  *s->lines++ = l;
+}
 
 void P_GroupLines (void)
 {
+  int i, total;
   line_t **linebuffer;
-  register line_t *li;
-  int i, total = 0;
 
   // look up sector number for each subsector
   for (i=0; i<numsubsectors; i++)
     subsectors[i].sector = segs[subsectors[i].firstline].sidedef->sector;
 
   // count number of lines in each sector
-  for (i=0,li=lines; i<numlines; i++, li++)
+  for (i=0; i<numlines; i++)
     {
-      total++;
-      li->frontsector->linecount++;
-      if (li->backsector && li->backsector != li->frontsector)
-        {
-          li->backsector->linecount++;
-          total++;
-        }
+      lines[i].frontsector->linecount++;
+      if (lines[i].backsector && lines[i].backsector != lines[i].frontsector)
+	lines[i].backsector->linecount++;
+    }
+
+  // compute total number of lines and clear bounding boxes
+  for (total=0, i=0; i<numsectors; i++)
+    {
+      total += sectors[i].linecount;
+      M_ClearBox(sectors[i].blockbox);
     }
 
   // build line tables for each sector
-  linebuffer = Z_Malloc(total*4, PU_LEVEL, 0);
+  linebuffer = Z_Malloc(total * sizeof(*linebuffer), PU_LEVEL, 0);
 
   for (i=0; i<numsectors; i++)
     {
-      fixed_t  bbox[4];
+      sectors[i].lines = linebuffer;
+      linebuffer += sectors[i].linecount;
+    }
+  
+  for (i=0; i<numlines; i++)
+    {
+      AddLineToSector(lines[i].frontsector, &lines[i]);
+      if (lines[i].backsector && lines[i].backsector != lines[i].frontsector)
+	AddLineToSector(lines[i].backsector, &lines[i]);
+    }
+
+  for (i=0; i<numsectors; i++)
+    {
       sector_t *sector = sectors+i;
-      int      block, j;
+      int block;
 
-      M_ClearBox(bbox);
-      sector->lines = linebuffer;
-      for (j=0, li=lines; j<numlines; j++, li++)
-        if (li->frontsector == sector || li->backsector == sector)
-          {
-            *linebuffer++ = li;
-            M_AddToBox (bbox, li->v1->x, li->v1->y);
-            M_AddToBox (bbox, li->v2->x, li->v2->y);
-          }
-
-      if (linebuffer - sector->lines != sector->linecount)
-        I_Error("P_GroupLines: miscounted");
+      // adjust pointers to point back to the beginning of each list
+      sector->lines -= sector->linecount;
 
       // set the degenmobj_t to the middle of the bounding box
-      sector->soundorg.x = (bbox[BOXRIGHT]+bbox[BOXLEFT])/2;
-      sector->soundorg.y = (bbox[BOXTOP]+bbox[BOXBOTTOM])/2;
+      sector->soundorg.x = (sector->blockbox[BOXRIGHT] + 
+			    sector->blockbox[BOXLEFT])/2;
+      sector->soundorg.y = (sector->blockbox[BOXTOP] + 
+			    sector->blockbox[BOXBOTTOM])/2;
 
       // adjust bounding box to map blocks
-      block = (bbox[BOXTOP]-bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;
+      block = (sector->blockbox[BOXTOP]-bmaporgy+MAXRADIUS)>>MAPBLOCKSHIFT;
       block = block >= bmapheight ? bmapheight-1 : block;
       sector->blockbox[BOXTOP]=block;
 
-      block = (bbox[BOXBOTTOM]-bmaporgy-MAXRADIUS)>>MAPBLOCKSHIFT;
+      block = (sector->blockbox[BOXBOTTOM]-bmaporgy-MAXRADIUS)>>MAPBLOCKSHIFT;
       block = block < 0 ? 0 : block;
       sector->blockbox[BOXBOTTOM]=block;
 
-      block = (bbox[BOXRIGHT]-bmaporgx+MAXRADIUS)>>MAPBLOCKSHIFT;
+      block = (sector->blockbox[BOXRIGHT]-bmaporgx+MAXRADIUS)>>MAPBLOCKSHIFT;
       block = block >= bmapwidth ? bmapwidth-1 : block;
       sector->blockbox[BOXRIGHT]=block;
 
-      block = (bbox[BOXLEFT]-bmaporgx-MAXRADIUS)>>MAPBLOCKSHIFT;
+      block = (sector->blockbox[BOXLEFT]-bmaporgx-MAXRADIUS)>>MAPBLOCKSHIFT;
       block = block < 0 ? 0 : block;
       sector->blockbox[BOXLEFT]=block;
     }
 }
 
+//
+// killough 10/98
+//
+// Remove slime trails.
+//
+// Slime trails are inherent to Doom's coordinate system -- i.e. there is
+// nothing that a node builder can do to prevent slime trails ALL of the time,
+// because it's a product of the integer coordinate system, and just because
+// two lines pass through exact integer coordinates, doesn't necessarily mean
+// that they will intersect at integer coordinates. Thus we must allow for
+// fractional coordinates if we are to be able to split segs with node lines,
+// as a node builder must do when creating a BSP tree.
+//
+// A wad file does not allow fractional coordinates, so node builders are out
+// of luck except that they can try to limit the number of splits (they might
+// also be able to detect the degree of roundoff error and try to avoid splits
+// with a high degree of roundoff error). But we can use fractional coordinates
+// here, inside the engine. It's like the difference between square inches and
+// square miles, in terms of granularity.
+//
+// For each vertex of every seg, check to see whether it's also a vertex of
+// the linedef associated with the seg (i.e, it's an endpoint). If it's not
+// an endpoint, and it wasn't already moved, move the vertex towards the
+// linedef by projecting it using the law of cosines. Formula:
+//
+//      2        2                         2        2
+//    dx  x0 + dy  x1 + dx dy (y0 - y1)  dy  y0 + dx  y1 + dx dy (x0 - x1)
+//   {---------------------------------, ---------------------------------}
+//                  2     2                            2     2
+//                dx  + dy                           dx  + dy
+//
+// (x0,y0) is the vertex being moved, and (x1,y1)-(x1+dx,y1+dy) is the
+// reference linedef.
+//
+// Segs corresponding to orthogonal linedefs (exactly vertical or horizontal
+// linedefs), which comprise at least half of all linedefs in most wads, don't
+// need to be considered, because they almost never contribute to slime trails
+// (because then any roundoff error is parallel to the linedef, which doesn't
+// cause slime). Skipping simple orthogonal lines lets the code finish quicker.
+//
+// Please note: This section of code is not interchangable with TeamTNT's
+// code which attempts to fix the same problem.
+//
+// Firelines (TM) is a Rezistered Trademark of MBF Productions
+//
+
+void P_RemoveSlimeTrails(void)                // killough 10/98
+{
+  byte *hit = calloc(1, numvertexes);         // Hitlist for vertices
+  int i;
+  for (i=0; i<numsegs; i++)                   // Go through each seg
+    {
+      const line_t *l = segs[i].linedef;      // The parent linedef
+      if (l->dx && l->dy)                     // We can ignore orthogonal lines
+	{
+	  vertex_t *v = segs[i].v1;
+	  do
+	    if (!hit[v - vertexes])           // If we haven't processed vertex
+	      {
+		hit[v - vertexes] = 1;        // Mark this vertex as processed
+		if (v != l->v1 && v != l->v2) // Exclude endpoints of linedefs
+		  { // Project the vertex back onto the parent linedef
+		    long long dx2 = (l->dx >> FRACBITS) * (l->dx >> FRACBITS);
+		    long long dy2 = (l->dy >> FRACBITS) * (l->dy >> FRACBITS);
+		    long long dxy = (l->dx >> FRACBITS) * (l->dy >> FRACBITS);
+		    long long s = dx2 + dy2;
+		    int x0 = v->x, y0 = v->y, x1 = l->v1->x, y1 = l->v1->y;
+		    v->x = (dx2 * x0 + dy2 * x1 + dxy * (y0 - y1)) / s;
+		    v->y = (dy2 * y0 + dx2 * y1 + dxy * (x0 - x1)) / s;
+		  }
+	      }  // Obfuscated C contest entry:   :)
+	  while ((v != segs[i].v2) && (v = segs[i].v2));
+	}
+    }
+  free(hit);
+}
 
 //
 // P_SetupLevel
@@ -800,6 +969,11 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
 
   rejectmatrix = W_CacheLumpNum(lumpnum+ML_REJECT,PU_LEVEL);
   P_GroupLines();
+
+  P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
+
+  // Note: you don't need to clear player queue slots --
+  // a much simpler fix is in g_game.c -- killough 10/98
 
   bodyqueslot = 0;
   deathmatch_p = deathmatchstarts;

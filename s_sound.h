@@ -3,16 +3,23 @@
 //
 // $Id: s_sound.h,v 1.4 1998/05/03 22:57:36 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 // DESCRIPTION:
 //      The not so system specific sound interface.
@@ -21,10 +28,6 @@
 
 #ifndef __S_SOUND__
 #define __S_SOUND__
-
-#ifdef __GNUG__
-#pragma interface
-#endif
 
 //
 // Initializes sound stuff, including volume
@@ -44,16 +47,10 @@ void S_Start(void);
 // Start sound for thing at <origin>
 //  using <sound_id> from sounds.h
 //
-void S_StartSound(void *origin, int sound_id);
-
-// Will start a sound at a given volume.
-void S_StartSoundAtVolume(void *origin, int sound_id, int volume);
-
-// killough 4/25/98: mask used to indicate sound origin is player item pickup
-#define PICKUP_SOUND (0x8000)
+void S_StartSound(const mobj_t *origin, int sound_id);
 
 // Stop sound for thing at <origin>
-void S_StopSound(void* origin);
+void S_StopSound(const mobj_t *origin);
 
 // Start music using <music_id> from sounds.h
 void S_StartMusic(int music_id);
@@ -71,12 +68,13 @@ void S_ResumeSound(void);
 //
 // Updates music & sounds
 //
-void S_UpdateSounds(void* listener);
+void S_UpdateSounds(const mobj_t *listener);
 void S_SetMusicVolume(int volume);
 void S_SetSfxVolume(int volume);
 
 // machine-independent sound params
 extern int numChannels;
+extern int default_numChannels;  // killough 10/98
 
 //jff 3/17/98 holds last IDMUS number, or -1
 extern int idmusnum;

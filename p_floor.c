@@ -3,16 +3,23 @@
 //
 // $Id: p_floor.c,v 1.23 1998/05/23 10:23:16 jim Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -99,7 +106,8 @@ result_e T_MovePlane
           // Moving a floor up
           // jff 02/04/98 keep floor from moving thru ceilings
           // jff 2/22/98 weaken check to demo_compatibility
-          destheight = (demo_compatibility || dest<sector->ceilingheight)?
+          destheight = (demo_version < 203 || comp[comp_floors] ||
+			dest<sector->ceilingheight)? // killough 10/98
                           dest : sector->ceilingheight;
           if (sector->floorheight + speed > destheight)
           {
@@ -121,11 +129,9 @@ result_e T_MovePlane
             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
             if (flag == true)
             {
-              if (demo_compatibility) //jff 1/25/98 fix floor crusher
-              {                       //killough relax to demo_compatibility
-                if (crush == true)
+              if (demo_version < 203 || comp[comp_floors]) // killough 10/98
+                if (crush == true) //jff 1/25/98 fix floor crusher
                   return crushed;
-              }
               sector->floorheight = lastpos;
               P_CheckSector(sector,crush);      //jff 3/19/98 use faster chk
               return crushed;
@@ -143,8 +149,8 @@ result_e T_MovePlane
           // moving a ceiling down
           // jff 02/04/98 keep ceiling from moving thru floors
           // jff 2/22/98 weaken check to demo_compatibility
-          destheight = (demo_compatibility || dest>sector->floorheight)?
-                          dest : sector->floorheight;
+          destheight = (comp[comp_floors] || dest>sector->floorheight)?
+	    dest : sector->floorheight; // killough 10/98: add comp flag
           if (sector->ceilingheight - speed < destheight)
           {
             lastpos = sector->ceilingheight;
@@ -211,7 +217,7 @@ result_e T_MovePlane
 //
 // Passed a floormove_t structure that contains all pertinent info about the
 // move. See P_SPEC.H for fields.
-// No return.
+// No return value.
 //
 // jff 02/08/98 all cases with labels beginning with gen added to support 
 // generalized line type behaviors.
@@ -323,7 +329,7 @@ void T_MoveFloor(floormove_t* floor)
 //
 // Passed an elevator_t structure that contains all pertinent info about the
 // move. See P_SPEC.H for fields.
-// No return.
+// No return value.
 //
 // jff 02/22/98 added to support parallel floor/ceiling motion
 //
@@ -431,7 +437,7 @@ int EV_DoFloor
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
     P_AddThinker (&floor->thinker);
     sec->floordata = floor; //jff 2/22/98
-    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+    floor->thinker.function = T_MoveFloor;
     floor->type = floortype;
     floor->crush = false;
 
@@ -550,7 +556,8 @@ int EV_DoFloor
           int minsize = MAXINT;
           side_t*     side;
                       
-          if (!compatibility) minsize = 32000<<FRACBITS; //jff 3/13/98 no ovf
+          if (!comp[comp_model])  // killough 10/98
+	    minsize = 32000<<FRACBITS; //jff 3/13/98 no ovf
           floor->direction = 1;
           floor->sector = sec;
           floor->speed = FLOORSPEED;
@@ -559,16 +566,18 @@ int EV_DoFloor
             if (twoSided (secnum, i) )
             {
               side = getSide(secnum,i,0);
-              if (side->bottomtexture >= 0)
+              if (side->bottomtexture >= 0      //killough 10/98
+		  && (side->bottomtexture || comp[comp_model]))
                 if (textureheight[side->bottomtexture] < minsize)
                   minsize = textureheight[side->bottomtexture];
               side = getSide(secnum,i,1);
-              if (side->bottomtexture >= 0)
+              if (side->bottomtexture >= 0      //killough 10/98
+		  && (side->bottomtexture || comp[comp_model]))
                 if (textureheight[side->bottomtexture] < minsize)
                   minsize = textureheight[side->bottomtexture];
             }
           }
-          if (compatibility)
+          if (comp[comp_model])
             floor->floordestheight = floor->sector->floorheight + minsize;
           else
           {
@@ -675,6 +684,7 @@ int EV_DoChange
 // Passed the linedef triggering the stairs and the type of stair rise
 // Returns true if any thinkers are created
 //
+
 int EV_BuildStairs
 ( line_t*       line,
   stair_e       type )
@@ -713,7 +723,7 @@ int EV_BuildStairs
     floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
     P_AddThinker (&floor->thinker);
     sec->floordata = floor;
-    floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+    floor->thinker.function = T_MoveFloor;
     floor->direction = 1;
     floor->sector = sec;
     floor->type = buildStair;   //jff 3/31/98 do not leave uninited
@@ -746,6 +756,7 @@ int EV_BuildStairs
     //   1. Find 2-sided line with same sector side[0] (lowest numbered)
     //   2. Other side is the next sector to raise
     //   3. Unless already moving, or different texture, then stop building
+
     do
     {
       ok = 0;
@@ -767,13 +778,13 @@ int EV_BuildStairs
         // if sector's floor is different texture, look for another
         if (tsec->floorpic != texture)
           continue;
-                                  
-        height += stairsize;
+
+	height += stairsize;  // killough 10/98: intentionally left this way
 
         // if sector's floor already moving, look for another
         if (P_SectorActive(floor_special,tsec)) //jff 2/22/98
-          continue;
-                                  
+	  continue;
+
         sec = tsec;
         secnum = newsecnum;
 
@@ -782,7 +793,7 @@ int EV_BuildStairs
         P_AddThinker (&floor->thinker);
 
         sec->floordata = floor; //jff 2/22/98
-        floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+        floor->thinker.function = T_MoveFloor;
         floor->direction = 1;
         floor->sector = sec;
         floor->speed = speed;
@@ -795,7 +806,9 @@ int EV_BuildStairs
         break;
       }
     } while(ok);      // continue until no next step is found
-    secnum = osecnum; //jff 3/4/98 restore loop index
+
+    if (!comp[comp_stairs])      // killough 10/98: compatibility option
+      secnum = osecnum;          //jff 3/4/98 restore loop index
   }
   return rtn;
 }
@@ -835,15 +848,14 @@ int EV_DoDonut(line_t*  line)
                                           // pillar must be two-sided 
 
     // do not start the donut if the pool is already moving
-    if (!compatibility && P_SectorActive(floor_special,s2)) 
+    if (!comp[comp_floors] && P_SectorActive(floor_special,s2))
       continue;                           //jff 5/7/98
                       
     // find a two sided line around the pool whose other side isn't the pillar
     for (i = 0;i < s2->linecount;i++)
     {
       //jff 3/29/98 use true two-sidedness, not the flag
-      // killough 4/5/98: changed demo_compatibility to compatibility
-      if (compatibility)
+      if (comp[comp_model])
       {
         if ((!s2->lines[i]->flags & ML_TWOSIDED) ||
             (s2->lines[i]->backsector == s1))
@@ -860,7 +872,7 @@ int EV_DoDonut(line_t*  line)
       floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
       P_AddThinker (&floor->thinker);
       s2->floordata = floor; //jff 2/22/98
-      floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+      floor->thinker.function = T_MoveFloor;
       floor->type = donutRaise;
       floor->crush = false;
       floor->direction = 1;
@@ -874,7 +886,7 @@ int EV_DoDonut(line_t*  line)
       floor = Z_Malloc (sizeof(*floor), PU_LEVSPEC, 0);
       P_AddThinker (&floor->thinker);
       s1->floordata = floor; //jff 2/22/98
-      floor->thinker.function.acp1 = (actionf_p1) T_MoveFloor;
+      floor->thinker.function = T_MoveFloor;
       floor->type = lowerFloor;
       floor->crush = false;
       floor->direction = -1;
@@ -922,7 +934,7 @@ int EV_DoElevator
     P_AddThinker (&elevator->thinker);
     sec->floordata = elevator; //jff 2/22/98
     sec->ceilingdata = elevator; //jff 2/22/98
-    elevator->thinker.function.acp1 = (actionf_p1) T_MoveElevator;
+    elevator->thinker.function = T_MoveElevator;
     elevator->type = elevtype;
 
     // set up the fields according to the type of elevator action

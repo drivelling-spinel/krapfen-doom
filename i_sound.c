@@ -3,16 +3,23 @@
 //
 // $Id: i_sound.c,v 1.15 1998/05/03 22:32:33 killough Exp $
 //
-// Copyright (C) 1993-1996 by id Software, Inc.
+//  Copyright (C) 1999 by
+//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
-// This source is available for distribution and/or modification
-// only under the terms of the DOOM Source Code License as
-// published by id Software. All rights reserved.
+//  This program is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU General Public License
+//  as published by the Free Software Foundation; either version 2
+//  of the License, or (at your option) any later version.
 //
-// The source is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// FITNESS FOR A PARTICULAR PURPOSE. See the DOOM Source Code License
-// for more details.
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
+//  02111-1307, USA.
 //
 //
 // DESCRIPTION:
@@ -41,6 +48,10 @@ rcsid[] = "$Id: i_sound.c,v 1.15 1998/05/03 22:32:33 killough Exp $";
 
 int snd_card;   // default.cfg variables for digi and midi drives
 int mus_card;   // jff 1/18/98
+
+int default_snd_card;  // killough 10/98: add default_ versions
+int default_mus_card;
+
 int detect_voices; //jff 3/4/98 enables voice detection prior to install_sound
 //jff 1/22/98 make these visible here to disable sound/music on install err
 
@@ -203,7 +214,7 @@ int I_StartSound(int sfx, int   vol, int sep, int pitch, int pri)
   memcpy(&channel[handle], S_sfx[sfx].data, sizeof(SAMPLE));
 
   // Start the sound
-  play_sample(&channel[handle], vol*VOLSCALE+VOLSCALE-1, 256-sep, PITCH(pitch), 0);
+  play_sample(&channel[handle],vol*VOLSCALE+VOLSCALE-1,256-sep,PITCH(pitch),0);
 
   // Reference for s_sound.c to use when calling functions below
   return handle;
@@ -222,13 +233,8 @@ void I_StopSound (int handle)
 
 void I_UpdateSoundParams(int handle, int vol, int sep, int pitch)
 {
-  adjust_sample(
-                &channel[handle],
-                vol*VOLSCALE+VOLSCALE-1,
-                256-sep,
-                PITCH(pitch),
-                0
-               );
+  adjust_sample(&channel[handle], vol*VOLSCALE+VOLSCALE-1,
+		256-sep, PITCH(pitch), 0);
 }
 
 // We can pretend that any sound that we've associated a handle
@@ -274,17 +280,17 @@ void I_ShutdownSound(void)
 void I_InitSound(void)
 {
   int lengths[NUMSFX];  // The actual lengths of all sound effects. -- killough
-  int i, snd_c = snd_card;
+  int i;  // killough 10/98: eliminate snd_c since we use default_snd_card now
 
   // Secure and configure sound device first.
-  fputs("I_InitSound: ", stderr);
+  fputs("I_InitSound: ", stdout);
 
   if (detect_voices && snd_card>=0 && mus_card>=0)
     {
       int mv;                          //jff 3/3/98 try it according to Allegro
       int dv = detect_digi_driver(snd_card); // detect the digital sound driver
       if (dv==0)
-        snd_c=0;
+        snd_card=0;
       mv = detect_midi_driver(mus_card);     // detect the midi driver
       if (mv==-1)
         dv=mv=dv/2;          //note stealing driver, uses digital voices
@@ -294,9 +300,9 @@ void I_InitSound(void)
     }                                  //jff 3/3/98 end of sound init changes
 
 
-  if (install_sound(snd_c, mus_card, "none")==-1) //jff 1/18/98 autodect MIDI
+  if (install_sound(snd_card, mus_card, "none")==-1) //jff 1/18/98 autodect MIDI
     {
-      fprintf(stderr, "ALLEGRO SOUND INIT ERROR!!!!\n%s\n", allegro_error);
+      printf("ALLEGRO SOUND INIT ERROR!!!!\n%s\n", allegro_error); // killough 8/8/98
       //jff 1/22/98 on error, disable sound this invocation
       //in future - nice to detect if either sound or music might be ok
       nosfxparm = true;
@@ -305,13 +311,13 @@ void I_InitSound(void)
     }
   else //jff 1/22/98 don't register I_ShutdownSound if errored
     {
-      fputs(" configured audio device\n", stderr);
+      puts(" configured audio device\n");  // killough 8/8/98
       LOCK_VARIABLE(channel);  // killough 2/7/98: prevent VM swapping of sfx
       atexit(I_ShutdownSound); // killough
     }
 
   // Initialize external data (all sounds) at start, keep static.
-  fputs("I_InitSound: ",stderr);
+  fputs("I_InitSound: ",stdout); // killough 8/8/98
 
   for (i=1; i<NUMSFX; i++)
     if (!S_sfx[i].link)   // Load data from WAD file.
@@ -324,7 +330,7 @@ void I_InitSound(void)
       }
 
   // Finished initialization.
-  fputs("I_InitSound: sound module ready\n",stderr);
+  puts("I_InitSound: sound module ready");    // killough 8/8/98
 }
 
 ///
@@ -403,11 +409,10 @@ int I_RegisterSong(void *data)
 
   // convert the MUS lump data to a MIDI structure
   //jff 1/17/98 make divisions 89, compression allowed
-
   if    //jff 02/08/98 add native midi support
     (
      (err=MidiToMIDI(data, &mididata)) &&       // try midi first
-     (err=mmus2mid(data, &mididata, 89, 0))     // now try mus
+     (err=mmus2mid(data, &mididata, 89, 1))     // now try mus
      )
     {
       handle=-1;
