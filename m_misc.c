@@ -182,6 +182,12 @@ extern int	key_use;
 extern int	key_strafe;
 extern int	key_speed;
 
+#ifdef FLIGHT
+extern int  key_flyup;
+extern int  key_flystop;
+extern int  key_flydown;
+#endif
+
 extern int	mousebfire;
 extern int	mousebstrafe;
 extern int	mousebforward;
@@ -240,17 +246,23 @@ default_t	defaults[] =
     
 
 #ifdef NORMALUNIX
-    {"key_right",&key_right, KEY_RIGHTARROW},
-    {"key_left",&key_left, KEY_LEFTARROW},
-    {"key_up",&key_up, KEY_UPARROW},
-    {"key_down",&key_down, KEY_DOWNARROW},
+    {"key_right",&key_right, KEYD_RIGHTARROW},
+    {"key_left",&key_left, KEYD_LEFTARROW},
+    {"key_up",&key_up, KEYD_UPARROW},
+    {"key_down",&key_down, KEYD_DOWNARROW},
     {"key_strafeleft",&key_strafeleft, ','},
     {"key_straferight",&key_straferight, '.'},
 
-    {"key_fire",&key_fire, KEY_RCTRL},
+    {"key_fire",&key_fire, KEYD_RCTRL},
     {"key_use",&key_use, ' '},
-    {"key_strafe",&key_strafe, KEY_RALT},
-    {"key_speed",&key_speed, KEY_RSHIFT},
+    {"key_strafe",&key_strafe, KEYD_RALT},
+    {"key_speed",&key_speed, KEYD_RSHIFT},
+
+#ifdef FLIGHT
+    {"key_flyup",&key_flyup, KEYD_INS},
+    {"key_flydown",&key_flydown, KEYD_PGUP},
+    {"key_flystop",&key_flystop, KEYD_HOME},
+#endif
 
 // UNIX hack, to be removed. 
 #ifdef SNDSERV
@@ -276,14 +288,14 @@ default_t	defaults[] =
     {"joyb_use",&joybuse,3},
     {"joyb_speed",&joybspeed,2},
 
-    {"screenblocks",&screenblocks, 9},
+    {"screenblocks",&screenblocks, 10},
     {"detaillevel",&detailLevel, 0},
 
     {"snd_channels",&numChannels, 3},
 
 
 
-    {"usegamma",&usegamma, 0},
+    {"usegamma",&usegamma, 3},
 
     {"chatmacro0", (int *) &chat_macros[0], (int) HUSTR_CHATMACRO0 },
     {"chatmacro1", (int *) &chat_macros[1], (int) HUSTR_CHATMACRO1 },
@@ -532,3 +544,4 @@ void M_ScreenShot (void)
 }
 
 
+

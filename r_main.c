@@ -43,10 +43,12 @@ static const char rcsid[] = "$Id: r_main.c,v 1.5 1997/02/03 22:45:12 b1 Exp $";
 
 
 
-
 // Fineangles in the SCREENWIDTH wide window.
-#define FIELDOFVIEW		2048	
-
+#ifdef FIELD
+#define FIELDOFVIEW     1024
+#else
+#define FIELDOFVIEW     2048    
+#endif
 
 
 int			viewangleoffset;
@@ -896,3 +898,4 @@ void R_RenderPlayerView (player_t* player)
     // Check for new console commands.
     NetUpdate ();				
 }
+
