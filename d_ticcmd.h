@@ -1,7 +1,7 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id:$
+// $Id: d_ticcmd.h,v 1.2 1998/01/26 19:26:36 phares Exp $
 //
 // Copyright (C) 1993-1996 by id Software, Inc.
 //
@@ -39,21 +39,22 @@ typedef struct
     char	sidemove;	// *2048 for move
     short	angleturn;	// <<16 for angle delta
     short	consistancy;	// checks for net game
-#ifdef FLIGHT
-    char    updnmove;   // Movement up/down if in flight !
-    boolean stopfly;    // If true, stop flying, let gravity take over but
-                        // don't reset flight ticcount, so we can fly again !
-#endif
-    byte    chatchar;
+    byte	chatchar;
     byte	buttons;
 } ticcmd_t;
 
 
 
 #endif
-//-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
 //
-// $Log:$
+// $Log: d_ticcmd.h,v $
+// Revision 1.2  1998/01/26  19:26:36  phares
+// First rev with no ^Ms
 //
-//-----------------------------------------------------------------------------
-
+// Revision 1.1.1.1  1998/01/19  14:03:08  rand
+// Lee's Jan 19 sources
+//
+//
+//----------------------------------------------------------------------------
