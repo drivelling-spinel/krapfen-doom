@@ -1,25 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: w_wad.c,v 1.20 1998/05/06 11:32:00 jim Exp $
+// $Id: w_wad.c,v 1.2 2000-08-12 21:29:34 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Handles WAD file header, directory, lump I/O.
@@ -27,12 +25,14 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: w_wad.c,v 1.20 1998/05/06 11:32:00 jim Exp $";
+rcsid[] = "$Id: w_wad.c,v 1.2 2000-08-12 21:29:34 fraggle Exp $";
 
 #include "doomstat.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <gppconio.h>  // gotoxy, textcolor GB 2014
+
 
 #include "w_wad.h"
 
@@ -68,11 +68,19 @@ void ExtractFileBase(const char *path, char *dest)
   memset(dest,0,8);
   length = 0;
 
-  while (*src && *src != '.')
+/*while (*src && *src != '.')
     if (++length == 9)
       I_Error ("Filename base of %s >8 chars",path);
     else
-      *dest++ = toupper(*src++);
+      *dest++ = toupper(*src++);*/
+  while ((*src) && (*src != '.') && (++length<9))
+  {
+    *dest++ = toupper(*src);
+    //*src++;
+	++src;
+  }
+  // GB 2014 imported from PrBoom: cph: length check removed, just truncate at 8 chars.
+  // If there are 8 or more chars, we'll copy 8, and no zero termination
 }
 
 //
@@ -164,7 +172,11 @@ static void W_AddFile(const char *name) // killough 1/31/98: static, const
 	I_Error("Error: couldn't open %s\n",name);  // killough
     }
 
-  printf(" adding %s\n",filename);   // killough 8/8/98
+  textcolor(WHITE);  // GB 2014
+  cprintf(" adding %s\n",filename);   // killough 8/8/98 //  GB 2014 cprintf
+  textcolor(LIGHTGRAY);  // GB 2014
+  gotoxy(1,wherey());
+
   startlump = numlumps;
 
   // killough:
@@ -553,6 +565,12 @@ void WritePredefinedLumpWad(const char *filename)
 //----------------------------------------------------------------------------
 //
 // $Log: w_wad.c,v $
+// Revision 1.2  2000-08-12 21:29:34  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.20  1998/05/06  11:32:00  jim
 // Moved predefined lump writer info->w_wad
 //

@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: d_net.c,v 1.12 1998/05/21 12:12:09 jim Exp $
+// $Id: d_net.c,v 1.2 2000-08-12 21:29:25 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      DOOM Network game communication and protocol,
@@ -29,7 +26,7 @@
 //-----------------------------------------------------------------------------
 
 static const char rcsid[] =
-"$Id: d_net.c,v 1.12 1998/05/21 12:12:09 jim Exp $";
+"$Id: d_net.c,v 1.2 2000-08-12 21:29:25 fraggle Exp $";
 
 #include "doomstat.h"
 #include "m_menu.h"
@@ -465,7 +462,7 @@ void CheckAbort (void)
     I_StartTic (); 
       
   I_StartTic ();
-  for ( ; eventtail != eventhead ; eventtail = (++eventtail)&(MAXEVENTS-1) ) 
+  for (  ; eventtail != eventhead ; eventtail = (eventtail+1)&(MAXEVENTS-1) )  // GB 2014 was ++eventtail
   { 
     ev = &events[eventtail]; 
     if (ev->type == ev_keydown && ev->data1 == key_escape)      // phares
@@ -510,7 +507,7 @@ void D_ArbitrateNetStart (void)
 	// killough 11/98: NOTE: this code produces no inconsistency errors.
 	// However, TeamTNT's code =does= produce inconsistencies. Go figur.
 
-        G_ReadOptions((char *) netbuffer->cmds);
+        G_ReadOptions((byte *) netbuffer->cmds); // GB 2014
 
 	// killough 12/98: removed obsolete compatibility flag and
 	// removed printf()'s, since there are too many options to
@@ -550,7 +547,7 @@ void D_ArbitrateNetStart (void)
           I_Error("D_ArbitrateNetStart: GAME_OPTION_SIZE"
                   " too large w.r.t. BACKUPTICS");
 
-        G_WriteOptions((char *) netbuffer->cmds);    // killough 12/98
+        G_WriteOptions((byte *) netbuffer->cmds);    // killough 12/98 // GB 2014
 
         // killough 5/2/98: Always write the maximum number of tics.
         netbuffer->numtics = BACKUPTICS;
@@ -798,6 +795,12 @@ void TryRunTics (void)
 //----------------------------------------------------------------------------
 //
 // $Log: d_net.c,v $
+// Revision 1.2  2000-08-12 21:29:25  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.12  1998/05/21  12:12:09  jim
 // Removed conditional from net code
 //

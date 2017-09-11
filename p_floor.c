@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: p_floor.c,v 1.23 1998/05/23 10:23:16 jim Exp $
+// $Id: p_floor.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //  General plane mover and floor mover action routines
@@ -29,7 +26,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: p_floor.c,v 1.23 1998/05/23 10:23:16 jim Exp $";
+rcsid[] = "$Id: p_floor.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -99,6 +96,16 @@ result_e T_MovePlane
             lastpos = sector->floorheight;
             sector->floorheight -= speed;
             flag = P_CheckSector(sector,crush); //jff 3/19/98 use faster chk
+
+            // GB 2014, from PrBoom:
+            // cph - make more compatible with original Doom, by
+            // reintroducing this code. This means floors can't lower
+            // if objects are stuck in the ceiling 
+            if ((flag == true) && compatibility) {
+              sector->floorheight = lastpos;
+              P_CheckSector(sector,crush);
+              return crushed;
+            }
           }
           break;
                                                 
@@ -488,7 +495,8 @@ int EV_DoFloor
         floor->sector = sec;
         floor->speed = FLOORSPEED * 4;
         floor->floordestheight = P_FindHighestFloorSurrounding(sec);
-        if (floor->floordestheight != sec->floorheight)
+        if (v12_compat ||
+            floor->floordestheight != sec->floorheight)
           floor->floordestheight += 8*FRACUNIT;
         break;
 
@@ -857,7 +865,7 @@ int EV_DoDonut(line_t*  line)
       //jff 3/29/98 use true two-sidedness, not the flag
       if (comp[comp_model])
       {
-        if ((!s2->lines[i]->flags & ML_TWOSIDED) ||
+        if (((!s2->lines[i]->flags) & ML_TWOSIDED) ||
             (s2->lines[i]->backsector == s1))
           continue;
       }
@@ -983,6 +991,12 @@ int EV_DoElevator
 //----------------------------------------------------------------------------
 //
 // $Log: p_floor.c,v $
+// Revision 1.2  2000-08-12 21:29:28  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.23  1998/05/23  10:23:16  jim
 // Fix numeric changer loop corruption
 //

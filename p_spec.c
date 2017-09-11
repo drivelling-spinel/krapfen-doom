@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: p_spec.c,v 1.56 1998/05/25 10:40:30 killough Exp $
+// $Id: p_spec.c,v 1.3 2000-08-22 20:09:17 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //   -Loads and initializes texture and flat animation sequences
@@ -36,7 +33,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: p_spec.c,v 1.56 1998/05/25 10:40:30 killough Exp $";
+rcsid[] = "$Id: p_spec.c,v 1.3 2000-08-22 20:09:17 fraggle Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -810,7 +807,11 @@ boolean P_CanUnlockGenDoor(line_t *line, player_t *player)
       if (skulliscard &&
           (!(player->cards[it_redcard] | player->cards[it_redskull]) ||
            !(player->cards[it_bluecard] | player->cards[it_blueskull]) ||
-           !(player->cards[it_yellowcard] | !player->cards[it_yellowskull])))
+           !(player->cards[it_yellowcard] | player->cards[it_yellowskull])))
+
+	// fraggle 22/8/2000: bug with all3 doors: an extra ! operator
+	// where it shouldnt be (before player->cards[it_yellowskull])
+		
         {
           player->message = s_PD_ALL3; // Ty 03/27/98 - externalized
           S_StartSound(player->mo,sfx_oof);             // killough 3/20/98
@@ -975,8 +976,19 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
 {
   int ok;
 
+#ifdef V12C
+  if (v12_compat)
+  {
+    if (line->special > 98 && line->special != 104)
+    {
+      return;
+    }
+  }
+  else
+#endif //V12C
+  {
   //  Things that should never trigger lines
-  if (!thing->player)
+    if (!thing->player)
     switch(thing->type)    // Things that should NOT trigger specials...
       {
       case MT_ROCKET:
@@ -993,6 +1005,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       default:
         break;
       }
+  }
 
   //jff 02/04/98 add check here for generalized lindef types
   if (!demo_compatibility) // generalized types not recognized if old demo
@@ -2268,11 +2281,11 @@ void P_SpawnSpecials (void)
 {
   sector_t*   sector;
   int         i;
-  int         episode;
 
-  episode = 1;
-  if (W_CheckNumForName("texture2") >= 0)
-    episode = 2;
+//  int         episode; // GB 2014 Not used
+//  episode = 1;
+//  if (W_CheckNumForName("texture2") >= 0)
+//    episode = 2;
 
   // See if -timer needs to be used.
   levelTimer = false;
@@ -3123,6 +3136,15 @@ static void P_SpawnPushers(void)
 //----------------------------------------------------------------------------
 //
 // $Log: p_spec.c,v $
+// Revision 1.3  2000-08-22 20:09:17  fraggle
+// bug with 3key doors!
+//
+// Revision 1.2  2000/08/12 21:29:29  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.56  1998/05/25  10:40:30  killough
 // Fix wall scrolling bug
 //

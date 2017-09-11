@@ -432,9 +432,12 @@ Pull Controller; 5002; CANDA0
 255
 
 #
-# $Id: doom19.dat,v 1.17 1998/05/12 06:15:26 killough Exp $
+# $Id: doom19.dat,v 1.1.1.1 2000-07-29 13:20:39 fraggle Exp $
 #
 # $Log: doom19.dat,v $
+# Revision 1.1.1.1  2000-07-29 13:20:39  fraggle
+# imported sources
+#
 # Revision 1.17  1998/05/12  06:15:26  killough
 # Change push/pull controller thing numbers
 #
@@ -475,4 +478,3 @@ Pull Controller; 5002; CANDA0
 # fix comments
 #               
 #
-

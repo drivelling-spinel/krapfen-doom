@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: p_map.c,v 1.35 1998/05/12 12:47:16 phares Exp $
+// $Id: p_map.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //  Movement, collision handling.
@@ -29,7 +26,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: p_map.c,v 1.35 1998/05/12 12:47:16 phares Exp $";
+rcsid[] = "$Id: p_map.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -45,7 +42,7 @@ rcsid[] = "$Id: p_map.c,v 1.35 1998/05/12 12:47:16 phares Exp $";
 #include "m_bbox.h"
 
 static mobj_t    *tmthing;
-static int       tmflags;
+//static int     tmflags; GB 2014, PrBoom bugfix "Overlapping uses of global variables"
 static fixed_t   tmx;
 static fixed_t   tmy;
 static int pe_x; // Pain Elemental position for Lost Soul checks // phares
@@ -216,7 +213,7 @@ boolean P_TeleportMove(mobj_t *thing, fixed_t x, fixed_t y, boolean boss)
   // kill anything occupying the position
 
   tmthing = thing;
-  tmflags = thing->flags;
+//tmflags = thing->flags; GB 2014, PrBoom bugfix "Overlapping uses of global variables"
 
   tmx = x;
   tmy = y;
@@ -492,30 +489,33 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 	  (tmthing->target->type == thing->type ||
 	   (tmthing->target->type == MT_KNIGHT && thing->type == MT_BRUISER)||
 	   (tmthing->target->type == MT_BRUISER && thing->type == MT_KNIGHT)))
-	if (thing == tmthing->target)
-	  return true;                // Don't hit same species as originator.
-	else
-	  if (thing->type != MT_PLAYER)	// Explode, but do no damage.
+	{
+	  if (thing == tmthing->target)
+	    return true;                // Don't hit same species as originator.
+	  else if (thing->type != MT_PLAYER)	// Explode, but do no damage.
 	    return false;	        // Let players missile other players.
+	}
       
       // killough 8/10/98: if moving thing is not a missile, no damage
       // is inflicted, and momentum is reduced if object hit is solid.
 
       if (!(tmthing->flags & MF_MISSILE))
-	if (!(thing->flags & MF_SOLID))
-	  return true;
-	else
-	  {
-	    tmthing->momx = -tmthing->momx;
-	    tmthing->momy = -tmthing->momy;
-	    if (!(tmthing->flags & MF_NOGRAVITY))
-	      {
-		tmthing->momx >>= 2;
-		tmthing->momy >>= 2;
+	{
+	  if (!(thing->flags & MF_SOLID))
+	    return true;
+	  else
+	    {
+	      tmthing->momx = -tmthing->momx;
+	      tmthing->momy = -tmthing->momy;
+	      if (!(tmthing->flags & MF_NOGRAVITY))
+		{
+		  tmthing->momx >>= 2;
+		  tmthing->momy >>= 2;
 	      }
-	    return false;
-	  }
-
+	      return false;
+	    }
+	}
+      
       if (!(thing->flags & MF_SHOOTABLE))
 	return !(thing->flags & MF_SOLID); // didn't do any damage
 
@@ -533,7 +533,8 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   if (thing->flags & MF_SPECIAL)
     {
       int solid = thing->flags & MF_SOLID;
-      if (tmflags & MF_PICKUP)
+//      if (tmflags & MF_PICKUP) GB 2014, PrBoom bugfix "Overlapping uses of global variables"
+        if (tmthing->flags & MF_PICKUP)
 	P_TouchSpecialThing(thing, tmthing); // can remove thing
       return !solid;
     }
@@ -631,7 +632,7 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
   subsector_t *newsubsec;
 
   tmthing = thing;
-  tmflags = thing->flags;
+//tmflags = thing->flags; GB 2014, PrBoom bugfix "Overlapping uses of global variables"
 
   tmx = x;
   tmy = y;
@@ -659,7 +660,8 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
   validcount++;
   numspechit = 0;
 
-  if (tmflags & MF_NOCLIP)
+//if (tmflags & MF_NOCLIP) GB 2014, PrBoom bugfix "Overlapping uses of global variables"
+  if (tmthing->flags & MF_NOCLIP)
     return true;
 
   // Check things first, possibly picking things up.
@@ -732,26 +734,28 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
       // killough 11/98: Improve symmetry of clipping on stairs
 
       if (!(thing->flags & (MF_DROPOFF|MF_FLOAT)))
-	if (comp[comp_dropoff])
-	  {
-	    if (tmfloorz - tmdropoffz > 24*FRACUNIT)
-	      return false;                      // don't stand over a dropoff
-	  }
-	else
-	  if (!dropoff || (dropoff==2 &&  // large jump down (e.g. dogs)
-			   (tmfloorz-tmdropoffz > 128*FRACUNIT || 
-			    !thing->target || thing->target->z >tmdropoffz)))
+	{
+	  if (comp[comp_dropoff])
 	    {
-	      if (!monkeys || demo_version < 203 ?
-		  tmfloorz - tmdropoffz > 24*FRACUNIT :
-		  thing->floorz  - tmfloorz > 24*FRACUNIT ||
-		  thing->dropoffz - tmdropoffz > 24*FRACUNIT)
-		return false;
+	      if (tmfloorz - tmdropoffz > 24*FRACUNIT)
+		return false;                      // don't stand over a dropoff
 	    }
-	  else  // dropoff allowed -- check for whether it fell more than 24
-	    felldown = !(thing->flags & MF_NOGRAVITY) &&
-	      thing->z - tmfloorz > 24*FRACUNIT;
-
+	  else
+	    if (!dropoff || (dropoff==2 &&  // large jump down (e.g. dogs)
+			     (tmfloorz-tmdropoffz > 128*FRACUNIT || 
+			      !thing->target || thing->target->z >tmdropoffz)))
+	      {
+		if (!monkeys || demo_version < 203 ?
+		    tmfloorz - tmdropoffz > 24*FRACUNIT :
+		    thing->floorz  - tmfloorz > 24*FRACUNIT ||
+		    thing->dropoffz - tmdropoffz > 24*FRACUNIT)
+		  return false;
+	      }
+	    else  // dropoff allowed -- check for whether it fell more than 24
+	      felldown = !(thing->flags & MF_NOGRAVITY) &&
+		thing->z - tmfloorz > 24*FRACUNIT;
+	}
+      
       if (thing->flags & MF_BOUNCES &&    // killough 8/13/98
 	  !(thing->flags & (MF_MISSILE|MF_NOGRAVITY)) &&
 	  !sentient(thing) && tmfloorz - thing->z > 16*FRACUNIT)
@@ -1199,8 +1203,9 @@ void P_SlideMove(mobj_t *mo)
 
 	  if (!P_TryMove(mo, mo->x, mo->y + mo->momy, true))
 	    if (!P_TryMove(mo, mo->x + mo->momx, mo->y, true))
-	      if (demo_version < 203 && !compatibility)
-		mo->momx = mo->momy = 0;
+	     //if (demo_version < 203 && !compatibility)
+    	  if (demo_version == 201) // Bugfix from PrBoom GB 2014
+    	mo->momx = mo->momy = 0;
 
 	  break;
 	}
@@ -1705,10 +1710,15 @@ static boolean PIT_ChangeSector(mobj_t *thing)
 
   if (thing->health <= 0)
     {
-      P_SetMobjState(thing, S_GIBS);
+    P_SetMobjState (thing, S_GIBS);
+
+    if (!v12_compat)
+    {
       thing->flags &= ~MF_SOLID;
-      thing->height = thing->radius = 0;
-      return true;      // keep checking
+    }
+    thing->height = 0;
+    thing->radius = 0;
+    return true; // keep checking
     }
 
   // crunch dropped items
@@ -2004,6 +2014,10 @@ void P_CreateSecNodeList(mobj_t *thing,fixed_t x,fixed_t y)
   int xl, xh, yl, yh, bx, by;
   msecnode_t *node;
 
+  //GB 2014, PrBoom bugfix "Overlapping uses of global variables"
+  mobj_t* saved_tmthing = tmthing;          // cph - see comment at func end 
+  fixed_t saved_tmx = tmx, saved_tmy = tmy; // ditto 
+
   // First, clear out the existing m_thing fields. As each node is
   // added or verified as needed, m_thing will be set properly. When
   // finished, delete all nodes where m_thing is still NULL. These
@@ -2013,7 +2027,7 @@ void P_CreateSecNodeList(mobj_t *thing,fixed_t x,fixed_t y)
     node->m_thing = NULL;
 
   tmthing = thing;
-  tmflags = thing->flags;
+//tmflags = thing->flags; GB 2014, PrBoom bugfix "Overlapping uses of global variables"
 
   tmx = x;
   tmy = y;
@@ -2050,11 +2064,39 @@ void P_CreateSecNodeList(mobj_t *thing,fixed_t x,fixed_t y)
       }
     else
       node = node->m_tnext;
+
+   // GB 2014, PrBoom bugfix "Overlapping uses of global variables" (modified) cph -
+   // This is the strife we get into for using global variables. tmthing
+   // is being used by several different functions calling
+   // P_BlockThingIterator, including functions that can be called *from*
+   // P_BlockThingIterator. Using a global tmthing is not reentrant.
+   // OTOH for Boom/MBF demos we have to preserve the buggy behavior.
+   // Fun. We restore its previous value unless we're in a Boom/MBF demo.
+   if (demo_compatibility) { 
+	   tmthing = saved_tmthing;
+       tmx = saved_tmx, tmy = saved_tmy;
+       if (tmthing) {
+         tmbbox[BOXTOP]  = tmy + tmthing->radius;
+         tmbbox[BOXBOTTOM] = tmy - tmthing->radius;
+         tmbbox[BOXRIGHT]  = tmx + tmthing->radius;
+         tmbbox[BOXLEFT]   = tmx - tmthing->radius;
+     }
+   }
+
 }
 
 //----------------------------------------------------------------------------
 //
 // $Log: p_map.c,v $
+// Revision 1.3  2000-08-12 21:29:29  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.35  1998/05/12  12:47:16  phares
 // Removed OVER_UNDER code
 //

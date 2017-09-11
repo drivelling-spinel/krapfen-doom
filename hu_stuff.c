@@ -1,33 +1,30 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: hu_stuff.c,v 1.27 1998/05/10 19:03:41 jim Exp $
+// $Id: hu_stuff.c,v 1.3 2000-08-12 21:29:25 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:  Heads-up displays
 //
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: hu_stuff.c,v 1.27 1998/05/10 19:03:41 jim Exp $";
+rcsid[] = "$Id: hu_stuff.c,v 1.3 2000-08-12 21:29:25 fraggle Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
@@ -1445,31 +1442,34 @@ boolean HU_Responder(event_t *ev)
       else // killough 10/02/98: no chat if demo playback
         if (!demoplayback)
           if (!message_list)
-	    if (netgame && ev->data1 == key_chat)
-	      {
-		eatkey = chat_on = true;
-		HUlib_resetIText(&w_chat);
-		HU_queueChatChar(HU_BROADCAST);
-	      }//jff 2/26/98
-	    else    // killough 11/98: simplify
-	      if (!message_list && netgame && numplayers > 2)
+	    {
+	      if (netgame && ev->data1 == key_chat)
+		{
+		  eatkey = chat_on = true;
+		  HUlib_resetIText(&w_chat);
+		  HU_queueChatChar(HU_BROADCAST);
+		}//jff 2/26/98
+	      // killough 11/98: simplify
+	      else if (!message_list && netgame && numplayers > 2)
 		for (i=0; i<MAXPLAYERS ; i++)
 		  if (ev->data1 == destination_keys[i])
-		    if (i == consoleplayer)
-		      plr->message = 
-			++num_nobrainers <  3 ? HUSTR_TALKTOSELF1 :
-	                  num_nobrainers <  6 ? HUSTR_TALKTOSELF2 :
-	                  num_nobrainers <  9 ? HUSTR_TALKTOSELF3 :
-	                  num_nobrainers < 32 ? HUSTR_TALKTOSELF4 :
-                                                HUSTR_TALKTOSELF5 ;
-                  else
-                    if (playeringame[i])
-                      {
-                        eatkey = chat_on = true;
-                        HUlib_resetIText(&w_chat);
-                        HU_queueChatChar(i+1);
-                        break;
-                      }
+		    {
+		      if (i == consoleplayer)
+			plr->message = 
+			  ++num_nobrainers <  3 ? HUSTR_TALKTOSELF1 :
+			num_nobrainers <  6 ? HUSTR_TALKTOSELF2 :
+			num_nobrainers <  9 ? HUSTR_TALKTOSELF3 :
+			num_nobrainers < 32 ? HUSTR_TALKTOSELF4 :
+			HUSTR_TALKTOSELF5 ;
+		      else if(playeringame[i])
+			{
+			  eatkey = chat_on = true;
+			  HUlib_resetIText(&w_chat);
+			  HU_queueChatChar(i+1);
+			  break;
+			}
+		    }
+	    }
     }//jff 2/26/98 no chat functions if message review is displayed
   else
     if (!message_list)
@@ -1527,6 +1527,15 @@ boolean HU_Responder(event_t *ev)
 //----------------------------------------------------------------------------
 //
 // $Log: hu_stuff.c,v $
+// Revision 1.3  2000-08-12 21:29:25  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.27  1998/05/10  19:03:41  jim
 // formatted/documented hu_stuff
 //

@@ -1,27 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: p_inter.c,v 1.10 1998/05/03 23:09:29 killough Exp $
+// $Id: p_inter.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Handling interactions (i.e., collisions).
@@ -29,7 +25,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: p_inter.c,v 1.10 1998/05/03 23:09:29 killough Exp $";
+rcsid[] = "$Id: p_inter.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $";
 
 #include "doomstat.h"
 #include "dstrings.h"
@@ -124,10 +120,12 @@ boolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
     {
     case am_clip:
       if (player->readyweapon == wp_fist)
-        if (player->weaponowned[wp_chaingun])
-          player->pendingweapon = wp_chaingun;
-        else
-          player->pendingweapon = wp_pistol;
+	{
+	  if (player->weaponowned[wp_chaingun])
+	    player->pendingweapon = wp_chaingun;
+	  else
+	    player->pendingweapon = wp_pistol;
+	}
       break;
 
     case am_shell:
@@ -330,7 +328,14 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 #endif
 
       player->armorpoints++;          // can go over 100%
-      if (player->armorpoints > max_armor)
+      // e6y
+      // Doom 1.2 does not do check of armor points on overflow.
+      // If you set the "IDKFA Armor" to MAX_INT (DWORD at 0x00064B5A -> FFFFFF7F)
+      // and pick up one or more armor bonuses, your armor becomes negative
+      // and you will die after reception of any damage since this moment.
+      // It happens because the taken health damage depends from armor points 
+      // if they are present and becomes equal to very large value in this case
+      if (player->armorpoints > max_armor && !(v12_compat))
         player->armorpoints = max_armor;
       if (!player->armortype)
         player->armortype = green_armor_class;
@@ -880,12 +885,14 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
   target->reactiontime = 0;           // we're awake now...
 
   // killough 9/9/98: cleaned up, made more consistent:
-
-  if (source && source != target && source->type != MT_VILE &&
+  //e6y: Monsters could commit suicide in Doom v1.2 if they damaged themselves by exploding a barrel
+  if (source && (source != target || v12_compat) &&
+      source->type != MT_VILE &&
       (!target->threshold || target->type == MT_VILE) &&
-      ((source->flags ^ target->flags) & MF_FRIEND || 
+      ((source->flags ^ target->flags) & MF_FRIEND ||
        monster_infighting || demo_version < 203))
     {
+
       // if not intent on another player, chase after this one
       //
       // killough 2/15/98: remember last enemy, to prevent
@@ -914,6 +921,15 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 //----------------------------------------------------------------------------
 //
 // $Log: p_inter.c,v $
+// Revision 1.3  2000-08-12 21:29:29  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.10  1998/05/03  23:09:29  killough
 // beautification, fix #includes, move some global vars here
 //

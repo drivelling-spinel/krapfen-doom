@@ -1,25 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: r_draw.c,v 1.16 1998/05/03 22:41:46 killough Exp $
+// $Id: r_draw.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      The actual span/column drawing functions.
@@ -29,7 +27,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: r_draw.c,v 1.16 1998/05/03 22:41:46 killough Exp $";
+rcsid[] = "$Id: r_draw.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -42,14 +40,12 @@ rcsid[] = "$Id: r_draw.c,v 1.16 1998/05/03 22:41:46 killough Exp $";
 
 #define SBARHEIGHT 32             /* status bar height at bottom of screen */
 
-//
 // All drawing to the view buffer is accomplished in this file.
 // The other refresh files only know about ccordinates,
 //  not the architecture of the frame buffer.
 // Conveniently, the frame buffer is a linear one,
 //  and we need only the base address,
 //  and the total size == width*height*depth/8.,
-//
 
 byte *viewimage; 
 int  viewwidth;
@@ -65,17 +61,14 @@ int  linesize = SCREENWIDTH;  // killough 11/98
 // Color tables for different players,
 //  translate a limited part to another
 //  (color ramps used for  suit colors).
-//
 
 byte translations[3][256];
  
 byte *tranmap;          // translucency filter maps 256x256   // phares 
 byte *main_tranmap;     // killough 4/11/98
 
-//
 // R_DrawColumn
 // Source is the top of the column to scale.
-//
 
 lighttable_t *dc_colormap; 
 int     dc_x; 
@@ -86,20 +79,19 @@ fixed_t dc_texturemid;
 int     dc_texheight;    // killough
 byte    *dc_source;      // first pixel in a column (possibly virtual) 
 
-//
 // A column is a vertical slice/span from a wall texture that,
 //  given the DOOM style restrictions on the view orientation,
 //  will always have constant z depth.
 // Thus a special case loop for very fast rendering can
 //  be used. It has also been used with Wolfenstein 3D.
-// 
 
-#ifndef DJGPP     // killough 2/15/98
+//#ifndef DJGPP     // killough 2/15/98
 
-void R_DrawColumn (void) 
+#ifdef CALT
+void R_DrawColumn_C (void)  
 { 
   int              count; 
-  register byte    *dest;            // killough
+  register byte    *dest;           // killough
   register fixed_t frac;            // killough
   fixed_t          fracstep;     
 
@@ -112,7 +104,7 @@ void R_DrawColumn (void)
   if ((unsigned)dc_x >= MAX_SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= MAX_SCREENHEIGHT) 
-    I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    I_Error ("R_DrawColumn_C: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
   // Framebuffer destination address.
@@ -127,58 +119,158 @@ void R_DrawColumn (void)
   frac = dc_texturemid + (dc_yl-centery)*fracstep; 
 
   // Inner loop that does the actual texture mapping,
-  //  e.g. a DDA-lile scaling.
+  // e.g. a DDA-lile scaling.
   // This is as fast as it gets.       (Yeah, right!!! -- killough)
   //
   // killough 2/1/98: more performance tuning
-
-  {
-    register const byte *source = dc_source;            
-    register const lighttable_t *colormap = dc_colormap; 
-    register heightmask = dc_texheight-1;
-    if (dc_texheight & heightmask)   // not a power of 2 -- killough
-      {
-        heightmask++;
-        heightmask <<= FRACBITS;
+  
+  { // GB 2014, keep brackets for GCC 2.7
+  register const byte *source = dc_source;            
+  register const lighttable_t *colormap = dc_colormap; 
+  register int heightmask = dc_texheight-1;
+  if (dc_texheight & heightmask)   // not a power of 2 -- killough
+    {
+      heightmask++;
+      heightmask <<= FRACBITS;
+        
+      if (frac < 0)
+        while ((frac += heightmask) <  0);
+      else
+        while (frac >= heightmask)
+          frac -= heightmask;
+        
+      do{ // Re-map color indices from wall texture column
+          // using a lighting/special effects LUT.
           
-        if (frac < 0)
-          while ((frac += heightmask) <  0);
-        else
-          while (frac >= heightmask)
+          // heightmask is the Tutti-Frutti fix -- killough
+          
+          *dest = colormap[source[frac>>FRACBITS]];
+          dest += linesize;                     // killough 11/98
+          if ((frac += fracstep) >= heightmask)
             frac -= heightmask;
-          
-        do
-          {
-            // Re-map color indices from wall texture column
-            //  using a lighting/special effects LUT.
-            
-            // heightmask is the Tutti-Frutti fix -- killough
-            
-            *dest = colormap[source[frac>>FRACBITS]];
-            dest += linesize;                     // killough 11/98
-            if ((frac += fracstep) >= heightmask)
-              frac -= heightmask;
-          } 
-        while (--count);
-      }
-    else
-      {
-        while ((count-=2)>=0)   // texture height is a power of 2 -- killough
-          {
-            *dest = colormap[source[(frac>>FRACBITS) & heightmask]];
-            dest += linesize;   // killough 11/98
-            frac += fracstep;
-            *dest = colormap[source[(frac>>FRACBITS) & heightmask]];
-            dest += linesize;   // killough 11/98
-            frac += fracstep;
-          }
-        if (count & 1)
+        } 
+      while (--count);
+    }
+  else
+    {
+      while ((count-=2)>=0)   // texture height is a power of 2 -- killough
+        {
           *dest = colormap[source[(frac>>FRACBITS) & heightmask]];
-      }
+          dest += linesize;   // killough 11/98
+          frac += fracstep;
+          *dest = colormap[source[(frac>>FRACBITS) & heightmask]];
+          dest += linesize;   // killough 11/98
+          frac += fracstep;
+        }
+      if (count & 1)
+        *dest = colormap[source[(frac>>FRACBITS) & heightmask]];
+    }
   }
 } 
 
-#endif
+
+// GB 2015
+void R_DrawColumn_C_LowDet (void) 
+{ 
+  int              count; 
+  register unsigned short *dest16;          
+  register fixed_t frac;            // killough
+  fixed_t          fracstep;     
+  unsigned short   buf16;
+  int              linesize16;
+
+  if (dc_x%2 != 0) return; // GB 2015, odd column number, skip entirely
+  linesize16=linesize/2; // GB 2015
+
+  count = dc_yh - dc_yl + 1; 
+
+  if (count <= 0) // Zero length, column does not exceed a pixel.
+    return; 
+                                 
+#ifdef RANGECHECK 
+  if ((unsigned)dc_x >= MAX_SCREENWIDTH
+      || dc_yl < 0
+      || dc_yh >= MAX_SCREENHEIGHT) 
+    I_Error ("R_DrawColumn_C_LowDet: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+#endif 
+
+  // Framebuffer destination address.
+  // Use ylookup LUT to avoid multiply with ScreenWidth.
+  // Use columnofs LUT for subwindows? 
+
+ // dest = ;
+  dest16 = (unsigned short*) (ylookup[dc_yl] + columnofs[dc_x]);
+
+  // Determine scaling, which is the only mapping to be done.
+
+  fracstep = dc_iscale; 
+  frac = dc_texturemid + (dc_yl-centery)*fracstep; 
+
+  // Inner loop that does the actual texture mapping,
+  // e.g. a DDA-lile scaling.
+  // This is as fast as it gets.       (Yeah, right!!! -- killough)
+  //
+  // killough 2/1/98: more performance tuning
+  
+  { // GB 2014, keep brackets for GCC 2.7
+  register const byte *source = dc_source;            
+  register const lighttable_t *colormap = dc_colormap; 
+  register int heightmask = dc_texheight-1;
+  if (dc_texheight & heightmask)   // not a power of 2 -- killough
+    {
+      heightmask++;
+      heightmask <<= FRACBITS;
+        
+      if (frac < 0)
+        while ((frac += heightmask) <  0);
+      else
+        while (frac >= heightmask)
+          frac -= heightmask;
+        
+      do{ // Re-map color indices from wall texture column
+          // using a lighting/special effects LUT.
+          
+          // heightmask is the Tutti-Frutti fix -- killough
+          
+          buf16 = colormap[source[frac>>FRACBITS]];
+          buf16 += buf16<<8;
+		  *dest16 = buf16;
+		  dest16 += linesize16;                     // killough 11/98 / GB 2015
+          if ((frac += fracstep) >= heightmask)
+            frac -= heightmask;
+        } 
+      while (--count);
+    }
+  else
+    {
+      while ((count-=2)>=0)   // texture height is a power of 2 -- killough
+        {
+          buf16 = colormap[source[(frac>>FRACBITS) & heightmask]];
+          buf16 += buf16<<8;
+		  *dest16 = buf16;
+          dest16 += linesize16;   // killough 11/98 / GB 2015
+          frac += fracstep;
+
+		  buf16 = colormap[source[(frac>>FRACBITS) & heightmask]];
+          buf16 += buf16<<8;
+		  *dest16 = buf16;
+          dest16 += linesize16;   // killough 11/98 / GB 2015
+          frac += fracstep;
+        }
+      if (count & 1)
+		{
+        buf16 = colormap[source[(frac>>FRACBITS) & heightmask]];
+        buf16 += buf16<<8;
+	    *dest16 = buf16;
+		}
+    }
+  }
+} 
+
+#endif // CALT
+
+
+
 
 // Here is the version of R_DrawColumn that deals with translucent  // phares
 // textures and sprites. It's identical to R_DrawColumn except      //    |
@@ -192,9 +284,10 @@ void R_DrawColumn (void)
 // opaque' decision is made outside this routine, not down where the
 // actual code differences are.
 
-#ifndef DJGPP                       // killough 2/21/98: converted to x86 asm
+//#ifndef DJGPP                       // killough 2/21/98: converted to x86 asm
+#ifdef CALT
 
-void R_DrawTLColumn (void)                                           
+void R_DrawTLColumn_C (void)                                           
 { 
   int              count; 
   register byte    *dest;           // killough
@@ -211,7 +304,7 @@ void R_DrawTLColumn (void)
   if ((unsigned)dc_x >= MAX_SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= MAX_SCREENHEIGHT) 
-    I_Error ("R_DrawColumn: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+    I_Error ("R_DrawTLColumn_C: %i to %i at %i", dc_yl, dc_yh, dc_x); 
 #endif 
 
   // Framebuffer destination address.
@@ -235,7 +328,7 @@ void R_DrawTLColumn (void)
   {
     register const byte *source = dc_source;            
     register const lighttable_t *colormap = dc_colormap; 
-    register heightmask = dc_texheight-1;
+    register int heightmask = dc_texheight-1;
     if (dc_texheight & heightmask)   // not a power of 2 -- killough
       {
         heightmask++;
@@ -274,11 +367,116 @@ void R_DrawTLColumn (void)
           }
         if (count & 1)
           *dest = tranmap[(*dest<<8)+colormap[source[(frac>>FRACBITS) & heightmask]]]; // phares
+	  }
+  }
+} 
+
+
+
+// GB 2015
+void R_DrawTLColumn_C_LowDet (void)                                           
+{ 
+  int              count; 
+  register byte    *dest;           // killough
+  register unsigned short *dest16;         
+  register fixed_t frac;            // killough
+  fixed_t          fracstep;
+  unsigned short   buf16;
+  int              linesize16;
+
+  if (dc_x%2 != 0) return; // GB 2015, odd column number, skip entirely
+  linesize16=linesize/2; // GB 2015
+
+  count = dc_yh - dc_yl + 1; 
+
+  // Zero length, column does not exceed a pixel.
+  if (count <= 0)
+    return; 
+                                 
+#ifdef RANGECHECK 
+  if ((unsigned)dc_x >= MAX_SCREENWIDTH
+      || dc_yl < 0
+      || dc_yh >= MAX_SCREENHEIGHT) 
+    I_Error ("R_DrawTLColumn_C_LowDet: %i to %i at %i", dc_yl, dc_yh, dc_x); 
+#endif 
+
+  // Framebuffer destination address.
+  // Use ylookup LUT to avoid multiply with ScreenWidth.
+  // Use columnofs LUT for subwindows? 
+
+  dest = ylookup[dc_yl] + columnofs[dc_x];  
+  dest16 = (unsigned short*) dest;
+ 
+  // Determine scaling,
+  //  which is the only mapping to be done.
+
+  fracstep = dc_iscale; 
+  frac = dc_texturemid + (dc_yl-centery)*fracstep; 
+
+  // Inner loop that does the actual texture mapping,
+  //  e.g. a DDA-lile scaling.
+  // This is as fast as it gets.       (Yeah, right!!! -- killough)
+  //
+  // killough 2/1/98, 2/21/98: more performance tuning
+  
+  {
+    register const byte *source = dc_source;            
+    register const lighttable_t *colormap = dc_colormap; 
+    register int heightmask = dc_texheight-1;
+    if (dc_texheight & heightmask)   // not a power of 2 -- killough
+      {
+        heightmask++;
+        heightmask <<= FRACBITS;
+          
+        if (frac < 0)
+          while ((frac += heightmask) <  0);
+        else
+          while (frac >= heightmask)
+            frac -= heightmask;
+        
+        do
+          {
+            // Re-map color indices from wall texture column
+            //  using a lighting/special effects LUT.
+            
+            // heightmask is the Tutti-Frutti fix -- killough
+              
+            buf16 = tranmap[(*dest16<<8 & 0xFF)+colormap[source[frac>>FRACBITS]]]; // phares
+            buf16 += buf16<<8;
+		    *dest16 = buf16;
+		    dest16 += linesize16;                     // killough 11/98 / GB 2015
+            if ((frac += fracstep) >= heightmask)
+              frac -= heightmask;
+          } 
+        while (--count);
+      }
+    else
+      {
+        while ((count-=2)>=0)   // texture height is a power of 2 -- killough
+          {
+            buf16 = tranmap[(*dest16<<8 & 0xFF)+colormap[source[(frac>>FRACBITS) & heightmask]]]; // phares
+            buf16 += buf16<<8;
+		    *dest16 = buf16;
+            dest16 += linesize16;   // killough 11/98 / GB 2015
+            frac += fracstep;
+
+			buf16 = tranmap[(*dest16<<8 & 0xFF)+colormap[source[(frac>>FRACBITS) & heightmask]]]; // phares
+            buf16 += buf16<<8;
+		    *dest16 = buf16;
+            dest16 += linesize16;   // killough 11/98 / GB 2015
+            frac += fracstep;
+          }
+        if (count & 1)
+		{
+            buf16 = tranmap[(*dest16<<8 & 0xFF)+colormap[source[(frac>>FRACBITS) & heightmask]]]; // phares
+            buf16 += buf16<<8;
+	        *dest16 = buf16;
+		}
       }
   }
 } 
 
-#endif  // killough 2/21/98: converted to x86 asm
+#endif // CALT // killough 2/21/98: converted to x86 asm
 
 //
 // Spectre/Invisibility.
@@ -355,8 +553,10 @@ void R_DrawFuzzColumn(void)
       // killough 3/20/98: use fullcolormap instead of colormaps
       // killough 11/98: use linesize
 
-      *dest = fullcolormap[6*256+dest[fuzzoffset[fuzzpos] ^ linesize]]; 
-
+      // fraggle 1/8/2000: fix with the bugfix from lees
+      // why_i_left_doom.html
+      
+      *dest = fullcolormap[6*256+dest[fuzzoffset[fuzzpos++] ^ linesize]];
       dest += linesize;             // killough 11/98
 
       // Clamp table lookup index.
@@ -365,7 +565,6 @@ void R_DrawFuzzColumn(void)
   while (--count);
 }
 
-//
 // R_DrawTranslatedColumn
 // Used to draw player sprites
 //  with the green colorramp mapped to others.
@@ -373,7 +572,6 @@ void R_DrawFuzzColumn(void)
 //  tables, e.g. the lighter colored version
 //  of the BaronOfHell, the HellKnight, uses
 //  identical sprites, kinda brightened up.
-//
 
 byte *dc_translation, *translationtables;
 
@@ -392,7 +590,7 @@ void R_DrawTranslatedColumn (void)
   if ((unsigned)dc_x >= MAX_SCREENWIDTH
       || dc_yl < 0
       || dc_yh >= MAX_SCREENHEIGHT)
-    I_Error ( "R_DrawColumn: %i to %i at %i",
+    I_Error ( "R_DrawTranslatedColumn: %i to %i at %i",
               dc_yl, dc_yh, dc_x);
 #endif 
 
@@ -422,13 +620,11 @@ void R_DrawTranslatedColumn (void)
   while (--count); 
 } 
 
-//
 // R_InitTranslationTables
 // Creates the translation tables to map
 //  the green color ramp to gray, brown, red.
 // Assumes a given structure of the PLAYPAL.
 // Could be read from a lump instead.
-//
 
 void R_InitTranslationTables (void)
 {
@@ -451,7 +647,6 @@ void R_InitTranslationTables (void)
       translationtables[i]=translationtables[i+256]=translationtables[i+512]=i;
 }
 
-//
 // R_DrawSpan 
 // With DOOM style restrictions on view orientation,
 //  the floors and ceilings consist of horizontal slices
@@ -462,7 +657,6 @@ void R_InitTranslationTables (void)
 //  the texture at an angle in all but a few cases.
 // In consequence, flats are not stored by column (like walls),
 //  and the inner loop has to step in texture space u and v.
-//
 
 int  ds_y; 
 int  ds_x1; 
@@ -478,9 +672,10 @@ fixed_t ds_ystep;
 // start of a 64*64 tile image 
 byte *ds_source;        
 
-#ifndef DJGPP      // killough 2/15/98
+//#ifndef DJGPP      // killough 2/15/98
+#ifdef CALT
 
-void R_DrawSpan (void) 
+void R_DrawSpan_C (void) 
 { 
   register unsigned position;
   unsigned step;
@@ -511,7 +706,7 @@ void R_DrawSpan (void)
       position += step;
       dest[0] = colormap[source[spot]]; 
 
-      ytemp = position>>4;
+	  ytemp = position>>4;
       ytemp = ytemp & 4032;
       xtemp = position>>26;
       spot = xtemp | ytemp;
@@ -530,13 +725,13 @@ void R_DrawSpan (void)
       xtemp = position>>26;
       spot = xtemp | ytemp;
       position += step;
-      dest[3] = colormap[source[spot]]; 
-                
+      dest[3] = colormap[source[spot]];
+
       dest += 4;
       count -= 4;
     } 
 
-  while (count)
+	while (count)
     { 
       ytemp = position>>4;
       ytemp = ytemp & 4032;
@@ -545,18 +740,56 @@ void R_DrawSpan (void)
       position += step;
       *dest++ = colormap[source[spot]]; 
       count--;
-    } 
+	}
 } 
 
-#endif
 
-//
+// GB 2015
+void R_DrawSpan_C_LowDet (void) 
+{ 
+  register unsigned position;
+  unsigned step;
+  byte *source;
+  byte *colormap;
+  unsigned count;
+  unsigned spot; 
+  unsigned xtemp;
+  unsigned ytemp;
+  unsigned short *dest16;          
+  unsigned short  buf16;
+
+  position = ((ds_xfrac<<10)&0xffff0000) | ((ds_yfrac>>6)&0xffff);
+  step =     ((ds_xstep<<10)&0xffff0000) | ((ds_ystep>>6)&0xffff);
+  step+=step;
+  source = ds_source;
+  colormap = ds_colormap;
+
+  dest16 = (unsigned short*) (ylookup[ds_y] + columnofs[ds_x1] + ds_x1%2);
+  count = ds_x2 - ds_x1 + 1 - (ds_x2%2) +1; //GB 2015: Increase count if ds_x2 is odd
+
+  if (ds_x1%2 != 0) {count--;} // GB 2015, odd starting column number, skip 
+  
+  while (count >= 2)
+  { 
+	 ytemp = position>>4;
+     ytemp = ytemp & 4032;
+     xtemp = position>>26;
+     spot = xtemp | ytemp;
+     position += step;
+     buf16=colormap[source[spot]];
+     buf16 += buf16<<8;
+	 *dest16++ = buf16;
+     count -= 2;
+  } 
+} 
+
+#endif // CALT
+
 // R_InitBuffer 
 // Creats lookup tables that avoid
 //  multiplies and other hazzles
 //  for getting the framebuffer address
 //  of a pixel to draw.
-//
 
 void R_InitBuffer(int width, int height)
 { 
@@ -587,12 +820,10 @@ void R_InitBuffer(int width, int height)
     ylookup[i] = screens[0] + (i+viewwindowy)*linesize; // killough 11/98
 } 
 
-//
 // R_FillBackScreen
 // Fills the back screen with a pattern
 //  for variable screen sizes
 // Also draws a beveled edge.
-//
 
 void R_FillBackScreen (void) 
 { 
@@ -648,9 +879,7 @@ void R_FillBackScreen (void)
               W_CacheLumpName("brdr_br",PU_CACHE));
 } 
 
-//
 // Copy a screen buffer.
-//
 
 void R_VideoErase(unsigned ofs, int count)
 { 
@@ -663,7 +892,6 @@ void R_VideoErase(unsigned ofs, int count)
   memcpy(screens[0]+ofs, screens[1]+ofs, count);   // LFB copy.
 } 
 
-//
 // R_DrawViewBorder
 // Draws the border around the view
 //  for different size windows?
@@ -671,7 +899,6 @@ void R_VideoErase(unsigned ofs, int count)
 // killough 11/98: 
 // Rewritten to avoid relying on screen wraparound, so that it
 // can scale to hires automatically in R_VideoErase().
-//
 
 void R_DrawViewBorder(void) 
 { 
@@ -701,7 +928,18 @@ void R_DrawViewBorder(void)
 
 //----------------------------------------------------------------------------
 //
+// GB 2014: made comment sections smaller, no real changes
+//
 // $Log: r_draw.c,v $
+// Revision 1.3  2000-08-12 21:29:30  fraggle
+// change license header
+//
+// Revision 1.2  2000/08/11 23:09:44  fraggle
+// blur effect fix
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.16  1998/05/03  22:41:46  killough
 // beautification
 //

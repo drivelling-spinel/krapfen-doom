@@ -1,25 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: r_data.c,v 1.23 1998/05/23 08:05:57 killough Exp $
+// $Id: r_data.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Preparation of data for rendering,
@@ -28,7 +26,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: r_data.c,v 1.23 1998/05/23 08:05:57 killough Exp $";
+rcsid[] = "$Id: r_data.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -380,17 +378,19 @@ static void R_GenerateLookup(int texnum, int *const errors)
     while (--x >= 0)
       {
 	if (!count[x].patches)     // killough 4/9/98
-	  if (devparm)
-	    {
-	      // killough 8/8/98
-	      printf("\nR_GenerateLookup:"
-		     " Column %d is without a patch in texture %.8s",
-		     x, texture->name);
-	      ++*errors;
-	    }
-	  else
-	    err = 1;               // killough 10/98
-
+	  {
+	    if (devparm)
+	      {
+		// killough 8/8/98
+		printf("\nR_GenerateLookup:"
+		       " Column %d is without a patch in texture %.8s",
+		       x, texture->name);
+		++*errors;
+	      }
+	    else
+	      err = 1;               // killough 10/98
+	  }
+	
         if (count[x].patches > 1)       // killough 4/9/98
           {
             // killough 1/25/98, 4/9/98:
@@ -826,11 +826,13 @@ void R_InitTranMap(int progress)
 		  putchar('.');
 
 		if (!(~i & 15))
-		  if (i & 32)       // killough 10/98: display flashing disk
-		    I_EndRead();
-		  else
-		    I_BeginRead();
-
+		  {
+		    if (i & 32)       // killough 10/98: display flashing disk
+		      I_EndRead();
+		    else
+		      I_BeginRead();
+		  }
+		
                 for (j=0;j<256;j++,tp++)
                   {
                     register int color = 255;
@@ -1024,6 +1026,15 @@ void R_PrecacheLevel(void)
 //-----------------------------------------------------------------------------
 //
 // $Log: r_data.c,v $
+// Revision 1.3  2000-08-12 21:29:30  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.23  1998/05/23  08:05:57  killough
 // Reformatting
 //

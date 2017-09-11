@@ -1,25 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: r_draw.h,v 1.5 1998/05/03 22:42:23 killough Exp $
+// $Id: r_draw.h,v 1.2 2000-08-12 21:29:30 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      System specific interface stuff.
@@ -46,6 +44,15 @@ extern byte     *dc_source;
 
 // The span blitting interface.
 // Hook in assembler or system specific BLT here.
+
+#ifdef CALT
+void R_DrawSpan_C(void);
+void R_DrawSpan_C_LowDet(void);
+void R_DrawColumn_C(void);
+void R_DrawColumn_C_LowDet(void);
+void R_DrawTLColumn_C(void);      // drawing translucent textures // phares
+void R_DrawTLColumn_C_LowDet(void);   
+#endif // CALT
 
 void R_DrawColumn(void);
 void R_DrawTLColumn(void);      // drawing translucent textures // phares
@@ -75,6 +82,7 @@ extern byte *dc_translation;
 
 // Span blitting for rows, floor/ceiling. No Spectre effect needed.
 void R_DrawSpan(void);
+//void R_DrawSpan_LowDet(void); // GB 2015, no speed benefit..
 
 void R_InitBuffer(int width, int height);
 
@@ -98,6 +106,12 @@ extern byte *ylookup[];       // killough 11/98
 //----------------------------------------------------------------------------
 //
 // $Log: r_draw.h,v $
+// Revision 1.2  2000-08-12 21:29:30  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.5  1998/05/03  22:42:23  killough
 // beautification, extra declarations
 //

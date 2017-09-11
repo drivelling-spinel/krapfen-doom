@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: z_zone.c,v 1.13 1998/05/12 06:11:55 killough Exp $
+// $Id: z_zone.c,v 1.3 2000-08-12 21:29:34 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Zone Memory Allocation. Neat.
@@ -35,7 +32,7 @@
 // statistics and tunables.
 //-----------------------------------------------------------------------------
 
-static const char rcsid[] = "$Id: z_zone.c,v 1.13 1998/05/12 06:11:55 killough Exp $";
+static const char rcsid[] = "$Id: z_zone.c,v 1.3 2000-08-12 21:29:34 fraggle Exp $";
 
 #include "z_zone.h"
 #include "doomstat.h"
@@ -133,7 +130,7 @@ void Z_PrintStats(void)            // Print allocation statistics
 	virtual_memory;
       double s = 100.0 / total_memory;
       
-      dprintf("%-5lu\t%6.01f%%\tstatic\n"
+      dmprintf("%-5lu\t%6.01f%%\tstatic\n"
 	      "%-5lu\t%6.01f%%\tpurgable\n"
 	      "%-5lu\t%6.01f%%\tfree\n"
 	      "%-5lu\t%6.01f%%\tfragmentary\n"
@@ -294,8 +291,14 @@ void *(Z_Malloc)(size_t size, int tag, void **user, const char *file, int line)
       if (block->tag >= PU_PURGELEVEL)      // Free purgable blocks
         {                                   // replacement is roughly FIFO
           start = block->prev;
-          Z_Free((char *) block + HEADER_SIZE);
-          block = start = start->next;      // Important: resets start
+          Z_Free((char *) block + HEADER_SIZE); 
+          // block = start = start->next;      // Important: resets start
+ 
+          // GB 2014 replacement from PrBoom:
+  	      // cph - If start->next == block, we did not merge with the previous
+          //       If !=, we did, so we continue from start.
+          //  Important: we've reset start
+          if (start->next == block) start = start->next; else block = start;
         }
 
       if (block->tag == PU_FREE && block->size >= size)   // First-fit
@@ -376,8 +379,11 @@ allocated:
   block->vm = 1;
 
 #ifdef INSTRUMENTED
-  virtual_memory += block->size = size + HEADER_SIZE;
+  // fraggle: cphs fix  
+  virtual_memory += size + HEADER_SIZE;
 #endif
+
+  block->size = size;
 
   goto allocated;
 }
@@ -493,9 +499,20 @@ void (Z_FreeTags)(int lowtag, int hightag, const char *file, int line)
   do               // Scan through list, searching for tags in range
     if (block->tag >= lowtag && block->tag <= hightag)
       {
-        memblock_t *prev = block->prev;
+        memblock_t *prev = block->prev, *cur = block;
         (Z_Free)((char *) block + HEADER_SIZE, file, line);
-        block = prev->next;
+
+	// fraggle: imported lxdoom bugfix
+	
+	/* cph - be more careful here, we were skipping blocks!
+	 * If the current block was not merged with the previous, 
+	 *  cur is still a valid pointer, prev->next == cur, and cur is 
+	 *  already free so skip to the next.
+	 * If the current block was merged with the previous, 
+	 *  the next block to analyse is prev->next.
+	 * Note that the while() below does the actual step forward 
+	 */
+        block = (prev->next == cur) ? cur : prev;
       }
   while ((block=block->next) != zone);
 
@@ -649,7 +666,18 @@ void (Z_CheckHeap)(const char *file, int line)
 
 //-----------------------------------------------------------------------------
 //
+// GB 2015: Renamed dprintf to dmprintf, for DJGPP 2.05 compatibility
+//
 // $Log: z_zone.c,v $
+// Revision 1.3  2000-08-12 21:29:34  fraggle
+// change license header
+//
+// Revision 1.2  2000/08/01 20:22:41  fraggle
+// bugfixes from lxdoom
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.13  1998/05/12  06:11:55  killough
 // Improve memory-related error messages
 //

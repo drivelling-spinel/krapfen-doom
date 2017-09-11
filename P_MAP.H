@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: p_map.h,v 1.2 1998/05/07 00:53:07 killough Exp $
+// $Id: p_map.h,v 1.2 2000-08-12 21:29:29 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Map functions
@@ -58,7 +55,7 @@ void    P_RadiusAttack(mobj_t *spot, mobj_t *source, int damage);
 boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y);
 
 //jff 3/19/98 P_CheckSector(): new routine to replace P_ChangeSector()
-boolean P_CheckSector(sector_t *sector, boolean crunch);
+boolean P_CheckSector(sector_t *sector, boolean crunch); 
 void    P_DelSeclist(msecnode_t*);                          // phares 3/16/98
 void    P_CreateSecNodeList(mobj_t*,fixed_t,fixed_t);       // phares 3/14/98
 boolean Check_Sides(mobj_t *, int, int);                    // phares
@@ -84,6 +81,12 @@ extern line_t *blockline;   // killough 8/11/98
 //----------------------------------------------------------------------------
 //
 // $Log: p_map.h,v $
+// Revision 1.2  2000-08-12 21:29:29  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.2  1998/05/07  00:53:07  killough
 // Add more external declarations
 //

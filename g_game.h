@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: g_game.h,v 1.10 1998/05/16 09:17:02 killough Exp $
+// $Id: g_game.h,v 1.2 2000-08-12 21:29:25 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 //-----------------------------------------------------------------------------
 
@@ -69,7 +66,7 @@ void G_DoVictory(void);
 unsigned long long G_Signature(void);      // killough 12/98
 
 // killough 1/18/98: Doom-style printf;   killough 4/25/98: add gcc attributes
-void dprintf(const char *, ...) __attribute__((format(printf,1,2)));
+void dmprintf(const char *, ...) __attribute__((format(printf,1,2)));
 
 // killough 5/2/98: moved from m_misc.c:
 
@@ -158,7 +155,15 @@ extern int cpars[];     // hardcoded array size
 
 //----------------------------------------------------------------------------
 //
+// GB 2015: Renamed dprintf to dmprintf, for DJGPP 2.05 compatibility
+//
 // $Log: g_game.h,v $
+// Revision 1.2  2000-08-12 21:29:25  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.10  1998/05/16  09:17:02  killough
 // Make loadgame checksum friendlier
 //
@@ -169,7 +174,7 @@ extern int cpars[];     // hardcoded array size
 // Add all external declarations in g_game.c
 //
 // Revision 1.7  1998/04/27  02:00:53  killough
-// Add gcc __attribute__ to check dprintf() format string
+// Add gcc __attribute__ to check dmprintf() format string
 //
 // Revision 1.6  1998/04/10  06:34:35  killough
 // Fix -fast parameter bugs

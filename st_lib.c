@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: st_lib.c,v 1.8 1998/05/11 10:44:42 jim Exp $
+// $Id: st_lib.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      The status bar widget code.
@@ -28,7 +25,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: st_lib.c,v 1.8 1998/05/11 10:44:42 jim Exp $";
+rcsid[] = "$Id: st_lib.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -37,6 +34,8 @@ rcsid[] = "$Id: st_lib.c,v 1.8 1998/05/11 10:44:42 jim Exp $";
 #include "st_stuff.h"
 #include "st_lib.h"
 #include "r_main.h"
+
+int statusbar_dirty=2;
 
 int sts_always_red;      //jff 2/18/98 control to disable status color changes
 int sts_pct_always_gray; // killough 2/21/98: always gray %'s? bug or feature?
@@ -107,7 +106,10 @@ void STlib_drawNum
 
   int   neg;
 
+  if (n->oldnum!=*n->num || refresh) statusbar_dirty=2;
+
   n->oldnum = *n->num;
+
 
   neg = num < 0;
 
@@ -138,11 +140,13 @@ void STlib_drawNum
   //jff 2/16/98 add color translation to digit output
   // in the special case of 0, you draw 0
   if (!num)
-    if (outrng && !sts_always_red)
-      V_DrawPatchTranslated(x - w, n->y, FG, n->p[ 0 ],outrng,0);
-    else //jff 2/18/98 allow use of faster draw routine from config
-      V_DrawPatch(x - w, n->y, FG, n->p[ 0 ]);
-
+    {
+      if (outrng && !sts_always_red)
+	V_DrawPatchTranslated(x - w, n->y, FG, n->p[ 0 ],outrng,0);
+      else //jff 2/18/98 allow use of faster draw routine from config
+	V_DrawPatch(x - w, n->y, FG, n->p[ 0 ]);
+    }
+  
   // draw the new number
   //jff 2/16/98 add color translation to digit output
   while (num && numdigits--)
@@ -158,10 +162,12 @@ void STlib_drawNum
   // draw a minus sign if necessary
   //jff 2/16/98 add color translation to digit output
   if (neg)
-    if (outrng && !sts_always_red)
-      V_DrawPatchTranslated(x - 8, n->y, FG, sttminus,outrng,0);
-    else //jff 2/18/98 allow use of faster draw routine from config
-      V_DrawPatch(x - 8, n->y, FG, sttminus);
+    {
+      if (outrng && !sts_always_red)
+	V_DrawPatchTranslated(x - 8, n->y, FG, sttminus,outrng,0);
+      else //jff 2/18/98 allow use of faster draw routine from config
+	V_DrawPatch(x - 8, n->y, FG, sttminus);
+    }
 }
 
 //
@@ -216,19 +222,21 @@ void STlib_updatePercent
   char *outrng,             //jff 2/16/98 add color translation to digit output
   int refresh )
 {
-  if (refresh || *per->n.on) // killough 2/21/98: fix percents not updated;
-    if (!sts_always_red)     // also support gray-only percents
-      V_DrawPatchTranslated
-      (
-        per->n.x,
-        per->n.y,
-        FG,
-        per->p,
-        sts_pct_always_gray ? cr_gray : outrng,
-        0
-      );
-    else   //jff 2/18/98 allow use of faster draw routine from config
-      V_DrawPatch(per->n.x, per->n.y, FG, per->p);
+   if (refresh || *per->n.on) // killough 2/21/98: fix percents not updated;
+   {
+	  if (!sts_always_red)     // also support gray-only percents
+	V_DrawPatchTranslated
+	  (
+	   per->n.x,
+	   per->n.y,
+	   FG,
+	   per->p,
+	   sts_pct_always_gray ? cr_gray : outrng,
+	   0
+	   );
+      else   //jff 2/18/98 allow use of faster draw routine from config
+	V_DrawPatch(per->n.x, per->n.y, FG, per->p);
+    }
   
   STlib_updateNum(&per->n, outrng, refresh);
 }
@@ -280,6 +288,8 @@ void STlib_updateMultIcon
 
   if (*mi->on && (mi->oldinum != *mi->inum || refresh))
   {
+    statusbar_dirty=2;
+
     if (mi->oldinum != -1)
     {
       x = mi->x - SHORT(mi->p[mi->oldinum]->leftoffset);
@@ -348,7 +358,9 @@ void STlib_updateBinIcon
 
   if (*bi->on && (bi->oldval != *bi->val || refresh))
   {
-    x = bi->x - SHORT(bi->p->leftoffset);
+    statusbar_dirty=2;
+
+	x = bi->x - SHORT(bi->p->leftoffset);
     y = bi->y - SHORT(bi->p->topoffset);
     w = SHORT(bi->p->width);
     h = SHORT(bi->p->height);
@@ -368,6 +380,15 @@ void STlib_updateBinIcon
 //----------------------------------------------------------------------------
 //
 // $Log: st_lib.c,v $
+// Revision 1.3  2000-08-12 21:29:30  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.8  1998/05/11  10:44:42  jim
 // formatted/documented st_lib
 //

@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: r_bsp.c,v 1.17 1998/05/03 22:47:33 killough Exp $
+// $Id: r_bsp.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      BSP traversal, handling of LineSegs for rendering.
@@ -28,7 +25,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: r_bsp.c,v 1.17 1998/05/03 22:47:33 killough Exp $";
+rcsid[] = "$Id: r_bsp.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $";
 
 #include "doomstat.h"
 #include "m_bbox.h"
@@ -304,20 +301,22 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
           tempsec->floor_yoffs = s->floor_yoffs;
 
           if (underwater)
-            if (s->ceilingpic == skyflatnum)
-              {
-                tempsec->floorheight   = tempsec->ceilingheight+1;
-                tempsec->ceilingpic    = tempsec->floorpic;
-                tempsec->ceiling_xoffs = tempsec->floor_xoffs;
-                tempsec->ceiling_yoffs = tempsec->floor_yoffs;
-              }
-            else
-              {
-                tempsec->ceilingpic    = s->ceilingpic;
-                tempsec->ceiling_xoffs = s->ceiling_xoffs;
-                tempsec->ceiling_yoffs = s->ceiling_yoffs;
-              }
-
+	    {
+	      if (s->ceilingpic == skyflatnum)
+		{
+		  tempsec->floorheight   = tempsec->ceilingheight+1;
+		  tempsec->ceilingpic    = tempsec->floorpic;
+		  tempsec->ceiling_xoffs = tempsec->floor_xoffs;
+		  tempsec->ceiling_yoffs = tempsec->floor_yoffs;
+		}
+	      else
+		{
+		  tempsec->ceilingpic    = s->ceilingpic;
+		  tempsec->ceiling_xoffs = s->ceiling_xoffs;
+		  tempsec->ceiling_yoffs = s->ceiling_yoffs;
+		}
+	    }
+	  
           tempsec->lightlevel  = s->lightlevel;
 
           if (floorlightlevel)
@@ -702,6 +701,15 @@ void R_RenderBSPNode(int bspnum)
 //----------------------------------------------------------------------------
 //
 // $Log: r_bsp.c,v $
+// Revision 1.3  2000-08-12 21:29:29  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.17  1998/05/03  22:47:33  killough
 // beautification
 //

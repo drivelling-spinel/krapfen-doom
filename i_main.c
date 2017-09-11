@@ -1,44 +1,39 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: i_main.c,v 1.8 1998/05/15 00:34:03 killough Exp $
+// $Id: i_main.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Main program, simply calls D_DoomMain high level loop.
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: i_main.c,v 1.8 1998/05/15 00:34:03 killough Exp $";
+static const char rcsid[] = "$Id: i_main.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $";
+
+#include <signal.h>
+#include <allegro.h>
+#include <dpmi.h>      // Required!
 
 #include "doomdef.h"
 #include "m_argv.h"
-#include "d_main.h"
-#include "i_system.h"
-
-#include <signal.h>
-#include <sys/nearptr.h>  /* needed for __djgpp_nearptr_enable() -- stan */
-#include <dpmi.h>
-#include <allegro.h>
+#include "d_main.h"    
+#include "i_system.h" 
 
 // cleanup handling -- killough:
 static void handler(int s)
@@ -57,10 +52,11 @@ static void handler(int s)
   // If corrupted memory could cause crash, dump memory
   // allocation history, which points out probable causes
 
-  if (s==SIGSEGV || s==SIGILL || s==SIGFPE)
-    Z_DumpHistory(buf);
+  if (s==SIGSEGV || s==SIGILL || s==SIGFPE) Z_DumpHistory(buf);
 
-  I_Error(buf);
+  //cph - changed to prevent format string attacks, GB 2014, from PrBoom:
+  //I_Error(buf);
+  I_Error("%s",buf);
 }
 
 void I_Quit(void);
@@ -85,7 +81,7 @@ int main(int argc, char **argv)
      loud SFX noise because the sound card is
      left in an unstable state.
   */
-
+  set_config_file("SETUP.CFG");
   allegro_init();
   Z_Init();                  // 1/18/98 killough: start up memory stuff first
   atexit(I_Quit);
@@ -96,15 +92,7 @@ int main(int argc, char **argv)
   signal(SIGILL,  handler);
   signal(SIGINT,  handler);  // killough 3/6/98: allow CTRL-BRK during init
   signal(SIGABRT, handler);
-
-  // 2/2/98 Stan
-  // Must call this here.  It's required by both netgames and i_video.c.
-
-  if (__djgpp_nearptr_enable())  //handle nearptr now
-    D_DoomMain ();
-  else
-    printf ("Failed trying to allocate DOS near pointers.\n");
-
+  D_DoomMain (); 
   return 0;
 }
 
@@ -112,6 +100,12 @@ int main(int argc, char **argv)
 //----------------------------------------------------------------------------
 //
 // $Log: i_main.c,v $
+// Revision 1.2  2000-08-12 21:29:28  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.8  1998/05/15  00:34:03  killough
 // Remove unnecessary crash hack
 //

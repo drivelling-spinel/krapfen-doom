@@ -1,25 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: r_bsp.h,v 1.5 1998/05/03 22:48:03 killough Exp $
+// $Id: r_bsp.h,v 1.2 2000-08-12 21:29:29 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Refresh module, BSP traversal and handling.
@@ -34,11 +32,11 @@ extern side_t   *sidedef;
 extern line_t   *linedef;
 extern sector_t *frontsector;
 extern sector_t *backsector;
-extern int      rw_x;
-extern int      rw_stopx;
-extern boolean  segtextured;
-extern boolean  markfloor;      // false if the back side is the same plane
-extern boolean  markceiling;
+//extern int      rw_x;        // GB 2014, not needed, 5 lines
+//extern int      rw_stopx;
+//extern boolean  segtextured; 
+//extern boolean  markfloor;      // false if the back side is the same plane
+//extern boolean  markceiling;
 
 // old code -- killough:
 // extern drawseg_t drawsegs[MAXDRAWSEGS];
@@ -61,6 +59,12 @@ sector_t *R_FakeFlat(sector_t *, sector_t *, int *, int *, boolean);
 //----------------------------------------------------------------------------
 //
 // $Log: r_bsp.h,v $
+// Revision 1.2  2000-08-12 21:29:29  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.5  1998/05/03  22:48:03  killough
 // beautification, use new headers, change decls
 //

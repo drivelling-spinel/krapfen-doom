@@ -31,6 +31,8 @@
  *      callback functions which can detect key releases and special
  *      keys.
  *
+ *      Julian Hope added support for different versions of Allegro
+ *
  *      See readme.txt for copyright information.
  */
 
@@ -43,12 +45,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <dos.h>
-#include <conio.h>
+#include <gppconio.h>
 #include <dpmi.h>
 #include <dir.h>
 #include <sys/movedata.h>
-#include "allegro.h"
 
+#include "allegro.h"
 #include "internal.h"
 
 
@@ -71,8 +73,29 @@ volatile char key[128];                   /* key pressed flags */
 
 volatile int key_shifts = 0;
 
+/* Julian: 6/6/2001: Allegro compatibility
 
-unsigned char key_ascii_table[128] =
+   Declaration of some tables have changed:
+   ALLEGRO_ET_VERSION==0 : unsigned char table[128]
+   ALLEGRO_ET_VERSION==1 : unsigned char * table
+   which are incompatible types (at least for the current gcc version)
+   ALLEGRO_ET_VERSION==2 : have to determine how to hack
+
+*/
+#if(ALLEGRO_ET_VERSION==0)
+  // Oldest allegro
+  #define STATIC_NEEDED
+  #define STATIC_HACK(name) name
+  #define HACK_CONVERSION(name)
+#else
+  #define STATIC_NEEDED static
+  #define STATIC_HACK(name) static_##name
+  #define HACK_CONVERSION(name) \
+  unsigned char * name = (unsigned char *)static_##name ;
+#endif
+
+
+STATIC_NEEDED unsigned char STATIC_HACK(key_ascii_table)[128] =
 {
 /* 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F             */
    0,   27,  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 8,   9,       /* 0 */
@@ -84,9 +107,9 @@ unsigned char key_ascii_table[128] =
    13,  0,   '/', 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   127,     /* 6 */
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   '/', 0,   0,   0,   0,   0        /* 7 */
 };
+HACK_CONVERSION(key_ascii_table)
 
-
-unsigned char key_capslock_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_capslock_table)[128] =
 {
 /* 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F             */
    0,   27,  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 8,   9,       /* 0 */
@@ -98,9 +121,10 @@ unsigned char key_capslock_table[128] =
    13,  0,   '/', 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   127,     /* 6 */
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   '/', 0,   0,   0,   0,   0        /* 7 */
 };
+HACK_CONVERSION(key_capslock_table)
 
 
-unsigned char key_shift_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_shift_table)[128] =
 {
 /* 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F             */
    0,   27,  '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 126, 126,     /* 0 */
@@ -112,9 +136,10 @@ unsigned char key_shift_table[128] =
    13,  0,   '/', 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   127,     /* 6 */
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   '/', 0,   0,   0,   0,   0        /* 7 */
 };
+HACK_CONVERSION(key_shift_table)
 
 
-unsigned char key_control_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_control_table)[128] =
 {
 /* 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F             */
    0,   0,   2,   2,   2,   2,   2,   2,   2,   2,   2,   2,   0,   0,   127, 127,     /* 0 */
@@ -126,6 +151,7 @@ unsigned char key_control_table[128] =
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,       /* 6 */
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0        /* 7 */
 };
+HACK_CONVERSION(key_control_table)
 
 
 #define EMPTY_TABLE                                                                                \
@@ -141,60 +167,70 @@ unsigned char key_control_table[128] =
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0        /* 7 */
 
 
-unsigned char key_altgr_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_altgr_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_altgr_table)
 
 
-unsigned char key_accent1_lower_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_accent1_lower_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_accent1_lower_table)
 
 
-unsigned char key_accent1_upper_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_accent1_upper_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_accent1_upper_table)
 
 
-unsigned char key_accent1_shift_lower_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_accent1_shift_lower_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_accent1_shift_lower_table)
 
 
-unsigned char key_accent1_shift_upper_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_accent1_shift_upper_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_accent1_shift_upper_table)
 
 
-unsigned char key_accent2_lower_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_accent2_lower_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_accent2_lower_table)
 
 
-unsigned char key_accent2_upper_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_accent2_upper_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_accent2_upper_table)
 
 
-unsigned char key_accent2_shift_lower_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_accent2_shift_lower_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_accent2_shift_lower_table)
 
 
-unsigned char key_accent2_shift_upper_table[128] =
+STATIC_NEEDED unsigned char STATIC_HACK(key_accent2_shift_upper_table)[128] =
 {
    EMPTY_TABLE
 };
+HACK_CONVERSION(key_accent2_shift_upper_table)
 
 
+// Julian: needn't to be hacked
 unsigned char key_numlock_table[128] =
 {
 /* 0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F             */
@@ -208,6 +244,10 @@ unsigned char key_numlock_table[128] =
    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0        /* 7 */
 };
 
+// Julian : end of hack
+#undef STATIC_NEEDED
+#undef STATIC_HACK
+#undef HACK_CONVERSION
 
 /*
  *  Mapping:

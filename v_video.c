@@ -1,25 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: v_video.c,v 1.10 1998/05/06 11:12:48 jim Exp $
+// $Id: v_video.c,v 1.2 2000-08-12 21:29:33 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //  Gamma correction LUT stuff.
@@ -30,7 +28,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: v_video.c,v 1.10 1998/05/06 11:12:48 jim Exp $";
+rcsid[] = "$Id: v_video.c,v 1.2 2000-08-12 21:29:33 fraggle Exp $";
 
 #include "doomdef.h"
 #include "r_main.h"
@@ -669,6 +667,43 @@ void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
     }
 }
 
+//-----------------------------------------------------------------------------
+// GB 2014: Single color filled rectangle, backdrop for FPS meter 
+void V_DrawRect(int scrn, int x1,int y1, int x2, int y2, byte color)
+{
+#ifdef RANGECHECK
+  if (x<0
+      || x+w>SCREENWIDTH
+      || y<0
+      || y+h>SCREENHEIGHT
+      || (unsigned)scrn>4 )
+    I_Error ("Bad V_DrawRect");
+#endif
+
+   int top_offset,bottom_offset,i,w,scrw=SCREENWIDTH;
+
+   if (hires)
+   {
+	  x1+=x1;
+	  y1+=y1;
+	  x2+=x2;
+	  y2+=y2;
+	  scrw+=scrw;
+	  w=x2-x1+2;
+      top_offset=y1*scrw+x1;
+      bottom_offset=(y2+1)*scrw+(x2+1);
+      for(i=top_offset;i<=bottom_offset;i+=(scrw)) memset(&screens[scrn][i],color,w);
+   } 
+   else
+   {
+      w=x2-x1+1;
+      top_offset=(y1<<8)+(y1<<6)+x1;
+      bottom_offset=(y2<<8)+(y2<<6)+x1;
+      for(i=top_offset;i<=bottom_offset;i+=scrw)   memset(&screens[scrn][i],color,w);
+   }
+}
+
+//-----------------------------------------------------------------------------
 //
 // V_Init
 //
@@ -676,26 +711,32 @@ void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
 // No return value
 //
 // killough 11/98: rewritten to support hires
-
+// GB 2014: removed allegro BITMAP scruture dependency for screens[0]
+//
 void V_Init(void)
 {
-  int size = hires ? SCREENWIDTH*SCREENHEIGHT*4 : SCREENWIDTH*SCREENHEIGHT;
+  int size = (hires ? SCREENWIDTH*SCREENHEIGHT*4 : SCREENWIDTH*SCREENHEIGHT);
   static byte *s;
 
-  if (s)
-    free(s), destroy_bitmap(screens0_bitmap);
+  if (s) free(s);
+  if (screens[0]) free(screens[0]);
 
   screens[3] = (screens[2] = (screens[1] = s = calloc(size,3)) + size) + size;
 
-  screens0_bitmap = 
-    create_bitmap_ex(8, SCREENWIDTH << hires, SCREENHEIGHT << hires);
+  screens[0] = calloc(size,1);
 
-  memset(screens[0] = screens0_bitmap->line[0], 0, size);
+  memset(screens[0], 0, size);
 }
 
 //----------------------------------------------------------------------------
 //
 // $Log: v_video.c,v $
+// Revision 1.2  2000-08-12 21:29:33  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.10  1998/05/06  11:12:48  jim
 // Formattted v_video.*
 //
