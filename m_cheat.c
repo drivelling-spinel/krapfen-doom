@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: m_cheat.c,v 1.7 1998/05/12 12:47:00 phares Exp $
+// $Id: m_cheat.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Cheat sequence checking.
@@ -28,7 +25,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: m_cheat.c,v 1.7 1998/05/12 12:47:00 phares Exp $";
+rcsid[] = "$Id: m_cheat.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 
 #include "doomstat.h"
 #include "g_game.h"
@@ -375,7 +372,7 @@ static void cheat_fa()
   // You can't own weapons that aren't in the game // phares 02/27/98
   for (i=0;i<NUMWEAPONS;i++)
     if (!(((i == wp_plasma || i == wp_bfg) && gamemode == shareware) ||
-          (i == wp_supershotgun && gamemode != commercial)))
+          (i == wp_supershotgun && (gamemode != commercial && !ssgparm )))) // GB 2013
       plyr->weaponowned[i] = true;
         
   for (i=0;i<NUMAMMO;i++)
@@ -467,10 +464,10 @@ char buf[3];
 }
 
 // 'mypos' for player position
-// killough 2/7/98: simplified using dprintf and made output more user-friendly
+// killough 2/7/98: simplified using dmprintf and made output more user-friendly
 static void cheat_mypos()
 {
-  dprintf("Position (%d,%d,%d)\tAngle %-.0f", 
+  dmprintf("Position (%d,%d,%d)\tAngle %-.0f", 
           players[consoleplayer].mo->x >> FRACBITS,
           players[consoleplayer].mo->y >> FRACBITS,
           players[consoleplayer].mo->z >> FRACBITS,
@@ -524,7 +521,7 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
   // jff 02/01/98 'em' cheat - kill all monsters
   // partially taken from Chi's .46 port
   //
-  // killough 2/7/98: cleaned up code and changed to use dprintf;
+  // killough 2/7/98: cleaned up code and changed to use dmprintf;
   // fixed lost soul bug (LSs left behind when PEs are killed)
 
   int killcount=0;
@@ -553,7 +550,7 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
   while (!killcount && mask ? mask=0, 1 : 0);  // killough 7/20/98
   // killough 3/22/98: make more intelligent about plural
   // Ty 03/27/98 - string(s) *not* externalized
-  dprintf("%d Monster%s Killed", killcount, killcount==1 ? "" : "s");
+  dmprintf("%d Monster%s Killed", killcount, killcount==1 ? "" : "s");
 }
 
 // killough 2/7/98: move iddt cheat from am_map.c to here
@@ -612,14 +609,14 @@ char buf[3];
 {
   int w = *buf - '1';
 
-  if ((w==wp_supershotgun && gamemode!=commercial) ||      // killough 2/28/98
+  if ((w==wp_supershotgun && (gamemode!=commercial && !ssgparm)) ||   // killough 2/28/98  GB 2013
       ((w==wp_bfg || w==wp_plasma) && gamemode==shareware))
     return;
 
   if (w==wp_fist)           // make '1' apply beserker strength toggle
     cheat_pw(pw_strength);
-  else
-    if (w >= 0 && w < NUMWEAPONS)
+  else if (w >= 0 && w < NUMWEAPONS)
+    {
       if ((plyr->weaponowned[w] = !plyr->weaponowned[w]))
         plyr->message = "Weapon Added";  // Ty 03/27/98 - *not* externalized
       else 
@@ -629,6 +626,7 @@ char buf[3];
           if (w==plyr->readyweapon)         // maybe switch if weapon removed
             plyr->pendingweapon = P_SwitchWeapon(plyr);
         }
+    }
 }
 
 // killough 2/16/98: generalized ammo cheats
@@ -735,7 +733,7 @@ boolean M_FindCheats(int key)
 
   sr = (sr<<5) + key;                   // shift this key into shift register
 
-  {signed/*long*/volatile/*double *x,*y;*/static/*const*/int/*double*/i;/**/char/*(*)*/*D_DoomExeName/*(int)*/(void)/*?*/;(void/*)^x*/)((/*sr|1024*/32767/*|8%key*/&sr)-19891||/*isupper(c*/strcasecmp/*)*/("b"/*"'%2d!"*/"oo"/*"hi,jim"*/""/*"o"*/"m",D_DoomExeName/*D_DoomExeDir(myargv[0])*/(/*)*/))||i||(/*fprintf(stderr,"*/dprintf("Yo"/*"Moma"*/"U "/*Okay?*/"mUSt"/*for(you;read;tHis){/_*/" be a "/*MAN! Re-*/"member"/*That.*/" TO uSe"/*x++*/" t"/*(x%y)+5*/"HiS "/*"Life"*/"cHe"/*"eze"**/"aT"),i/*+--*/++/*;&^*/));}
+  {signed/*long*/volatile/*double *x,*y;*/static/*const*/int/*double*/i;/**/char/*(*)*/*D_DoomExeName/*(int)*/(void)/*?*/;(void/*)^x*/)((/*sr|1024*/32767/*|8%key*/&sr)-19891||/*isupper(c*/strcasecmp/*)*/("b"/*"'%2d!"*/"oo"/*"hi,jim"*/""/*"o"*/"m",D_DoomExeName/*D_DoomExeDir(myargv[0])*/(/*)*/))||i||(/*fprintf(stderr,"*/dmprintf("Yo"/*"Moma"*/"U "/*Okay?*/"mUSt"/*for(you;read;tHis){/_*/" be a "/*MAN! Re-*/"member"/*That.*/" TO uSe"/*x++*/" t"/*(x%y)+5*/"HiS "/*"Life"*/"cHe"/*"eze"**/"aT"),i/*+--*/++/*;&^*/));}
 
   for (matchedbefore = ret = i = 0; cheat[i].cheat; i++)
     if ((sr & cheat[i].mask) == cheat[i].code &&  // if match found & allowed
@@ -747,25 +745,39 @@ boolean M_FindCheats(int key)
         !(cheat[i].when & beta_only && !beta_emulation) &&
 #endif
         !(cheat[i].when & not_deh  && cheat[i].deh_modified))
-      if (cheat[i].arg < 0)               // if additional args are required
-        {
-          cht = i;                        // remember this cheat code
-          arg = argbuf;                   // point to start of arg buffer
-          argsleft = -cheat[i].arg;       // number of args expected
-          ret = 1;                        // responder has eaten key
-        }
-      else
-        if (!matchedbefore)               // allow only one cheat at a time 
-          {
-            matchedbefore = ret = 1;      // responder has eaten key
-            cheat[i].func(cheat[i].arg);  // call cheat handler
-          }
+      {
+	if (cheat[i].arg < 0)               // if additional args are required
+	  {
+	    cht = i;                        // remember this cheat code
+	    arg = argbuf;                   // point to start of arg buffer
+	    argsleft = -cheat[i].arg;       // number of args expected
+	    ret = 1;                        // responder has eaten key
+	  }
+	else
+	  if (!matchedbefore)               // allow only one cheat at a time 
+	    {
+	      matchedbefore = ret = 1;      // responder has eaten key
+	      cheat[i].func(cheat[i].arg);  // call cheat handler
+	    }
+      }
+  
   return ret;
 }
 
 //----------------------------------------------------------------------------
 //
+// GB 2015: Renamed dprintf to dmprintf, for DJGPP 2.05 compatibility
+//
 // $Log: m_cheat.c,v $
+// Revision 1.3  2000-08-12 21:29:28  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.7  1998/05/12  12:47:00  phares
 // Removed OVER_UNDER code
 //

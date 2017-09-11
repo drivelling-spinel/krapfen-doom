@@ -1,25 +1,21 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: d_deh.c,v 1.20 1998/06/01 22:30:38 thldrmn Exp $
+// $Id: d_deh.c,v 1.2 2000-08-12 21:29:24 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
-//
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // Dehacked file support
 // New for the TeamTNT "Boom" engine
@@ -29,7 +25,7 @@
 //--------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: d_deh.c,v 1.20 1998/06/01 22:30:38 thldrmn Exp $";
+rcsid[] = "$Id: d_deh.c,v 1.2 2000-08-12 21:29:24 fraggle Exp $";
 
 // killough 5/2/98: fixed headers, removed rendunant external declarations:
 #include "doomdef.h"
@@ -445,8 +441,9 @@ deh_strs deh_strlookup[] = {
   {&s_QLOADNET,"QLOADNET"},
   {&s_QSAVESPOT,"QSAVESPOT"},
   {&s_SAVEDEAD,"SAVEDEAD"},
-  {&s_QSPROMPT,"QSPROMPT"},
-  {&s_QLPROMPT,"QLPROMPT"},
+//cph - disabled to prevent format string attacks, GB 2014, from PrBoom:
+//{&s_QSPROMPT,"QSPROMPT"},
+//{&s_QLPROMPT,"QLPROMPT"},
   {&s_NEWGAME,"NEWGAME"},
   {&s_NIGHTMARE,"NIGHTMARE"},
   {&s_SWSTRING,"SWSTRING"},
@@ -1522,12 +1519,17 @@ void ProcessDehFile(char *filename, char *outfilename, int lumpnum)
   else
     fclose((FILE *) infile.inp);              // Close real file
 
-  if (outfilename)   // killough 10/98: only at top recursion level
-    {
-      if (fileout != stdout)
-        fclose(fileout);
+
+   // GB 2014: imported NULL file fix from Eternity.
+   // killough 10/98: only at top recursion level
+   // haleyjd 05/21/02: must check fileout for validity!
+   if(outfilename)   
+   {
+      // do not fclose(NULL)
+      if(fileout && fileout != stdout)
+         fclose(fileout);
       fileout = NULL;
-    }
+   }
 }
 
 // ====================================================================
@@ -2197,17 +2199,17 @@ void deh_procCheat(DEHFILE *fpin, FILE* fpout, char *line) // done
                 while (*p == ' ') ++p;
                 // Ty 03/16/98 - change to use a strdup and orphan the original
                 // Also has the advantage of allowing length changes.
-                // strncpy(cheat[iy].cheat,p,strlen(cheat[iy].cheat));
+                // strncpy((char * )cheat[iy].cheat,p,strlen((char * )cheat[iy].cheat));
                 {    // killough 9/12/98: disable cheats which are prefixes of this one
                   int i;
                   for (i=0; cheat[i].cheat; i++)
                     if (cheat[i].when & not_deh &&
-                        !strncasecmp(cheat[i].cheat,
-                                     cheat[iy].cheat,
-                                     strlen(cheat[i].cheat)) && i != iy)
+                        !strncasecmp((char * )cheat[i].cheat,
+                                     (char * )cheat[iy].cheat,
+                                     strlen((char * )cheat[i].cheat)) && i != iy)
                       cheat[i].deh_modified = true;
                 }
-                cheat[iy].cheat = strdup(p);
+                cheat[iy].cheat =  strdup(p);  // GB 2014, keep getting a warning...  char *p;  //  char *	strdup(const char *_s);
                 if (fpout) fprintf(fpout,
                                    "Assigned new cheat '%s' to cheat '%s'at index %d\n",
                                    p, cheat[ix].deh_cheat, iy); // killough 4/18/98
@@ -2722,6 +2724,12 @@ boolean deh_GetData(char *s, char *k, long *l, char **strval, FILE *fpout)
 //---------------------------------------------------------------------
 //
 // $Log: d_deh.c,v $
+// Revision 1.2  2000-08-12 21:29:24  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.20  1998/06/01  22:30:38  thldrmn
 // fix .acv pointer for new GCC version
 //

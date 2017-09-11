@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: r_segs.c,v 1.16 1998/05/03 23:02:01 killough Exp $
+// $Id: r_segs.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      All the clipping: columns, horizontal spans, sky columns.
@@ -30,7 +27,7 @@
 // 4/25/98, 5/2/98 killough: reformatted, beautified
 
 static const char
-rcsid[] = "$Id: r_segs.c,v 1.16 1998/05/03 23:02:01 killough Exp $";
+rcsid[] = "$Id: r_segs.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $";
 
 #include "doomstat.h"
 #include "r_main.h"
@@ -102,10 +99,19 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   curline = ds->curline;  // OPTIMIZE: get rid of LIGHTSEGSHIFT globally
 
   // killough 4/11/98: draw translucent 2s normal textures
-
+  #ifdef CALT
+  if      (lowdetparm) colfunc = R_DrawColumn_C_LowDet; 
+  else if (noasmparm)  colfunc = R_DrawColumn_C; else 
+  #endif // CALT
   colfunc = R_DrawColumn;
+
   if (curline->linedef->tranlump >= 0 && general_translucency)
     {
+      
+	  #ifdef CALT
+      if      (lowdetparm) colfunc = R_DrawTLColumn_C_LowDet; 
+      else if (noasmparm)  colfunc = R_DrawTLColumn_C; else 
+      #endif // CALT
       colfunc = R_DrawTLColumn;
       tranmap = main_tranmap;
       if (curline->linedef->tranlump > 0)
@@ -710,17 +716,21 @@ void R_StoreWallRange(const int start, const int stop)
 
   // render it
   if (markceiling)
-    if (ceilingplane)   // killough 4/11/98: add NULL ptr checks
-      ceilingplane = R_CheckPlane (ceilingplane, rw_x, rw_stopx-1);
-    else
-      markceiling = 0;
-
+    {
+      if (ceilingplane)   // killough 4/11/98: add NULL ptr checks
+	ceilingplane = R_CheckPlane (ceilingplane, rw_x, rw_stopx-1);
+      else
+	markceiling = 0;
+    }
+  
   if (markfloor)
-    if (floorplane)     // killough 4/11/98: add NULL ptr checks
-      floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1);
-    else
-      markfloor = 0;
-
+    {
+      if (floorplane)     // killough 4/11/98: add NULL ptr checks
+	floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1);
+      else
+	markfloor = 0;
+    }
+  
   R_RenderSegLoop();
 
   // save sprite clipping info
@@ -752,6 +762,15 @@ void R_StoreWallRange(const int start, const int stop)
 //----------------------------------------------------------------------------
 //
 // $Log: r_segs.c,v $
+// Revision 1.3  2000-08-12 21:29:30  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.16  1998/05/03  23:02:01  killough
 // Move R_PointToDist from r_main.c, fix #includes
 //

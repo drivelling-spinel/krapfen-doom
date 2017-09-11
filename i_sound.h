@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: i_sound.h,v 1.4 1998/05/03 22:31:58 killough Exp $
+// $Id: i_sound.h,v 1.2 2000-08-12 21:29:28 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      System interface, sound.
@@ -105,8 +102,8 @@ void I_StopSong(int handle);
 void I_UnRegisterSong(int handle);
 
 // Allegro card support jff 1/18/98
-extern  int snd_card, default_snd_card;  // killough 10/98: add default_*
-extern  int mus_card, default_mus_card;
+extern  int snd_card; //, default_snd_card;  // killough 10/98: add default_*
+extern  int mus_card; //, default_mus_card;
 extern  int detect_voices; // jff 3/4/98 option to disable voice detection
 
 #endif
@@ -114,6 +111,12 @@ extern  int detect_voices; // jff 3/4/98 option to disable voice detection
 //----------------------------------------------------------------------------
 //
 // $Log: i_sound.h,v $
+// Revision 1.2  2000-08-12 21:29:28  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.4  1998/05/03  22:31:58  killough
 // beautification, add some external declarations
 //

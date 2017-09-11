@@ -1,33 +1,30 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: i_system.c,v 1.14 1998/05/03 22:33:13 killough Exp $
+// $Id: i_system.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: i_system.c,v 1.14 1998/05/03 22:33:13 killough Exp $";
+rcsid[] = "$Id: i_system.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 
 #include <stdio.h>
 
@@ -36,6 +33,9 @@ extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 #include <stdarg.h>
 #include <gppconio.h>
 #include <sys/nearptr.h>
+
+// fraggle 29/7/2000: keyboard.h: avoid name conflicts with allegro functions
+#include "keyboard.h"
 
 #include "i_system.h"
 #include "i_sound.h"
@@ -280,6 +280,15 @@ void I_EndDoom(void)
 //----------------------------------------------------------------------------
 //
 // $Log: i_system.c,v $
+// Revision 1.3  2000-08-12 21:29:28  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 22:48:22  fraggle
+// fix for allegro v3.12
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.14  1998/05/03  22:33:13  killough
 // beautification
 //

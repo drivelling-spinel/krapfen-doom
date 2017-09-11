@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: r_things.c,v 1.22 1998/05/03 22:46:41 killough Exp $
+// $Id: r_things.c,v 1.4 2000-08-12 21:29:34 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //  Refresh of things, i.e. objects represented by sprites.
@@ -28,7 +25,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: r_things.c,v 1.22 1998/05/03 22:46:41 killough Exp $";
+rcsid[] = "$Id: r_things.c,v 1.4 2000-08-12 21:29:34 fraggle Exp $";
 
 #include "doomstat.h"
 #include "w_wad.h"
@@ -377,11 +374,24 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
     else
       if (vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
         {
-          colfunc = R_DrawTLColumn;
+
+	  	  #ifdef CALT
+          if      (lowdetparm) colfunc = R_DrawTLColumn_C_LowDet; 
+          else if (noasmparm)  colfunc = R_DrawTLColumn_C; else 
+		  #endif // CALT
+	      colfunc = R_DrawTLColumn;
+
           tranmap = main_tranmap;       // killough 4/11/98
         }
       else
-        colfunc = R_DrawColumn;         // killough 3/14/98, 4/11/98
+		{
+		  #ifdef CALT
+          if      (lowdetparm) colfunc = R_DrawColumn_C_LowDet; 
+          else if (noasmparm)  colfunc = R_DrawColumn_C; else 
+		  #endif // CALT
+	      colfunc = R_DrawColumn;
+		}
+         // killough 3/14/98, 4/11/98
 
   dc_iscale = abs(vis->xiscale);
   dc_texturemid = vis->texturemid;
@@ -402,7 +412,14 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
                             LONG(patch->columnofs[texturecolumn]));
       R_DrawMaskedColumn (column);
     }
-  colfunc = R_DrawColumn;         // killough 3/14/98
+
+  #ifdef CALT
+  if      (lowdetparm) colfunc = R_DrawColumn_C_LowDet; 
+  else if (noasmparm)  colfunc = R_DrawColumn_C; else 
+  #endif // CALT
+  colfunc = R_DrawColumn;
+
+  // killough 3/14/98
 }
 
 //
@@ -719,7 +736,7 @@ void R_DrawPlayerSprites(void)
   // (see r_bsp.c for similar calculations for non-player sprites)
 
   R_FakeFlat(viewplayer->mo->subsector->sector, &tmpsec,
-             &floorlightlevel, &ceilinglightlevel, NULL);
+             &floorlightlevel, &ceilinglightlevel, false); // GB 2014, was NULL);
   lightnum = ((floorlightlevel+ceilinglightlevel) >> (LIGHTSEGSHIFT+1))
     + extralight;
 
@@ -747,11 +764,24 @@ void R_DrawPlayerSprites(void)
 // linked lists, and to use faster sorting algorithm.
 //
 
-#ifdef DJGPP
+// fraggle:
+// temporarily broken
+// i dont know asm so i cant fix it
+
+#if 0  /* #ifdef DJGPP*/
 
 // killough 9/22/98: inlined memcpy of pointer arrays
 
-#define bcopyp(d, s, n) asm(" cld; rep; movsl;" :: "D"(d), "S"(s), "c"(n) : "%cc", "%esi", "%edi", "%ecx")
+// Julian 6/7/2001 - merged in by GB 2014
+// 1) cleansed macro layout 
+// 2) remove esi,edi,ecx from cloberred regs since used in constraints
+// (useless on old gcc, error maker on modern versions) - 
+#define bcopyp(d, s, n) \
+asm(\
+" cld\n"\
+"rep\n" \
+"movsl" :\
+: "D"(d), "S"(s), "c"(n) : "%cc")
 
 #else
 
@@ -906,31 +936,34 @@ void R_DrawSprite (vissprite_t* spr)
       if ((mh = sectors[spr->heightsec].floorheight) > spr->gz &&
           (h = centeryfrac - FixedMul(mh-=viewz, spr->scale)) >= 0 &&
           (h >>= FRACBITS) < viewheight)
-        if (mh <= 0 || (phs != -1 && viewz > sectors[phs].floorheight))
-          {                          // clip bottom
-            for (x=spr->x1 ; x<=spr->x2 ; x++)
-              if (clipbot[x] == -2 || h < clipbot[x])
-                clipbot[x] = h;
-          }
-        else                        // clip top
-          if (phs != -1 && viewz <= sectors[phs].floorheight) // killough 11/98
-            for (x=spr->x1 ; x<=spr->x2 ; x++)
-              if (cliptop[x] == -2 || h > cliptop[x])
-                cliptop[x] = h;
-
+	{
+	  if (mh <= 0 || (phs != -1 && viewz > sectors[phs].floorheight))
+	    {                          // clip bottom
+	      for (x=spr->x1 ; x<=spr->x2 ; x++)
+		if (clipbot[x] == -2 || h < clipbot[x])
+		  clipbot[x] = h;
+	    }                        // clip top
+	  else if (phs != -1 && viewz <= sectors[phs].floorheight) // killough 11/98
+	    for (x=spr->x1 ; x<=spr->x2 ; x++)
+	      if (cliptop[x] == -2 || h > cliptop[x])
+		cliptop[x] = h;
+	}
+      
       if ((mh = sectors[spr->heightsec].ceilingheight) < spr->gzt &&
           (h = centeryfrac - FixedMul(mh-viewz, spr->scale)) >= 0 &&
           (h >>= FRACBITS) < viewheight)
-        if (phs != -1 && viewz >= sectors[phs].ceilingheight)
-          {                         // clip bottom
-            for (x=spr->x1 ; x<=spr->x2 ; x++)
-              if (clipbot[x] == -2 || h < clipbot[x])
-                clipbot[x] = h;
-          }
-        else                       // clip top
-          for (x=spr->x1 ; x<=spr->x2 ; x++)
-            if (cliptop[x] == -2 || h > cliptop[x])
-              cliptop[x] = h;
+	{
+	  if (phs != -1 && viewz >= sectors[phs].ceilingheight)
+	    {                         // clip bottom
+	      for (x=spr->x1 ; x<=spr->x2 ; x++)
+		if (clipbot[x] == -2 || h < clipbot[x])
+		  clipbot[x] = h;
+	    }
+	  else                       // clip top
+	    for (x=spr->x1 ; x<=spr->x2 ; x++)
+	      if (cliptop[x] == -2 || h > cliptop[x])
+		cliptop[x] = h;
+	}
     }
   // killough 3/27/98: end special clipping for deep water / fake ceilings
 
@@ -988,6 +1021,18 @@ void R_DrawMasked(void)
 //----------------------------------------------------------------------------
 //
 // $Log: r_things.c,v $
+// Revision 1.4  2000-08-12 21:29:34  fraggle
+// change license header
+//
+// Revision 1.3  2000/07/29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.2  2000/07/29 13:48:25  fraggle
+// fix asm
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.22  1998/05/03  22:46:41  killough
 // beautification
 //

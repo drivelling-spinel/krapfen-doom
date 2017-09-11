@@ -1,25 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: p_doors.c,v 1.13 1998/05/09 12:16:29 jim Exp $
+// $Id: p_doors.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //   Door animation code (opening/closing)
@@ -27,7 +25,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: p_doors.c,v 1.13 1998/05/09 12:16:29 jim Exp $";
+rcsid[] = "$Id: p_doors.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $";
 
 #include "doomstat.h"
 #include "p_spec.h"
@@ -302,7 +300,7 @@ int EV_DoLockedDoor(line_t *line, vldoor_e type, mobj_t *thing)
 
 int EV_DoDoor(line_t *line, vldoor_e type)
 {
-  int secnum = -1, rtn = 0;
+  int secnum = -1, rtn = 0; 
   sector_t *sec;
   vldoor_t *door;
 
@@ -393,7 +391,7 @@ int EV_DoDoor(line_t *line, vldoor_e type)
 int EV_VerticalDoor(line_t *line, mobj_t *thing)
 {
   player_t* player;
-  int   secnum;
+//  int   secnum; GB 2014 not used?
   sector_t* sec;
   vldoor_t* door;
 
@@ -451,8 +449,9 @@ int EV_VerticalDoor(line_t *line, mobj_t *thing)
 
   // get the sector on the second side of activating linedef
   sec = sides[line->sidenum[1]].sector;
-  secnum = sec-sectors;
+//  secnum = sec-sectors; GB 2014 not used?
 
+/*
   // if door already has a thinker, use it
   if (sec->ceilingdata)      //jff 2/22/98
     {
@@ -476,6 +475,34 @@ int EV_VerticalDoor(line_t *line, mobj_t *thing)
           return 1;
         }
     }
+*/
+
+  // DR doors corrupt other actions, from PrBoom, imported and modified GB 2014, commented out lines above.
+
+  // if door already has a thinker, use it
+  // cph 2001/04/05 - Original Doom didn't distinguish floor/lighting/ceiling
+  // actions, so we need to do the same in demo compatibility mode.
+  door = sec->ceilingdata;
+  if (demo_compatibility) {
+    if (!door) door = sec->floordata;
+    if (!door) door = sec->lightingdata;
+  }
+  if (door) {
+    // If the current action is a T_VerticalDoor and we're back in
+    // EV_VerticalDoor, it must have been a repeatable line, so I've dropped
+    // that check. For old demos we have to emulate the old buggy behavior and
+    // mess up non-T_VerticalDoor actions.
+    if (demo_compatibility || door->thinker.function == T_VerticalDoor) {
+      // An already moving repeatable door which is being re-pressed, or a
+      // monster is trying to open a closing door - so change direction
+           if (door->direction == -1) { door->direction =  1; return 1; }// go back up 
+      else if (player)                { door->direction = -1; return 1; }// go back down 
+    }
+    // Either we're in prboom >=v2.3 and it's not a door, or it's a door but
+    // we're a monster and don't want to shut it; exit with no action.
+    return 0;
+  }
+
 
   // emit proper sound
   switch(line->special)
@@ -619,6 +646,12 @@ void P_SpawnDoorRaiseIn5Mins(sector_t *sec, int secnum)
 //----------------------------------------------------------------------------
 //
 // $Log: p_doors.c,v $
+// Revision 1.2  2000-08-12 21:29:28  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.13  1998/05/09  12:16:29  jim
 // formatted/documented p_doors
 //

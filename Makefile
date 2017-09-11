@@ -1,6 +1,6 @@
 ################################################################
 #
-# $Id: makefile,v 1.38 1998/05/18 22:59:22 killough Exp $
+# $Id: makefile,v 1.1.1.1 2000-07-29 13:20:41 fraggle Exp $
 #
 ################################################################
 
@@ -10,20 +10,44 @@ CC = gcc
 RM = del
 
 # the command you use to copy files
-CP = copy /y
+#CP = copy /y (/y does not work in XP)
+CP = copy 
 
 # options common to all builds
-CFLAGS_COMMON = -Wall
+#CFLAGS_COMMON = -Wall
+CFLAGS_COMMON = -Wall -Winline -Wno-parentheses
 
 # new features; comment out what you don't want at the moment
-CFLAGS_NEWFEATURES = -DDOGS -DBETA
+# DDOGS - Friendly helper dogs,                   
+# DBETA - Doom beta version emulation 
+# DV12C Doom v1.2 Sight Routines (Demo compat)
+# DCALT - Alternate GFX procedures in C, for noasm parameter.  
+#CFLAGS_NEWFEATURES = -DDOGS -DBETA -DV12C -DCALT 
+CFLAGS_NEWFEATURES = -DDOGS -DBETA -DV12C -DCALT 
 
 # debug options
 CFLAGS_DEBUG = -g -O2 -DRANGECHECK -DINSTRUMENTED
 LDFLAGS_DEBUG =
 
 # optimized (release) options
-CFLAGS_RELEASE = -O3 -ffast-math -fomit-frame-pointer -m486 -mreg-alloc=adcbSDB
+# CFLAGS_RELEASE =-O1 -ffast-math -fomit-frame-pointer -m486 -fexpensive-optimizations
+# CFLAGS_RELEASE =-O1 -ffast-math -fomit-frame-pointer -mtune=i486 -Wno-pointer-sign
+
+ CFLAGS_RELEASE =-O3 -ffast-math -m486 
+# CFLAGS_RELEASE =-O1 -ffast-math -mtune=i486 -Wno-pointer-sign -fexpensive-optimizations
+ 
+
+# GCC 2.7: -ffast-math makes no difference
+# GCC 2.7: -fomit-frame-pointer gives a few FPS less 
+# GCC 2.7: -mreg-alloc=adcbSDB gives 0,2 FPS less
+# -fstrength-reduce = better FPS with GCC 4, less FPS with GCC 2
+# GCC 2.7: can also mess up MBF in hires, but very rarely. Just "-O3 -m486" gives most FPS. 
+# GCC 2.9: "-O1 -m486"  works in hires in MBF under PCem, sometimes...
+# GCC 4.7: "-O0 -mtune=i486" already messes up hires mode in MBF under PCem. More options will also bug normal mode.
+# GCC 4.7: max FPS: -O1 -ffast-math -fomit-frame-pointer -mtune=i486 -fstrength-reduce -fexpensive-optimizations
+# In summary GCC 4 with optimal options can give 1,4 FPS more: like 36,4 vs 35,0. But is not reliable in PCem. 
+# removing all NEWFEATURES actually decreases FSP from 35 to 31,8 !?
+
 LDFLAGS_RELEASE = -s
 
 # libraries to link in
@@ -31,7 +55,7 @@ LIBS = -lalleg -lm -lemu
 
 # this selects flags based on debug and release tagets
 MODE = RELEASE
-CFLAGS =  $(CFLAGS_COMMON)  $(CFLAGS_$(MODE)) $(CFLAGS_NEWFEATURES)
+CFLAGS = $(CFLAGS_COMMON) $(CFLAGS_$(MODE)) $(CFLAGS_NEWFEATURES)
 LDFLAGS = $(LDFLAGS_COMMON) $(LDFLAGS_$(MODE))
 
 # subdirectory for objects (depends on target, to allow you
@@ -94,6 +118,7 @@ OBJS=	\
         $(O)/w_wad.o        \
         $(O)/wi_stuff.o     \
         $(O)/v_video.o      \
+        $(O)/i_vgavbe.o     \
         $(O)/st_lib.o       \
         $(O)/st_stuff.o     \
         $(O)/hu_stuff.o     \
@@ -110,7 +135,7 @@ OBJS=	\
         $(O)/drawcol.o      \
         $(O)/p_genlin.o     \
         $(O)/d_deh.o	    \
-	$(O)/emu8kmid.o
+ 	$(O)/emu8kmid.o	    
 
 doom all: $(O)/mbf.exe
 	$(CP) $(O)\mbf.exe .
@@ -180,7 +205,7 @@ $(O)/i_video.o: i_video.c z_zone.h doomstat.h doomdata.h doomtype.h d_net.h \
  d_player.h d_items.h doomdef.h m_swap.h version.h p_pspr.h m_fixed.h \
  i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h v_video.h \
  r_data.h r_defs.h r_state.h d_main.h d_event.h st_stuff.h m_argv.h w_wad.h \
- sounds.h s_sound.h r_draw.h am_map.h m_menu.h wi_stuff.h
+ sounds.h s_sound.h r_draw.h am_map.h m_menu.h wi_stuff.h 
 
 $(O)/i_net.o: i_net.c z_zone.h doomstat.h doomdata.h doomtype.h d_net.h \
  d_player.h d_items.h doomdef.h m_swap.h version.h p_pspr.h m_fixed.h \
@@ -239,6 +264,8 @@ $(O)/m_misc.o: m_misc.c doomstat.h doomdata.h doomtype.h d_net.h d_player.h \
  dstrings.h d_englsh.h m_misc.h s_sound.h d_main.h
 
 $(O)/m_argv.o: m_argv.c
+
+$(O)/m_vgavbe.o: m_vgavbe.c m_vgavbe.h
 
 $(O)/m_bbox.o: m_bbox.c m_bbox.h z_zone.h m_fixed.h i_system.h d_ticcmd.h \
  doomtype.h
@@ -422,12 +449,12 @@ $(O)/wi_stuff.o: wi_stuff.c doomstat.h doomdata.h doomtype.h d_net.h \
  d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \
  m_fixed.h i_system.h d_ticcmd.h tables.h info.h d_think.h p_mobj.h \
  m_random.h w_wad.h g_game.h d_event.h r_main.h r_data.h r_defs.h \
- r_state.h v_video.h wi_stuff.h s_sound.h sounds.h
+ r_state.h v_video.h wi_stuff.h s_sound.h sounds.h 
 
 $(O)/v_video.o: v_video.c doomdef.h z_zone.h m_swap.h version.h r_main.h \
  d_player.h d_items.h p_pspr.h m_fixed.h i_system.h d_ticcmd.h \
  doomtype.h tables.h info.h d_think.h p_mobj.h doomdata.h r_data.h \
- r_defs.h r_state.h m_bbox.h w_wad.h v_video.h i_video.h
+ r_defs.h r_state.h m_bbox.h w_wad.h v_video.h i_video.h i_vgavbe.h 
 
 $(O)/st_lib.o: st_lib.c doomdef.h z_zone.h m_swap.h version.h v_video.h \
  doomtype.h r_data.h r_defs.h m_fixed.h i_system.h d_ticcmd.h \
@@ -508,6 +535,9 @@ $(O)/bin2c.o: bin2c.c
 
 ###############################################################################
 # $Log: makefile,v $
+# Revision 1.1.1.1  2000-07-29 13:20:41  fraggle
+# imported sources
+#
 # Revision 1.38  1998/05/18  22:59:22  killough
 # Update p_lights.o depedencies
 #
@@ -613,4 +643,4 @@ $(O)/bin2c.o: bin2c.c
 # Revision 1.1.1.1  1998/01/19  14:02:52  rand
 # Lee's Jan 19 sources
 #
-###############################################################################
+##################################################

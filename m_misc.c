@@ -1,27 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: m_misc.c,v 1.60 1998/06/03 20:32:12 jim Exp $
+// $Id: m_misc.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //  Main loop menu stuff.
@@ -31,7 +27,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: m_misc.c,v 1.60 1998/06/03 20:32:12 jim Exp $";
+rcsid[] = "$Id: m_misc.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 
 #include "doomstat.h"
 #include "m_argv.h"
@@ -101,6 +97,8 @@ default_t defaults[] = {
     "selects default skill 1=TYTD 2=NTR 3=HMP 4=UV 5=NM"
   },
 
+  // GB 2016 Obsolete - use setup.exe to configure sound hardware
+/*
   { // jff 1/18/98 allow Allegro drivers to be set,  -1 = autodetect
     "sound_card",
     &default_snd_card, NULL,
@@ -119,8 +117,9 @@ default_t defaults[] = {
     "detect_voices",
     &detect_voices, NULL,
     1, {0,1}, number, ss_gen, wad_no,
-    "1 enables voice detection prior to calling install sound"
+    "Obsolete - use setup.exe to configure sound hardware"
   },
+*/
 
   { // killough 11/98: hires
     "hires", &hires, NULL,
@@ -189,6 +188,13 @@ default_t defaults[] = {
     &flashing_hom, NULL,
     1, {0,1}, number, ss_gen, wad_yes,
     "1 to enable flashing HOM indicator"
+  },
+
+  { // GB 2014
+    "show_fps",
+    &show_fps, NULL,
+    0, {0,1}, number, ss_gen, wad_no,
+    "1 to show Framerate + Mode indicator"
   },
 
   { // killough 3/31/98
@@ -1892,11 +1898,13 @@ void M_LoadDefaults (void)
   // check for a custom default file
 
   if (!defaultfile)
-    if ((i = M_CheckParm("-config")) && i < myargc-1)
-      printf(" default file: %s\n", defaultfile = strdup(myargv[i+1]));
-    else
-      defaultfile = strdup(basedefault);
-
+    {
+      if ((i = M_CheckParm("-config")) && i < myargc-1)
+	printf(" default file: %s\n", defaultfile = strdup(myargv[i+1]));
+      else
+	defaultfile = strdup(basedefault);
+    }
+  
   NormalizeSlashes(defaultfile);
 
   // read the file in, overriding any set defaults
@@ -1904,7 +1912,7 @@ void M_LoadDefaults (void)
   // killough 9/21/98: Print warning if file missing, and use fgets for reading
 
   if (!(f = fopen(defaultfile, "r")))
-    printf("Warning: Cannot read %s -- using built-in defaults\n",defaultfile);
+    printf("Warning: Cannot read %s - using defaults\n",defaultfile);
   else
     {
       int skipblanks = 1, line = comment = config_help_header = 0;
@@ -1944,6 +1952,31 @@ void M_LoadDefaults (void)
 
   defaults_loaded = true;            // killough 10/98
 
+  if (stdvidparm) // GB 2014 - Stock settings for benchmarking
+  {
+	  hires=false;
+      page_flip=false;
+	  use_vsync=false;
+	  general_translucency=false;
+	  usegamma=0;
+	  disk_icon=true;
+	  hud_active=0;
+	  screenblocks=9;
+	  show_fps=false;
+  }
+
+  if (bestvidparm) // GB 2014 - Stock settings for benchmarking
+  {
+	  hires=true;
+      page_flip=true;
+	  use_vsync=true;
+	  general_translucency=true;
+	  usegamma=0;
+	  disk_icon=true;
+	  hud_active=0;
+	  screenblocks=10;
+	  show_fps=false;
+  }
   //jff 3/4/98 redundant range checks for hud deleted here
 }
 
@@ -1952,9 +1985,7 @@ void M_LoadDefaults (void)
 // Returns the final X coordinate
 // HU_Init must have been called to init the font
 //
-
 extern patch_t* hu_font[HU_FONTSIZE];
-
 int M_DrawText(int x,int y,boolean direct,char* string)
 {
   int c;
@@ -1986,6 +2017,33 @@ int M_DrawText(int x,int y,boolean direct,char* string)
   return x;
 }
 
+// GB 2014: for DEBUG text and FPS counter, Smaller font from HUD.
+extern patch_t* hu_font2[HU_FONTSIZE];
+int M_DrawText2(int x,int y, int colorrange, boolean direct,char* string)
+{
+  int c;
+  int w;
+  char *cr = colrngs[colorrange]; //[CR_GREEN];// color range
+
+  while (*string)
+    {
+      c = toupper(*string) - HU_FONTSTART;
+      string++;
+      if (c < 0 || c> HU_FONTSIZE)
+        {
+          x += 4;
+          continue;
+        }
+
+      w = SHORT (hu_font2[c]->width);
+      if (x+w > SCREENWIDTH)
+        break;
+
+          V_DrawPatchTranslated(x, y, 0, hu_font2[c], cr, 0);
+      x+=w;
+    }
+  return x;
+}
 
 //
 // M_WriteFile
@@ -2321,7 +2379,7 @@ void M_ScreenShot (void)
   // players[consoleplayer].message = "screen shot"
 
   // killough 10/98: print error message and change sound effect if error
-  S_StartSound(NULL, !success ? dprintf(errno ? strerror(errno) :
+  S_StartSound(NULL, !success ? dmprintf(errno ? strerror(errno) :
 					"Could not take screenshot"), sfx_oof :
                gamemode==commercial ? sfx_radio : sfx_tink);
 
@@ -2330,7 +2388,18 @@ void M_ScreenShot (void)
 
 //----------------------------------------------------------------------------
 //
+// GB 2015: Renamed dprintf to dmprintf, for DJGPP 2.05 compatibility
+//
 // $Log: m_misc.c,v $
+// Revision 1.3  2000-08-12 21:29:28  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.60  1998/06/03  20:32:12  jim
 // Fixed mispelling of key_chat string
 //

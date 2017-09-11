@@ -437,9 +437,12 @@ Dog; 888;
 260
 
 #
-# $Id: doom17.dat,v 1.18 1998/05/12 06:15:25 killough Exp $
+# $Id: doom17.dat,v 1.1.1.1 2000-07-29 13:20:39 fraggle Exp $
 #
 # $Log: doom17.dat,v $
+# Revision 1.1.1.1  2000-07-29 13:20:39  fraggle
+# imported sources
+#
 # Revision 1.18  1998/05/12  06:15:25  killough
 # Change push/pull controller thing numbers
 #
@@ -477,4 +480,3 @@ Dog; 888;
 # fix comments
 #
 #
-

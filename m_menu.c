@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*- 
 //-----------------------------------------------------------------------------
 //
-// $Id: m_menu.c,v 1.54 1998/05/28 05:27:13 killough Exp $
+// $Id: m_menu.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //  DOOM selection menu, options, episode etc. (aka Big Font menus)
@@ -32,7 +29,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: m_menu.c,v 1.54 1998/05/28 05:27:13 killough Exp $";
+rcsid[] = "$Id: m_menu.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -1946,6 +1943,10 @@ void M_DrawSetting(setup_menu_t* s)
 
   color = flags & S_SELECT ? CR_SELECT : flags & S_HILITE ? CR_HILITE : CR_SET;
 
+  if (flags & S_DRIVER1) { strcpy(menu_buffer,digi_driver->name); M_DrawMenuString(x,y,color); return; } // GB 2016
+  if (flags & S_DRIVER2) { strcpy(menu_buffer,midi_driver->name); M_DrawMenuString(x,y,color); return; } // GB 2016
+
+
   // Is the item a YES/NO item?
 
   if (flags & S_YESNO)
@@ -2116,31 +2117,36 @@ void M_DrawSetting(setup_menu_t* s)
 void M_DrawScreenItems(setup_menu_t* src)
 {
   if (print_warning_about_changes > 0)   // killough 8/15/98: print warning
-    if (warning_about_changes & S_BADVAL)
-      {
-	strcpy(menu_buffer, "Value out of Range");
-	M_DrawMenuString(100,176,CR_RED);
-      }
-    else
-      if (warning_about_changes & S_PRGWARN)
+    {
+      if (warning_about_changes & S_BADVAL)
+	{
+	  strcpy(menu_buffer, "Value out of Range");
+	  M_DrawMenuString(100,176,CR_RED);
+	}
+      else if (warning_about_changes & S_PRGWARN)
 	{
 	  strcpy(menu_buffer,
 		 "Warning: Program must be restarted to see changes");
 	  M_DrawMenuString(3, 176, CR_RED);
 	}
+      else if (warning_about_changes & S_BADVID)
+	{
+	  strcpy(menu_buffer, "Video mode not supported");
+	  M_DrawMenuString(80,176,CR_RED);
+	}
+      else if (warning_about_changes & S_BADOPT) // GB 2014
+	{
+	  strcpy(menu_buffer, "Video option not available");
+	  M_DrawMenuString(75,176,CR_RED);
+	}
       else
-	if (warning_about_changes & S_BADVID)
-	  {
-	    strcpy(menu_buffer, "Video mode not supported");
-	    M_DrawMenuString(80,176,CR_RED);
-	  }
-	else
-	  {
-	    strcpy(menu_buffer,
-		   "Warning: Changes are pending until next game");
-	    M_DrawMenuString(18,184,CR_RED);
-	  }
-
+	{
+	  strcpy(menu_buffer,
+		 "Warning: Changes are pending until next game");
+	  M_DrawMenuString(18,184,CR_RED);
+	}
+    }
+  
   while (!(src->m_flags & S_END))
     {
       // See if we're to draw the item description (left-hand part)
@@ -2938,15 +2944,13 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
 
   {"Rescue Dying Friends",S_YESNO,m_null,E_X,E_Y+ enem_help_friends*8, {"help_friends"}},
 
-#ifdef DOGS
+#ifdef DOGS // GB 2014, include friend_distance 
   // killough 7/19/98
   {"Number Of Single-Player Helper Dogs",S_NUM|S_LEVWARN,m_null,E_X,E_Y+ enem_helpers*8, {"player_helpers"}},
-#endif
 
   // killough 8/8/98
   {"Distance Friends Stay Away",S_NUM,m_null,E_X,E_Y+ enem_distfriend*8, {"friend_distance"}},
 
-#ifdef DOGS
   {"Allow dogs to jump down",S_YESNO,m_null,E_X,E_Y+ enem_dog_jumping*8, {"dog_jumping"}},
 #endif
 
@@ -3007,7 +3011,7 @@ void M_DrawEnemy(void)
 // The General table.
 // killough 10/10/98
 
-extern int usejoystick, usemouse, default_mus_card, default_snd_card;
+extern int usejoystick, usemouse; //, default_mus_card, default_snd_card;
 extern int detect_voices, realtic_clock_rate, tran_filter_pct;
 
 setup_menu_t gen_settings1[], gen_settings2[];
@@ -3024,6 +3028,7 @@ enum {
   general_pageflip,
   general_vsync,
   general_trans,
+  general_fps, // GB 2014
   general_transpct,
   general_pcx,
   general_diskicon,
@@ -3031,16 +3036,17 @@ enum {
 };
 
 enum {
+  general_detvoices,
   general_sndcard,
   general_muscard,
-  general_detvoices,
+//  general_detvoices,
   general_sndchan,
   general_pitch
 };
 
 #define G_X 250
 #define G_Y  44
-#define G_Y2 (G_Y+82)
+#define G_Y2 (G_Y+82) 
 #define G_Y3 (G_Y+44)
 #define G_Y4 (G_Y3+52)
 #define GF_X 76
@@ -3061,7 +3067,10 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Enable Translucency", S_YESNO, m_null, G_X,
    G_Y + general_trans*8, {"translucency"}, 0, 0, M_Trans},
 
-  {"Translucency filter percentage", S_NUM, m_null, G_X,
+  {"Show Frame rate + Mode indicator", S_YESNO, m_null, G_X,
+   G_Y + general_fps*8, {"show_fps"}, 0, 0, I_ResetScreen},
+
+  {"Translucency filter percentage", S_NUM, m_null, G_X, // GB 2014, need room, who cares.., if so edit the cfg
    G_Y + general_transpct*8, {"tran_filter_pct"}, 0, 0, M_Trans},
 
   {"PCX instead of BMP for screenshots", S_YESNO, m_null, G_X,
@@ -3073,8 +3082,13 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Flashing HOM indicator", S_YESNO, m_null, G_X,
    G_Y + general_hom*8, {"flashing_hom"}},
 
-  {"Sound & Music", S_SKIP|S_TITLE, m_null, G_X, G_Y2 - 12},
+  {"Sound & Music ( use Setup.exe )", S_SKIP|S_TITLE, m_null, G_X, G_Y2 },
 
+  {"Sound Driver", S_NUM|S_DRIVER1|S_SKIP,m_null,G_X-100,G_Y2 + general_sndcard*8 +4, {"disk_icon"}},
+  {"Midi Driver" , S_NUM|S_DRIVER2|S_SKIP,m_null,G_X-100,G_Y2 + general_muscard*8 +4, {"disk_icon"}},
+
+// GB 2016 Policy change: Use setup.exe + setup.cfg
+/*
   {"Sound Card", S_NUM|S_PRGWARN, m_null, G_X,
    G_Y2 + general_sndcard*8, {"sound_card"}},
 
@@ -3083,12 +3097,13 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Autodetect Number of Voices", S_YESNO|S_PRGWARN, m_null, G_X,
    G_Y2 + general_detvoices*8, {"detect_voices"}},
+*/
 
   {"Number of Sound Channels", S_NUM|S_PRGWARN, m_null, G_X,
-   G_Y2 + general_sndchan*8, {"snd_channels"}},
+   G_Y2 + general_sndchan*8 +8, {"snd_channels"}},
 
   {"Enable v1.1 Pitch Effects", S_YESNO, m_null, G_X,
-   G_Y2 + general_pitch*8, {"pitched_sounds"}},
+   G_Y2 + general_pitch*8 +8, {"pitched_sounds"}},
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -3143,10 +3158,11 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"DEH/BEX #2", S_FILE, m_null, GF_X, G_Y3 + general_deh2*8, {"dehfile_2"}},
 
   {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, G_X, G_Y4 - 12},
-
+/*
+  GB 2014: Disabled, because of reported desync when connected computers have it set differently 
   {"Maximum number of player corpses", S_NUM|S_PRGWARN, m_null, G_X,
    G_Y4 + general_corpse*8, {"max_player_corpse"}},
-
+*/
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
    G_Y4 + general_realtic*8, {"realtic_clock_rate"}},
 
@@ -3627,10 +3643,12 @@ void M_ResetDefaults()
 		  warn |= p->m_flags & (S_LEVWARN | S_PRGWARN);
 		else
 		  if (dp->current)
-		    if (allow_changes())
-		      *dp->current = *dp->location;
-		    else
-		      warn |= S_LEVWARN;
+		    {
+		      if (allow_changes())
+			*dp->current = *dp->location;
+		      else
+			warn |= S_LEVWARN;
+		    }
 		
 		if (p->action)
 		  p->action();
@@ -3663,10 +3681,12 @@ static void M_InitDefaults(void)
     for (p = setup_screens[i]; *p; p++)
       for (t = *p; !(t->m_flags & S_END); t++)
 	if (t->m_flags & S_HASDEFPTR)
-	  if (!(dp = M_LookupDefault(t->var.name)))
-	    I_Error("Could not find config variable \"%s\"", t->var.name);
-	  else
-	    (t->var.def = dp)->setup_menu = t;
+	  {
+	    if (!(dp = M_LookupDefault(t->var.name)))
+	      I_Error("Could not find config variable \"%s\"", t->var.name);
+	    else
+	      (t->var.def = dp)->setup_menu = t;
+	  }
 }
 
 //
@@ -3758,7 +3778,6 @@ void M_InitExtendedHelp(void)
 	}
       extended_help_count++;
     }
-
 }
 
 // Initialization for the extended HELP screens.
@@ -4595,12 +4614,15 @@ boolean M_Responder (event_t* ev)
 				       (S_LEVWARN | S_PRGWARN));
 		  else
 		    if (ptr1->var.def->current)
-		      if (allow_changes())  // killough 8/15/98
-			*ptr1->var.def->current = *ptr1->var.def->location;
-		      else
-			if (*ptr1->var.def->current != *ptr1->var.def->location)
-			  warn_about_changes(S_LEVWARN); // killough 8/15/98
-
+		      {
+			if (allow_changes())  // killough 8/15/98
+			  *ptr1->var.def->current = *ptr1->var.def->location;
+			else
+			  if (*ptr1->var.def->current != *ptr1->var.def->location)
+		    
+			    warn_about_changes(S_LEVWARN); // killough 8/15/98
+		      }
+		  
 		  if (ptr1->action)      // killough 10/98
 		    ptr1->action();
 		}
@@ -4658,12 +4680,14 @@ boolean M_Responder (event_t* ev)
 						   (S_LEVWARN | S_PRGWARN));
 			      else
 				if (ptr1->var.def->current)
-				  if (allow_changes())  // killough 8/15/98
-				    *ptr1->var.def->current = value;
-				  else
-				    if (*ptr1->var.def->current != value)
-				      warn_about_changes(S_LEVWARN);
-
+				  {
+				    if (allow_changes())  // killough 8/15/98
+				      *ptr1->var.def->current = value;
+				    else
+				      if (*ptr1->var.def->current != value)
+					warn_about_changes(S_LEVWARN);
+				  }
+			      
 			      if (ptr1->action)      // killough 10/98
 				ptr1->action();
 			    }
@@ -5649,6 +5673,15 @@ void M_ResetMenu(void)
 //----------------------------------------------------------------------------
 //
 // $Log: m_menu.c,v $
+// Revision 1.3  2000-08-12 21:29:28  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.54  1998/05/28  05:27:13  killough
 // Fix some load / save / end game handling r.w.t. demos
 //

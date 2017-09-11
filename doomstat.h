@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: doomstat.h,v 1.13 1998/05/12 12:47:28 phares Exp $
+// $Id: doomstat.h,v 1.2 2000-08-12 21:29:24 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //   All the global variables that store the internal state.
@@ -47,11 +44,22 @@
 // Command line parameters.
 //
 
-extern  boolean nomonsters; // checkparm of -nomonsters
+extern  boolean nomonsters;   // checkparm of -nomonsters
 extern  boolean respawnparm;  // checkparm of -respawn
-extern  boolean fastparm; // checkparm of -fast
-extern  boolean devparm;  // DEBUG: launched with -devparm
-
+extern  boolean fastparm;     // checkparm of -fast
+extern  boolean devparm;      // DEBUG: launched with -devparm
+extern  boolean ssgparm;      // checkparm of -ssg      GB 2013
+extern  boolean nolfbparm;    // checkparm of -nolfb    GB 2014
+extern  boolean nopmparm;     // checkparm of -nopm     GB 2014
+extern  boolean noasmparm;    // checkparm of -noasm    GB 2014
+extern  boolean noasmxparm;   // checkparm of -noasmx   GB 2014
+extern  boolean asmp6parm;    // checkparm of -asmp6    GB 2014
+extern  boolean safeparm;     // checkparm of -safe     GB 2014
+extern  boolean stdvidparm;   // checkparm of -stdvid   GB 2014
+extern  boolean bestvidparm;  // checkparm of -bestvid  GB 2014
+extern  boolean lowdetparm;   // checkparm of -lowdet   GB 2015
+extern  boolean v12_compat;   // GB 2014
+extern  int statusbar_dirty;  // GB 2014, only draw when necessary
 extern  int screenblocks;     // killough 11/98
 
 // -----------------------------------------------------
@@ -162,11 +170,11 @@ extern int snd_MusicVolume;    // maximum volume for music
 //  w/o a reference LUT in a sound module.
 // Ideally, this would use indices found
 //  in: /usr/include/linux/soundcard.h
-extern int snd_MusicDevice;
-extern int snd_SfxDevice;
+//extern int snd_MusicDevice;
+//extern int snd_SfxDevice;
 // Config file? Same disclaimer as above.
-extern int snd_DesiredMusicDevice;
-extern int snd_DesiredSfxDevice;
+//extern int snd_DesiredMusicDevice;
+//extern int snd_DesiredSfxDevice;
 
 
 // -------------------------
@@ -177,7 +185,7 @@ extern int snd_DesiredSfxDevice;
 // Note that there is no way to disable the
 //  status bar explicitely.
 extern  boolean statusbaractive;
-
+extern  boolean inhelpscreens; // GB 2014 In fullscreen menu?
 extern  boolean automapactive; // In AutoMap mode?
 extern  boolean menuactive;    // Menu overlayed?
 extern  boolean paused;        // Game Pause?
@@ -359,6 +367,12 @@ extern int doom_weapon_toggles;   // killough 10/98
 //----------------------------------------------------------------------------
 //
 // $Log: doomstat.h,v $
+// Revision 1.2  2000-08-12 21:29:24  fraggle
+// change license header
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.13  1998/05/12  12:47:28  phares
 // Removed OVER_UNDER code
 //

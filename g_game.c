@@ -1,33 +1,29 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: g_game.c,v 1.59 1998/06/03 20:23:10 killough Exp $
+// $Id: g_game.c,v 1.3 2000-08-12 21:29:25 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:  none
 //
 //-----------------------------------------------------------------------------
 
-static const char
-rcsid[] = "$Id: g_game.c,v 1.59 1998/06/03 20:23:10 killough Exp $";
+static const char rcsid[] = "$Id: g_game.c,v 1.3 2000-08-12 21:29:25 fraggle Exp $";
 
 #include <time.h>
 #include <stdarg.h>
@@ -354,8 +350,8 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
         gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
         gamekeydown[key_weapon8] ? wp_chainsaw :
-        gamekeydown[key_weapon9] && gamemode == commercial ? wp_supershotgun :
-        wp_nochange;
+        gamekeydown[key_weapon9] && ((gamemode == commercial) || ssgparm) ? wp_supershotgun :
+        wp_nochange;    // GB 2013
 
       // killough 3/22/98: For network and demo consistency with the
       // new weapons preferences, we must do the weapons switches here
@@ -368,8 +364,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       // Switch to fist or chainsaw based on preferences.
       // Switch to shotgun or SSG based on preferences.
       //
-      // killough 10/98: make SG/SSG and Fist/Chainsaw
-      // weapon toggles optional
+      // killough 10/98: make SG/SSG and Fist/Chainsaw weapon toggles optional
       
       if (!demo_compatibility && doom_weapon_toggles)
         {
@@ -392,7 +387,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
           // in use, or if the SSG is not already in use and the
           // player prefers it.
 
-          if (newweapon == wp_shotgun && gamemode == commercial &&
+          if (newweapon == wp_shotgun && (gamemode == commercial || ssgparm) && // GB 2013
               player->weaponowned[wp_supershotgun] &&
               (!player->weaponowned[wp_shotgun] ||
                player->readyweapon == wp_shotgun ||
@@ -582,8 +577,8 @@ static void G_DoLoadLevel(void)
   joyxmove = joyymove = 0;
   mousex = mousey = 0;
   sendpause = sendsave = paused = false;
-  memset (mousebuttons, 0, sizeof(mousebuttons));
-  memset (joybuttons, 0, sizeof(joybuttons));
+  memset (mousebuttons, 0, sizeof(mousebuttons)); // GB 2014 // GB 2017 reverted back
+  memset (joybuttons, 0, sizeof(joybuttons));     // GB 2014 // GB 2017 reverted back
 
   //jff 4/26/98 wake up the status bar in case were coming out of a DM demo
   // killough 5/13/98: in case netdemo has consoleplayer other than green
@@ -957,6 +952,18 @@ static void G_DoPlayDemo(void)
   demo_version =      // killough 7/19/98: use the version id stored in demo
   demover = *demo_p++;
 
+  // Imported by GB 2014, from PrBoom - e6y
+  // Handling of unrecognized demo formats
+  // Versions up to 1.2 use a 7-byte header - first byte is a skill level.
+  // Versions after 1.2 use a 13-byte header - first byte is a demoversion.
+  // BOOM's demoversion starts from 200
+  if (!((demover >=   0  && demover <=   4) ||
+        (demover >= 104  && demover <= 111) ||
+        (demover >= 200  && demover <= 214)))
+  {
+    I_Error("G_ReadDemoHeader: Unknown demo format %d.", demover);
+  }
+
   if (demover < 200)     // Autodetect old demos
     {
       compatibility = true;
@@ -995,6 +1002,7 @@ static void G_DoPlayDemo(void)
 
       if ((skill=demover) >= 100)         // For demos from versions >= 1.4
         {
+
           skill = *demo_p++;
           episode = *demo_p++;
           map = *demo_p++;
@@ -1006,10 +1014,22 @@ static void G_DoPlayDemo(void)
         }
       else
         {
+          //v1.2 compatibility, now properly implemented GB 2014, All Credits: PrBoom Authors
+		  //search for 'v12_compat' to see where it branches from the default 
+		  v12_compat=true;
           episode = *demo_p++;
           map = *demo_p++;
           deathmatch = respawnparm = fastparm =
-            nomonsters = consoleplayer = 0;
+		  nomonsters = consoleplayer = 0;
+
+		  // GB 2014 - from PrBoom - e6y
+          // Ability to force -nomonsters and -respawn for playback of 1.2 demos.
+          // Demos recorded with Doom.exe 1.2 did not contain any information
+          // about whether these parameters had been used. In order to play them
+          // back, you should add them to the command-line for playback.
+          respawnparm = M_CheckParm("-respawn");
+          fastparm = M_CheckParm("-fast");
+          nomonsters = M_CheckParm("-nomonsters");
         }
     }
   else    // new versions of demos
@@ -1189,12 +1209,22 @@ unsigned long long G_Signature(void)
   return s;
 }
 
+
 static void G_DoSaveGame(void)
 {
   char name[PATH_MAX+1];
   char name2[VERSIONSIZE];
   char *description;
-  int  length, i;
+  int  length, i; 
+
+  // GB 2013, remove ready supershotgun in -ssg mode before saving, to maintain compatibility, prevent crash
+  // works only when not reloading or firing.... otherwise crash. better leave it to the user.
+  /*
+  if (ssgparm && players[consoleplayer].readyweapon == wp_supershotgun) 
+  {
+	 players[consoleplayer].readyweapon=wp_shotgun;
+	 players[consoleplayer].pendingweapon=wp_shotgun;
+  } */
 
   G_SaveGameName(name,savegameslot);
 
@@ -1226,15 +1256,15 @@ static void G_DoSaveGame(void)
     save_p += sizeof checksum;
   }
 
-  // killough 3/16/98: store pwad filenames in savegame
+  // killough 3/16/98: store pwad filenames in savegame (iwad + additional wads)
   {
     char **w = wadfiles;
     for (*save_p = 0; *w; w++)
       {
         CheckSaveGame(strlen(*w)+2);
-        strcat(strcat(save_p, *w), "\n");
+        strcat(strcat((char *) save_p, *w), "\n");
       }
-    save_p += strlen(save_p)+1;
+    save_p += strlen((char *) save_p)+1;
   }
 
   CheckSaveGame(GAME_OPTION_SIZE+MIN_MAXPLAYERS+10);
@@ -1249,7 +1279,7 @@ static void G_DoSaveGame(void)
 
   save_p = G_WriteOptions(save_p);    // killough 3/1/98: save game options
 
-  memcpy(save_p, &leveltime, sizeof save_p); //killough 11/98: save entire word
+  memcpy(save_p, &leveltime, sizeof(save_p)); //killough 11/98: save entire word // GB 2014 // GB 2017 reverted back
   save_p += sizeof save_p;
 
   // killough 11/98: save revenant tracer state
@@ -1270,12 +1300,12 @@ static void G_DoSaveGame(void)
 
   *save_p++ = 0xe6;   // consistancy marker
 
-  length = save_p - savebuffer;
+  length = save_p - savebuffer; 
 
   Z_CheckHeap();
 
   if (!M_WriteFile(name, savebuffer, length))
-    dprintf(errno ? strerror(errno) : "Could not save game: Error unknown");
+    dmprintf(errno ? strerror(errno) : "Could not save game: Error unknown");
   else
     players[consoleplayer].message = s_GGSAVED;  // Ty 03/27/98 - externalized
 
@@ -1288,13 +1318,15 @@ static void G_DoSaveGame(void)
 
 static void G_DoLoadGame(void)
 {
-  int  length, i;
+  //int  length, i;
+  int  i;
   char vcheck[VERSIONSIZE];
   unsigned long long checksum;
 
   gameaction = ga_nothing;
 
-  length = M_ReadFile(savename, &savebuffer);
+  //length = M_ReadFile(savename, &savebuffer); 
+  M_ReadFile(savename, &savebuffer); // GB 2014, length not used
   save_p = savebuffer + SAVESTRINGSIZE;
 
   // skip the description field
@@ -1303,7 +1335,7 @@ static void G_DoLoadGame(void)
   sprintf (vcheck,VERSIONID,VERSION);
 
   // killough 2/22/98: Friendly savegame version difference message
-  if (!forced_loadgame && strncmp(save_p, vcheck, VERSIONSIZE))
+  if (!forced_loadgame && strncmp((char *) save_p, vcheck, VERSIONSIZE))
     {
       G_LoadGameErr("Different Savegame Version!!!\n\nAre you sure?");
       return;
@@ -1324,10 +1356,10 @@ static void G_DoLoadGame(void)
      checksum = G_Signature();
      if (memcmp(&checksum, save_p, sizeof checksum))
        {
-	 char *msg = malloc(strlen(save_p + sizeof checksum) + 128);
+	 char *msg = malloc(strlen((char *) save_p + sizeof checksum) + 128);
 	 strcpy(msg,"Incompatible Savegame!!!\n");
 	 if (save_p[sizeof checksum])
-	   strcat(strcat(msg,"Wads expected:\n\n"), save_p + sizeof checksum);
+	   strcat(strcat(msg,"Wads expected:\n\n"), (char *) save_p + sizeof checksum);
 	 strcat(msg, "\nAre you sure?");
 	 G_LoadGameErr(msg);
 	 free(msg);
@@ -1356,7 +1388,7 @@ static void G_DoLoadGame(void)
 
   // get the times
   // killough 11/98: save entire word
-  memcpy(&leveltime, save_p, sizeof save_p);
+  memcpy(&leveltime, save_p, sizeof(save_p)); // GB 2014 // GB 2017 reverted back
   save_p += sizeof save_p;
 
   // killough 11/98: load revenant tracer state
@@ -1497,7 +1529,7 @@ void G_Ticker(void)
 		  !(gametic&31) && ((gametic>>5)&3) == i )
 		{
 		  extern char *player_names[];
-		  dprintf("%s is turbo!", player_names[i]); // killough 9/29/98
+		  dmprintf("%s is turbo!", player_names[i]); // killough 9/29/98
 		}
 
 	      if (netgame && !netdemo && !(gametic%ticdup) )
@@ -1520,11 +1552,13 @@ void G_Ticker(void)
 	  {
 	    // killough 9/29/98: allow multiple special buttons
 	    if (players[i].cmd.buttons & BTS_PAUSE)
-	      if ((paused ^= 1))
-		S_PauseSound();
-	      else
-		S_ResumeSound();
-	
+	      {
+		if ((paused ^= 1))
+		  S_PauseSound();
+		else
+		  S_ResumeSound();
+	      }
+	    
 	    if (players[i].cmd.buttons & BTS_SAVEGAME)
 	      {
 		if (!savedescription[0])
@@ -1886,6 +1920,8 @@ void G_ReloadDefaults(void)
   consoleplayer = 0;
 
   compatibility = false;     // killough 10/98: replaced by comp[] vector
+  v12_compat = false;        // GB 2014
+
   memcpy(comp, default_comp, sizeof comp);
 
   demo_version = VERSION;     // killough 7/19/98: use this version's id
@@ -1921,23 +1957,25 @@ void G_SetFastParms(int fast_pending)
   int i;
 
   if (fast != fast_pending)       // only change if necessary
-    if ((fast = fast_pending))
-      {
-        for (i=S_SARG_RUN1; i<=S_SARG_PAIN2; i++)
-          if (states[i].tics != 1 || demo_compatibility) // killough 4/10/98
-            states[i].tics >>= 1;  // don't change 1->0 since it causes cycles
-        mobjinfo[MT_BRUISERSHOT].speed = 20*FRACUNIT;
-        mobjinfo[MT_HEADSHOT].speed = 20*FRACUNIT;
-        mobjinfo[MT_TROOPSHOT].speed = 20*FRACUNIT;
-      }
-    else
-      {
-        for (i=S_SARG_RUN1; i<=S_SARG_PAIN2; i++)
-          states[i].tics <<= 1;
-        mobjinfo[MT_BRUISERSHOT].speed = 15*FRACUNIT;
-        mobjinfo[MT_HEADSHOT].speed = 10*FRACUNIT;
-        mobjinfo[MT_TROOPSHOT].speed = 10*FRACUNIT;
-      }
+    {
+      if ((fast = fast_pending))
+	{
+	  for (i=S_SARG_RUN1; i<=S_SARG_PAIN2; i++)
+	    if (states[i].tics != 1 || demo_compatibility) // killough 4/10/98
+	      states[i].tics >>= 1;  // don't change 1->0 since it causes cycles
+	  mobjinfo[MT_BRUISERSHOT].speed = 20*FRACUNIT;
+	  mobjinfo[MT_HEADSHOT].speed = 20*FRACUNIT;
+	  mobjinfo[MT_TROOPSHOT].speed = 20*FRACUNIT;
+	}
+      else
+	{
+	  for (i=S_SARG_RUN1; i<=S_SARG_PAIN2; i++)
+	    states[i].tics <<= 1;
+	  mobjinfo[MT_BRUISERSHOT].speed = 15*FRACUNIT;
+	  mobjinfo[MT_HEADSHOT].speed = 10*FRACUNIT;
+	  mobjinfo[MT_TROOPSHOT].speed = 10*FRACUNIT;
+	}
+    }
 }
 
 // The sky texture to be used instead of the F_SKY1 dummy.
@@ -2347,14 +2385,14 @@ boolean G_CheckDemoStatus(void)
 }
 
 // killough 1/22/98: this is a "Doom printf" for messages. I've gotten
-// tired of using players->message=... and so I've added this dprintf.
+// tired of using players->message=... and so I've added this dmprintf.
 //
 // killough 3/6/98: Made limit static to allow z_zone functions to call
 // this function, without calling realloc(), which seems to cause problems.
 
 #define MAX_MESSAGE_SIZE 1024
 
-void dprintf(const char *s, ...)
+void dmprintf(const char *s, ...)
 {
   static char msg[MAX_MESSAGE_SIZE];
   va_list v;
@@ -2366,7 +2404,18 @@ void dprintf(const char *s, ...)
 
 //----------------------------------------------------------------------------
 //
+// GB 2015: Renamed dprintf to dmprintf, for DJGPP 2.05 compatibility
+//
 // $Log: g_game.c,v $
+// Revision 1.3  2000-08-12 21:29:25  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
+//
 // Revision 1.59  1998/06/03  20:23:10  killough
 // fix v2.00 demos
 //
@@ -2500,7 +2549,7 @@ void dprintf(const char *s, ...)
 // Created separately bound automap and menu keys
 //
 // Revision 1.15  1998/03/09  07:09:20  killough
-// Avoid realloc() in dprintf(), fix savegame -nomonsters bug
+// Avoid realloc() in dmprintf(), fix savegame -nomonsters bug
 //
 // Revision 1.14  1998/03/02  11:27:45  killough
 // Forward and backward demo sync compatibility
@@ -2515,7 +2564,7 @@ void dprintf(const char *s, ...)
 // Fix Internal and v1.9 Demo sync problems
 //
 // Revision 1.10  1998/02/20  22:50:51  killough
-// Fix dprintf for multiplayer games
+// Fix dmprintf for multiplayer games
 //
 // Revision 1.9  1998/02/20  06:15:08  killough
 // Turn turbo messages on in demo playbacks
@@ -2536,7 +2585,7 @@ void dprintf(const char *s, ...)
 // Stop 'q' from ending demo recordings
 //
 // Revision 1.5  1998/02/02  13:44:45  killough
-// Fix dprintf and CheckSaveGame realloc bugs
+// Fix dmprintf and CheckSaveGame realloc bugs
 //
 // Revision 1.4  1998/01/26  19:23:18  phares
 // First rev with no ^Ms

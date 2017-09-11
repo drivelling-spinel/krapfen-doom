@@ -3,6 +3,7 @@
 //
 // $Id: m_fixed.h,v 1.5 1998/05/10 23:42:22 killough Exp $
 //
+//  BOOM, a modified and improved DOOM engine
 //  Copyright (C) 1999 by
 //  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
 //
@@ -26,6 +27,10 @@
 //
 //-----------------------------------------------------------------------------
 
+
+// GB 2014: This file was trouble: Floating point exceptions when compiler set to optimize!
+// replaced enterily with the contents from SMMU, by Fraggle. 
+
 #ifndef __M_FIXED__
 #define __M_FIXED__
 
@@ -34,6 +39,7 @@
 #define __attribute__(x)
 #endif
 
+#include <stdlib.h> // for abs
 #include "i_system.h"
 
 //
@@ -54,7 +60,7 @@ typedef int fixed_t;
 
 #ifdef DJGPP
 #define abs(x) ({fixed_t _t = (x), _s = _t >> (8*sizeof _t-1); (_t^_s)-_s;})
-#endif // DJGPP
+#endif 
 
 //
 // Fixed Point Multiplication
@@ -63,30 +69,35 @@ typedef int fixed_t;
 #ifdef DJGPP
 
 // killough 5/10/98: In djgpp, use inlined assembly for performance
+// sf: code imported from lxdoom
 
-__inline__ static fixed_t FixedMul(fixed_t a, fixed_t b)
+inline static const fixed_t FixedMul(fixed_t a, fixed_t b)
 {
   fixed_t result;
+  int dummy;
 
-  asm("  imull %2 ;"
-      "  shrdl $16,%%edx,%0 ;"
-      : "=a,=a" (result)           // eax is always the result
-      : "0,0" (a),                 // eax is also first operand
-        "m,r" (b)                  // second operand can be mem or reg
-      : "%edx", "%cc"              // edx and condition codes clobbered
+  asm("  imull %3 ;"
+      "  shrdl $16,%1,%0 ;"
+      : "=a" (result),          /* eax is always the result */
+        "=d" (dummy)		/* cphipps - fix compile problem with gcc-2.95.1
+				   edx is clobbered, but it might be an input */
+      : "0" (a),                /* eax is also first operand */
+        "r" (b)                 /* second operand could be mem or reg before,
+				   but gcc compile problems mean i can only us reg */
+      : "%cc"                   /* edx and condition codes clobbered */
       );
 
   return result;
 }
 
-#else // DJGPP
+#else
 
 __inline__ static fixed_t FixedMul(fixed_t a, fixed_t b)
 {
   return (fixed_t)((long long) a*b >> FRACBITS);
 }
 
-#endif // DJGPP
+#endif 
 
 //
 // Fixed Point Division
@@ -96,25 +107,29 @@ __inline__ static fixed_t FixedMul(fixed_t a, fixed_t b)
 
 // killough 5/10/98: In djgpp, use inlined assembly for performance
 // killough 9/5/98: optimized to reduce the number of branches
+// sf: code imported from lxdoom
 
-__inline__ static fixed_t FixedDiv(fixed_t a, fixed_t b)
+inline static const fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
   if (abs(a) >> 14 < abs(b))
     {
       fixed_t result;
-      asm(" idivl %3 ;"
-	  : "=a,=a" (result)
-	  : "0,0" (a<<16),
-	  "d,d" (a>>16),
-	  "m,r" (b)
-	  : "%edx", "%cc"
+      int dummy;
+      asm(" idivl %4 ;"
+	  : "=a" (result),
+	    "=d" (dummy)  /* cphipps - fix compile problems with gcc 2.95.1
+			     edx is clobbered, but also an input */
+	  : "0" (a<<16),
+	    "1" (a>>16),
+	    "r" (b)
+	  : "%cc"
 	  );
       return result;
     }
   return ((a^b)>>31) ^ MAXINT;
 }
 
-#else // DJGPP
+#else 
 
 __inline__ static fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
@@ -122,13 +137,17 @@ __inline__ static fixed_t FixedDiv(fixed_t a, fixed_t b)
     (fixed_t)(((long long) a << FRACBITS) / b);
 }
 
-#endif // DJGPP
+#endif 
 
 #endif
 
 //----------------------------------------------------------------------------
 //
 // $Log: m_fixed.h,v $
+//
+// GB 2014: This file was trouble: Floating point exceptions when compiler set to optimize!
+// replaced enterily with the contents from SMMU, by Fraggle. 
+//
 // Revision 1.5  1998/05/10  23:42:22  killough
 // Add inline assembly for djgpp (x86) target
 //

@@ -1,26 +1,23 @@
 // Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
-// $Id: p_mobj.c,v 1.26 1998/05/16 00:24:12 phares Exp $
+// $Id: p_mobj.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $
 //
-//  Copyright (C) 1999 by
-//  id Software, Chi Hoang, Lee Killough, Jim Flynn, Rand Phares, Ty Halderman
+// Copyright (C) 1993-1996 by id Software, Inc.
 //
-//  This program is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU General Public License
-//  as published by the Free Software Foundation; either version 2
-//  of the License, or (at your option) any later version.
-//
-//  This program is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 
-//  02111-1307, USA.
-//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 // DESCRIPTION:
 //      Moving object handling. Spawn functions.
@@ -28,7 +25,7 @@
 //-----------------------------------------------------------------------------
 
 static const char
-rcsid[] = "$Id: p_mobj.c,v 1.26 1998/05/16 00:24:12 phares Exp $";
+rcsid[] = "$Id: p_mobj.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $";
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -95,7 +92,7 @@ boolean P_SetMobjState(mobj_t* mobj,statenum_t state)
   while (!mobj->tics && !seenstate[state]);   // killough 4/9/98
 
   if (ret && !mobj->tics)  // killough 4/9/98: detect state cycles
-    dprintf("Warning: State Cycle Detected");
+    dmprintf("Warning: State Cycle Detected");
 
   if (!--recursion)
     for (;(state=seenstate[i]);i=state-1)
@@ -424,14 +421,16 @@ static void P_ZMovement (mobj_t* mo)
       mo->momz = 0;
 
       if (mo->flags & MF_MISSILE)
-	if (ceilingline &&
-	    ceilingline->backsector &&
-	    ceilingline->backsector->ceilingpic == skyflatnum &&
-	    mo->z > ceilingline->backsector->ceilingheight)
-	  P_RemoveMobj(mo);  // don't explode on skies
-	else
-	  P_ExplodeMissile(mo);
-
+	{
+	  if (ceilingline &&
+	      ceilingline->backsector &&
+	      ceilingline->backsector->ceilingpic == skyflatnum &&
+	      mo->z > ceilingline->backsector->ceilingheight)
+	    P_RemoveMobj(mo);  // don't explode on skies
+	  else
+	    P_ExplodeMissile(mo);
+	}
+      
       if (mo->flags & MF_FLOAT && sentient(mo))
 	goto floater;
       return;
@@ -547,6 +546,28 @@ void P_NightmareRespawn(mobj_t* mobj)
 
   x = mobj->spawnpoint.x << FRACBITS;
   y = mobj->spawnpoint.y << FRACBITS;
+
+   // GB 2014: Bugfix imported form PrBoom (modified):
+   // haleyjd: stupid nightmare respawning bug fix
+   // 08/09/00: compatibility added, time to ramble :)
+   // This fixes the notorious nightmare respawning bug that causes monsters
+   // that didn't spawn at level startup to respawn at the point (0,0)
+   // regardless of that point's nature. SMMU and Eternity need this for
+   // script-spawned things like Halif Swordsmythe, as well.
+   //
+   // cph - copied from eternity, except comp_respawnfix becomes comp_respawn
+   //   and the logic is reversed (i.e. like the rest of comp_ it *disables*
+   //   the fix)
+   //
+
+//if(!comp[comp_respawnfix] && !x && !y)
+   if(!x && !y)
+   {
+      // spawnpoint was zeroed out, so use point of death instead
+      x = mobj->x;
+      y = mobj->y;
+   }
+
 
   // something is occupying its position?
 
@@ -1032,7 +1053,7 @@ void P_SpawnMapThing (mapthing_t* mthing)
 
   if (i == NUMMOBJTYPES)
     {
-      dprintf("Unknown Thing type %i at (%i, %i)",
+      dmprintf("Unknown Thing type %i at (%i, %i)",
 	      mthing->type, mthing->x, mthing->y);
       return;
     }
@@ -1263,7 +1284,18 @@ void P_SpawnPlayerMissile(mobj_t* source,mobjtype_t type)
 
 //----------------------------------------------------------------------------
 //
+// GB 2015: Renamed dprintf to dmprintf, for DJGPP 2.05 compatibility
+//
 // $Log: p_mobj.c,v $
+// Revision 1.3  2000-08-12 21:29:29  fraggle
+// change license header
+//
+// Revision 1.2  2000/07/29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
+//
 // Revision 1.26  1998/05/16  00:24:12  phares
 // Unknown things now flash warning msg instead of causing abort
 //
