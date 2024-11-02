@@ -30,6 +30,7 @@
 static const char
 rcsid[] = "$Id: p_maputl.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "m_bbox.h"
 #include "r_main.h"
@@ -421,9 +422,15 @@ boolean P_BlockThingsIterator(int x, int y, boolean func(mobj_t*))
 //
 
 // 1/11/98 killough: Intercept limit removed
+#ifndef V12C
+static
+#endif
 intercept_t *intercepts, *intercept_p;  // GB 2014 removed static
 
 // Check for limit and double size if necessary -- killough
+#ifndef V12C
+static
+#endif
 void check_intercept(void) // GB 2014 removed static
 {
   static size_t num_intercepts;

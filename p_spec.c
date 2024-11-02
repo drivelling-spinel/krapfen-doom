@@ -35,6 +35,7 @@
 static const char
 rcsid[] = "$Id: p_spec.c,v 1.3 2000-08-22 20:09:17 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "p_spec.h"
 #include "p_tick.h"

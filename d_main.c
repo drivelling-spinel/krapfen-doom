@@ -38,6 +38,8 @@ static const char rcsid[] = "$Id: d_main.c,v 1.3 2000-08-12 21:29:25 fraggle Exp
 #include <sys/nearptr.h>  // needed for __djgpp_nearptr_enable() -- stan 
 #include <dos.h>          // GB 2014, for get dos version (and delay)
 
+#include "features.h"
+
 //#include "doomdef.h"    // GB 2014 not needed here
 #include "doomstat.h"
 #include "dstrings.h"
@@ -102,11 +104,15 @@ boolean devparm;        // working -devparm
 boolean nomonsters;     // working -nomonsters
 boolean respawnparm;    // working -respawn
 boolean fastparm;       // working -fast
+#ifdef SSGD1
 boolean ssgparm;        // working -ssg    GB 2013
+#endif
 boolean nolfbparm;      // working -nolfb  GB 2014
 boolean nopmparm;       // working -nopm   GB 2014
+#ifdef CALT
 boolean noasmparm;      // working -noasm  GB 2014
 boolean noasmxparm;     // working -noasmx GB 2014
+#endif
 boolean asmp6parm;      // working -asmp6  GB 2014
 boolean safeparm;       // working -safe   GB 2014
 boolean stdvidparm;     // working -stdvid GB 2014
@@ -114,7 +120,9 @@ boolean bestvidparm;    // working -stdvid GB 2014
 boolean lowdetparm;     // working -lowdet GB 2015
 boolean nosfxparm;      // jff 1/22/98 parms for disabling music and sound, -nosfx
 boolean nomusicparm;    // jff 1/22/98 parms for disabling music and sound, -nomusic
+#ifdef V12C 
 boolean v12_compat=false;// GB 2014, for v1.2 WAD stock demos
+#endif
 
 boolean singletics = false; // debug flag to cancel adaptiveness
 
@@ -1214,11 +1222,15 @@ void D_DoomMain(void)
   respawnparm = clrespawnparm = M_CheckParm ("-respawn");
   fastparm    = clfastparm    = M_CheckParm ("-fast");
   devparm                     = M_CheckParm ("-devparm");
+#ifdef SSGD1
   ssgparm                     = M_CheckParm ("-ssg");    // GB 2013
+#endif
   nolfbparm                   = M_CheckParm ("-nolfb");  // GB 2014
   nopmparm                    = M_CheckParm ("-nopm");   // GB 2014
+#ifdef CALT
   noasmparm                   = M_CheckParm ("-noasm");  // GB 2014
   noasmxparm                  = M_CheckParm ("-noasmx"); // GB 2014
+#endif
   asmp6parm                   = M_CheckParm ("-asmp6");  // GB 2014  
   unlockparm                  = M_CheckParm ("-unlock"); // GB 2014  
   stdvidparm                  = M_CheckParm ("-stdvid"); // GB 2014  
@@ -1299,7 +1311,7 @@ void D_DoomMain(void)
  cprintf("%s",title);
  textbackground(BLACK); textcolor(LIGHTGRAY);  
  gotoxy(1,wherey()); // GB 2014: display allegro version:
- cprintf("MBF - Built on %s by GB (with Allegro %s)\n",version_date,ALLEGRO_VERSION_STR);   
+ cprintf("%s - Built on %s by %s (with Allegro %s)\n", PORTNAME, version_date, PORTAUTHOR, ALLEGRO_VERSION_STR);   
  gotoxy(1,wherey());
  //printf("%s\nBuilt on %s\n", title, version_date);    // killough 2/1/98
  

@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: doomstat.c,v 1.2 2000-08-12 21:29:24 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 
 // Game Mode - identify IWAD as shareware, retail etc.

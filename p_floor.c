@@ -28,6 +28,7 @@
 static const char
 rcsid[] = "$Id: p_floor.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "r_main.h"
 #include "p_map.h"
@@ -495,7 +496,10 @@ int EV_DoFloor
         floor->sector = sec;
         floor->speed = FLOORSPEED * 4;
         floor->floordestheight = P_FindHighestFloorSurrounding(sec);
-        if (v12_compat ||
+        if (
+#ifdef V12C
+        v12_compat ||
+#endif
             floor->floordestheight != sec->floorheight)
           floor->floordestheight += 8*FRACUNIT;
         break;

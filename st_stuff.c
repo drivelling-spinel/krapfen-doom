@@ -29,6 +29,7 @@
 static const char
 rcsid[] = "$Id: st_stuff.c,v 1.2 2000-08-12 21:29:30 fraggle Exp $";
 
+#include "features.h"
 #include "doomdef.h"
 #include "doomstat.h"
 #include "m_random.h"

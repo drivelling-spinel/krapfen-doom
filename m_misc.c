@@ -29,6 +29,7 @@
 static const char
 rcsid[] = "$Id: m_misc.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "m_argv.h"
 #include "g_game.h"
@@ -175,14 +176,14 @@ default_t defaults[] = {
     66, {0,100}, number, ss_gen, wad_yes,
     "set percentage of foreground/background translucency mix"
   },
-
+#ifdef MAXCORPSE
   { // killough 2/8/98
     "max_player_corpse",
     &default_bodyquesize, NULL,
     32, {UL,UL},number, ss_gen, wad_no,
     "number of dead bodies in view supported (negative value = no limit)"
   },
-
+#endif
   { // killough 10/98
     "flashing_hom",
     &flashing_hom, NULL,
@@ -560,6 +561,14 @@ default_t defaults[] = {
     0, {0,1}, number, ss_comp, wad_yes,
     "Linedef effects work with sector tag = 0"
   },
+
+  {
+    "comp_respawnfix",
+    &default_comp[comp_respawnfix], &comp[comp_respawnfix],
+    0, {0,1}, number, ss_comp, wad_yes,
+    "Creatures with no spawnpoint respawn at (0,0)"
+  },
+
 
   // For key bindings, the values stored in the key_* variables       // phares
   // are the internal Doom Codes. The values stored in the default.cfg

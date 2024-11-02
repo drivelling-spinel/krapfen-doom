@@ -28,6 +28,7 @@
 static const char
 rcsid[] = "$Id: p_pspr.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "r_main.h"
 #include "p_map.h"
@@ -206,7 +207,11 @@ int P_SwitchWeapon(player_t *player)
           newweapon = wp_chainsaw;
         break;
       case 9:
-        if (player->weaponowned[wp_supershotgun] && ((gamemode == commercial) || ssgparm) && // GB 2013
+        if (player->weaponowned[wp_supershotgun] && ((gamemode == commercial)
+#ifdef SSGD1
+        || ssgparm // GB 2013
+#endif
+        ) && 
             player->ammo[am_shell] >= (demo_compatibility ? 3 : 2))
           newweapon = wp_supershotgun;
         break;

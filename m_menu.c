@@ -34,6 +34,7 @@ rcsid[] = "$Id: m_menu.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "features.h"
 #include "doomdef.h"
 #include "doomstat.h"
 #include "dstrings.h"
@@ -3128,7 +3129,9 @@ enum {
 };
 
 enum {
+#ifdef MAXCORPSE
   general_corpse,
+#endif
   general_realtic,
   general_end
 };
@@ -3158,11 +3161,11 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"DEH/BEX #2", S_FILE, m_null, GF_X, G_Y3 + general_deh2*8, {"dehfile_2"}},
 
   {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, G_X, G_Y4 - 12},
-/*
-  GB 2014: Disabled, because of reported desync when connected computers have it set differently 
+#ifdef MAXCORPSE
+//  GB 2014: Disabled, because of reported desync when connected computers have it set differently 
   {"Maximum number of player corpses", S_NUM|S_PRGWARN, m_null, G_X,
    G_Y4 + general_corpse*8, {"max_player_corpse"}},
-*/
+#endif
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
    G_Y4 + general_realtic*8, {"realtic_clock_rate"}},
 
@@ -3259,6 +3262,7 @@ enum
   compat_floors,
   compat_model,
   compat_zerotags,
+  compat_respawnfix,
   compat_menu,
 };
 
@@ -3331,6 +3335,9 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 
   {"Linedef effects work with sector tag = 0", S_YESNO, m_null, C_X,
    C_Y + compat_zerotags * COMP_SPC, {"comp_zerotags"}},
+
+  {"Creatures with no spawnpoint respawn at 0,0", S_YESNO, m_null, C_X,
+   C_Y + compat_respawnfix * COMP_SPC, {"comp_respawnfix"}},
 
   {"Use Doom's main menu ordering", S_YESNO, m_null, C_X,
    C_Y + compat_menu * COMP_SPC, {"traditional_menu"}, 0, 0, M_ResetMenu},

@@ -36,6 +36,7 @@
 #include <string.h>      // for memset
 #include <sys/nearptr.h> // for __djgpp_conventional_base
 #include <sys/farptr.h>  // for farpoke
+#include "features.h"
 #include "i_vgavbe.h"
 
 //-----------------------------------------------------------------------------

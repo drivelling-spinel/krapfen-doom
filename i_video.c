@@ -26,6 +26,7 @@
 
 static const char rcsid[] = "$Id: i_video.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 
+#include "features.h"
 #include "z_zone.h"  // memory allocation wrappers -- killough 
 #include <stdio.h>
 #include <signal.h>

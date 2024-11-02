@@ -30,6 +30,7 @@ rcsid[] = "$Id: sounds.c,v 1.2 2000-08-12 21:29:30 fraggle Exp $";
 
 // killough 5/3/98: reformatted
 
+#include "features.h"
 #include "doomtype.h"
 #include "sounds.h"
 

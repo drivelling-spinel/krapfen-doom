@@ -28,6 +28,8 @@
 #ifndef __SOUNDS__
 #define __SOUNDS__
 
+#include "features.h"
+
 //
 // SoundFX struct.
 //

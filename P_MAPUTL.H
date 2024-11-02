@@ -27,6 +27,7 @@
 #ifndef __P_MAPUTL__
 #define __P_MAPUTL__
 
+#include "features.h"
 #include "r_defs.h"
 
 // mapblocks are used to check movement against lines and things
@@ -73,8 +74,10 @@ boolean ThingIsOnLine(mobj_t *t, line_t *l);  // killough 3/15/98
 boolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
                        int flags, boolean trav(intercept_t *));
 
+#ifdef V12C
 extern intercept_t *intercepts, *intercept_p; // GB 2014, for v12_compat
 void   check_intercept(void);                 // GB 2014, for v12_compat
+#endif
 
 extern fixed_t opentop;
 extern fixed_t openbottom;

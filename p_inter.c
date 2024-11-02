@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: p_inter.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "dstrings.h"
 #include "m_random.h"
@@ -328,6 +329,8 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
 #endif
 
       player->armorpoints++;          // can go over 100%
+      if (player->armorpoints > max_armor
+#ifdef V12C
       // e6y
       // Doom 1.2 does not do check of armor points on overflow.
       // If you set the "IDKFA Armor" to MAX_INT (DWORD at 0x00064B5A -> FFFFFF7F)
@@ -335,7 +338,9 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher)
       // and you will die after reception of any damage since this moment.
       // It happens because the taken health damage depends from armor points 
       // if they are present and becomes equal to very large value in this case
-      if (player->armorpoints > max_armor && !(v12_compat))
+      && !(v12_compat)
+#endif
+      )
         player->armorpoints = max_armor;
       if (!player->armortype)
         player->armortype = green_armor_class;
@@ -885,8 +890,12 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
   target->reactiontime = 0;           // we're awake now...
 
   // killough 9/9/98: cleaned up, made more consistent:
+  if (source && (source != target
+#ifdef V12C
   //e6y: Monsters could commit suicide in Doom v1.2 if they damaged themselves by exploding a barrel
-  if (source && (source != target || v12_compat) &&
+  || v12_compat
+#endif
+  ) &&
       source->type != MT_VILE &&
       (!target->threshold || target->type == MT_VILE) &&
       ((source->flags ^ target->flags) & MF_FRIEND ||

@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: p_sight.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "r_main.h"
 #include "p_maputl.h"
 #include "p_setup.h"
@@ -76,7 +77,7 @@ int sightcounts[3];
 ==============
 */
 
-boolean PTR_SightTraverse(intercept_t *in)
+static boolean PTR_SightTraverse(intercept_t *in)
 {
   line_t *li;
   fixed_t slope;
@@ -119,7 +120,7 @@ boolean PTR_SightTraverse(intercept_t *in)
 ===================
 */
 
-boolean P_SightBlockLinesIterator(int x, int y)
+static boolean P_SightBlockLinesIterator(int x, int y)
 {
   int offset;
   long *list;
@@ -172,7 +173,7 @@ boolean P_SightBlockLinesIterator(int x, int y)
 ====================
 */
 
-boolean P_SightTraverseIntercepts(void)
+static boolean P_SightTraverseIntercepts(void)
 {
   int count;
   fixed_t dist;
@@ -222,7 +223,7 @@ boolean P_SightTraverseIntercepts(void)
 ==================
 */
 
-boolean P_SightPathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2)
+static boolean P_SightPathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2)
 {
   fixed_t xt1,yt1,xt2,yt2;
   fixed_t xstep,ystep;
@@ -352,7 +353,7 @@ boolean P_SightPathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2)
 =====================
 */
 
-boolean P_CheckSight_12(mobj_t *t1, mobj_t *t2)
+static boolean P_CheckSight_12(mobj_t *t1, mobj_t *t2)
 {
   int s1, s2;
   int pnum, bytenum, bitnum;

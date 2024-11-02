@@ -29,6 +29,7 @@
 #ifndef __INFO__
 #define __INFO__
 
+#include "features.h"
 // Needed for action function pointer handling.
 #include "d_think.h"
 

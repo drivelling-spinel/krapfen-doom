@@ -36,6 +36,7 @@ rcsid[] = "$Id: info.c,v 1.2 2000-08-12 21:29:25 fraggle Exp $";
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include "features.h"
 #include "doomdef.h"
 #include "sounds.h"
 #include "m_fixed.h"

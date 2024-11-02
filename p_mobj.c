@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: p_mobj.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomdef.h"
 #include "doomstat.h"
 #include "m_random.h"
@@ -560,8 +561,8 @@ void P_NightmareRespawn(mobj_t* mobj)
    //   the fix)
    //
 
-//if(!comp[comp_respawnfix] && !x && !y)
-   if(!x && !y)
+   if(!comp[comp_respawnfix] && !x && !y)
+//   if(!x && !y)
    {
       // spawnpoint was zeroed out, so use point of death instead
       x = mobj->x;
