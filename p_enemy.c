@@ -45,7 +45,9 @@ rcsid[] = "$Id: p_enemy.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 #include "p_tick.h"
 #include "m_bbox.h"
 
+#if defined(SMARTMOBJ) || defined(FRIENDMOBJ)
 static mobj_t *current_actor;
+#endif
 
 typedef enum {
   DI_EAST,
@@ -137,7 +139,10 @@ static boolean P_CheckMeleeRange(mobj_t *actor)
 
 #ifdef V12C
   return  // killough 7/18/98: friendly monsters don't attack other friends
-    pl && !(actor->flags & pl->flags & MF_FRIEND) &&
+    pl &&
+#ifdef FRIENDMOBJ
+     !(actor->flags & pl->flags & MF_FRIEND) &&
+#endif
     (P_AproxDistance(pl->x-actor->x, pl->y-actor->y) <
      (v12_compat ? 
       MELEERANGE :
@@ -145,7 +150,10 @@ static boolean P_CheckMeleeRange(mobj_t *actor)
     P_CheckSight(actor, actor->target);
 #else
   return  // killough 7/18/98: friendly monsters don't attack other friends
-    pl && !(actor->flags & pl->flags & MF_FRIEND) &&
+    pl &&
+#ifdef FRIENDMOBJ
+    !(actor->flags & pl->flags & MF_FRIEND) &&
+#endif
     (P_AproxDistance(pl->x-actor->x, pl->y-actor->y) <
      MELEERANGE - 20*FRACUNIT + pl->info->radius) &&
     P_CheckSight(actor, actor->target);
@@ -153,7 +161,7 @@ static boolean P_CheckMeleeRange(mobj_t *actor)
 }
 
 
-
+#ifdef FRIENDMOBJ
 //
 // P_HitFriend()
 //
@@ -171,6 +179,7 @@ static boolean P_HitFriend(mobj_t *actor)
      linetarget) && linetarget != actor->target &&
     !((linetarget->flags ^ actor->flags) & MF_FRIEND);
 }
+#endif
 
 //
 // P_CheckMissileRange
@@ -185,7 +194,7 @@ static boolean P_CheckMissileRange(mobj_t *actor)
   if (actor->flags & MF_JUSTHIT)
     {      // the target just hit the enemy, so fight back!
       actor->flags &= ~MF_JUSTHIT;
-
+#ifdef FRIENDMOBJ
       // killough 7/18/98: no friendly fire at corpses
       // killough 11/98: prevent too much infighting among friends
 
@@ -194,14 +203,24 @@ static boolean P_CheckMissileRange(mobj_t *actor)
 	(actor->target->health > 0 &&
 	 (!(actor->target->flags & MF_FRIEND) ||
 	  (actor->target->player ? 
-	   monster_infighting || P_Random(pr_defect) >128 :
-	   !(actor->target->flags & MF_JUSTHIT) && P_Random(pr_defect) >128)));
+#ifdef SMARTMOBJ
+	   monster_infighting ||
+#else
+           1 ||
+#endif
+             P_Random(pr_defect) >128 :
+             !(actor->target->flags & MF_JUSTHIT) && P_Random(pr_defect) >128)));
+#else
+      return true;
+#endif
     }
 
+#ifdef FRIENDMOBJ
   // killough 7/18/98: friendly monsters don't attack other friendly
   // monsters or players (except when attacked, and then only once)
   if (actor->flags & actor->target->flags & MF_FRIEND)
     return false;
+#endif
 
   if (actor->reactiontime)
     return false;       // do not attack yet
@@ -239,13 +258,16 @@ static boolean P_CheckMissileRange(mobj_t *actor)
 
   if (P_Random(pr_missrange) < dist)
     return false;
-  
+
+#ifdef FRIENDMOBJ
   if (actor->flags & MF_FRIEND && P_HitFriend(actor))
     return false;
+#endif
 
   return true;
 }
 
+#ifdef SMARTMOBJ
 //
 // P_IsOnLift
 //
@@ -305,6 +327,8 @@ static int P_IsUnderDamage(mobj_t *actor)
       dir |= cl->direction;
   return dir;
 }
+#endif
+
 
 //
 // P_Move
@@ -360,8 +384,9 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
       fixed_t y = actor->y;
       fixed_t floorz = actor->floorz;
       fixed_t ceilingz = actor->ceilingz;
+#if defined(SMARTMOBJ) || defined (PHYSMBF)
       fixed_t dropoffz = actor->dropoffz;
-
+#endif
       try_ok = P_TryMove(actor, tryx, tryy, dropoff);
 
       // killough 10/98:
@@ -374,7 +399,9 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
 	  actor->y = y;
 	  actor->floorz = floorz;
 	  actor->ceilingz = ceilingz;
+#if defined(SMARTMOBJ) || defined (PHYSMBF)
 	  actor->dropoffz = dropoffz;
+#endif
 	  P_SetThingPosition(actor);
 	  movefactor *= FRACUNIT / ORIG_FRICTION_FACTOR / 4;
 	  actor->momx += FixedMul(deltax, movefactor);
@@ -436,6 +463,7 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
   return true;
 }
 
+#ifdef SMARTMOBJ
 //
 // P_SmartMove
 //
@@ -483,6 +511,7 @@ static boolean P_SmartMove(mobj_t *actor)
 
   return true;
 }
+#endif
 
 //
 // TryWalk
@@ -498,7 +527,11 @@ static boolean P_SmartMove(mobj_t *actor)
 
 static boolean P_TryWalk(mobj_t *actor)
 {
+#ifdef SMARTMOBJ
   if (!P_SmartMove(actor))
+#else
+  if (!P_Move(actor, false))
+#endif
     return false;
   actor->movecount = P_Random(pr_trywalk)&15;
   return true;
@@ -568,6 +601,7 @@ static void P_DoNewChaseDir(mobj_t *actor, fixed_t deltax, fixed_t deltay)
     actor->movedir = DI_NODIR;
 }
 
+#ifdef SMARTMOBJ
 //
 // killough 11/98:
 //
@@ -638,6 +672,7 @@ static fixed_t P_AvoidDropoff(mobj_t *actor)
 
   return dropoff_deltax | dropoff_deltay;   // Non-zero if movement prescribed
 }
+#endif
 
 //
 // P_NewChaseDir
@@ -656,6 +691,7 @@ static void P_NewChaseDir(mobj_t *actor)
   // 1) Stay a certain distance away from a friend, to avoid being in their way
   // 2) Take advantage over an enemy without missiles, by keeping distance
 
+#ifdef SMARTMOBJ
   actor->strafecount = 0;
 
   if (demo_version >= 203)
@@ -675,7 +711,7 @@ static void P_NewChaseDir(mobj_t *actor)
       else
 	{
 	  fixed_t dist = P_AproxDistance(deltax, deltay);
-	  
+#ifdef FRIENDMOBJ          
 	  // Move away from friends when too close, except
 	  // in certain situations (e.g. a crowded lift)
 	  
@@ -684,7 +720,12 @@ static void P_NewChaseDir(mobj_t *actor)
 	      !P_IsOnLift(target) && !P_IsUnderDamage(actor))
 	    deltax = -deltax, deltay = -deltay;
 	  else
-	    if (target->health > 0 && (actor->flags ^ target->flags) & MF_FRIEND)
+#endif
+	    if (target->health > 0
+#ifdef FRIENDMOBJ
+            && (actor->flags ^ target->flags) & MF_FRIEND
+#endif
+            )
 	      {   // Live enemy target
 		if (monster_backing &&
 		    actor->info->missilestate && actor->type != MT_SKULL &&
@@ -699,14 +740,16 @@ static void P_NewChaseDir(mobj_t *actor)
 	      }
 	}
     }
+#endif
       
   P_DoNewChaseDir(actor, deltax, deltay);
-
+#ifdef SMARTMOBJ
   // If strafing, set movecount to strafecount so that old Doom
   // logic still works the same, except in the strafing part
 
   if (actor->strafecount)
     actor->movecount = actor->strafecount;
+#endif
 }
 
 //
@@ -728,6 +771,7 @@ static boolean P_IsVisible(mobj_t *actor, mobj_t *mo, boolean allaround)
   return P_CheckSight(actor, mo);
 }
 
+#if defined(SMARTMOBJ) || defined(FRIENDMOBJ)
 //
 // PIT_FindTarget
 //
@@ -742,10 +786,14 @@ static boolean PIT_FindTarget(mobj_t *mo)
 {
   mobj_t *actor = current_actor;
 
-  if (!((mo->flags ^ actor->flags) & MF_FRIEND &&        // Invalid target
+  if (!(
+#ifdef FRIENDMOBJ
+  (mo->flags ^ actor->flags) & MF_FRIEND &&        // Invalid target
+#endif
 	mo->health > 0 && (mo->flags & MF_COUNTKILL || mo->type == MT_SKULL)))
     return true;
 
+#ifdef FRIENDMOBJ
   // If the monster is already engaged in a one-on-one attack
   // with a healthy friend, don't attack around 60% the time
   {
@@ -756,10 +804,10 @@ static boolean PIT_FindTarget(mobj_t *mo)
 	targ->health*2 >= targ->info->spawnhealth)
       return true;
   }
-
+#endif
   if (!P_IsVisible(actor, mo, current_allaround))
     return true;
-
+       
   P_SetTarget(&actor->lastenemy, actor->target);  // Remember previous target
   P_SetTarget(&actor->target, mo);                // Found target
 
@@ -767,8 +815,11 @@ static boolean PIT_FindTarget(mobj_t *mo)
   // list, so that it gets searched last next time.
 	  
   {
-    thinker_t *cap = &thinkerclasscap[mo->flags & MF_FRIEND ?
-				     th_friends : th_enemies];
+    thinker_t *cap = &thinkerclasscap[
+#ifdef FRIENDMOBJ
+    mo->flags & MF_FRIEND ? th_friends :
+#endif
+    th_enemies];
     (mo->thinker.cprev->cnext = mo->thinker.cnext)->cprev = mo->thinker.cprev;
     (mo->thinker.cprev = cap->cprev)->cnext = &mo->thinker;
     (mo->thinker.cnext = cap)->cprev = &mo->thinker;
@@ -776,6 +827,7 @@ static boolean PIT_FindTarget(mobj_t *mo)
 
   return false;
 }
+#endif
 
 //
 // P_LookForPlayers
@@ -787,7 +839,7 @@ static boolean P_LookForPlayers(mobj_t *actor, boolean allaround)
 {
   player_t *player;
   int stop, stopc, c;
-
+#ifdef FRIENDMOBJ 
   if (actor->flags & MF_FRIEND)
     {  // killough 9/9/98: friendly monsters go about players differently
       int anyone;
@@ -819,6 +871,7 @@ static boolean P_LookForPlayers(mobj_t *actor, boolean allaround)
 
       return false;
     }
+#endif
 
   // Change mask of 3 to (MAXPLAYERS-1) -- killough 2/15/98:
   stop = (actor->lastlook-1)&(MAXPLAYERS-1);
@@ -846,12 +899,12 @@ static boolean P_LookForPlayers(mobj_t *actor, boolean allaround)
 	continue;
       
       P_SetTarget(&actor->target, player->mo);
-
+#ifdef SMARTMOBJ
       // killough 9/9/98: give monsters a threshold towards getting players
       // (we don't want it to be too easy for a player with dogs :)
       if (demo_version >= 203 && !comp[comp_pursuit])
 	actor->threshold = 60;
-
+#endif
       return true;
     }
 }
@@ -866,19 +919,25 @@ static boolean P_LookForPlayers(mobj_t *actor, boolean allaround)
 
 static boolean P_LookForMonsters(mobj_t *actor, boolean allaround)
 {
+#ifdef FRIENDMOBJ
   thinker_t *cap, *th;
+#endif
 
   if (demo_compatibility)
     return false;
 
-  if (actor->lastenemy && actor->lastenemy->health > 0 && monsters_remember &&
-      !(actor->lastenemy->flags & actor->flags & MF_FRIEND)) // not friends
+  if (actor->lastenemy && actor->lastenemy->health > 0 && monsters_remember 
+#ifdef FRIENDMOBJ
+     && !(actor->lastenemy->flags & actor->flags & MF_FRIEND) // not friends
+#endif
+  )
     {
       P_SetTarget(&actor->target, actor->lastenemy);
       P_SetTarget(&actor->lastenemy, NULL);
       return true;
     }
 
+#ifdef FRIENDMOBJ
   if (demo_version < 203)  // Old demos do not support monster-seeking bots
     return false;
 
@@ -935,6 +994,7 @@ static boolean P_LookForMonsters(mobj_t *actor, boolean allaround)
 	      return true;
       }
     }
+#endif
 
   return false;  // No monster found
 }
@@ -947,11 +1007,17 @@ static boolean P_LookForMonsters(mobj_t *actor, boolean allaround)
 
 static boolean P_LookForTargets(mobj_t *actor, int allaround)
 {
-  return actor->flags & MF_FRIEND ?
-    P_LookForMonsters(actor, allaround) || P_LookForPlayers (actor, allaround):
+  return
+#ifdef FRIENDMOBJ
+    actor->flags & MF_FRIEND ?
+      P_LookForMonsters(actor, allaround) || P_LookForPlayers (actor, allaround):
+#endif
+//FIXME: once monsters_remember gets "featurized" during "BOOM" stage 
+//       the whole P_LookForTarget can be reduced to LookForPlayers - LP 2024
     P_LookForPlayers (actor, allaround) || P_LookForMonsters(actor, allaround);
 }
 
+#ifdef SMARTMOBJ
 //
 // P_HelpFriend
 //
@@ -970,7 +1036,11 @@ static boolean P_HelpFriend(mobj_t *actor)
   current_allaround = true;
 
   // Possibly help a friend under 50% health
-  cap = &thinkerclasscap[actor->flags & MF_FRIEND ? th_friends : th_enemies];
+  cap = &thinkerclasscap[
+#ifdef FRIENDMOBJ
+  actor->flags & MF_FRIEND ? th_friends :
+#endif
+  th_enemies];
 
   for (th = cap->cnext; th != cap; th = th->cnext)
     if (((mobj_t *) th)->health*2 >= ((mobj_t *) th)->info->spawnhealth)
@@ -991,6 +1061,7 @@ static boolean P_HelpFriend(mobj_t *actor)
 
   return false;
 }
+#endif
 
 //
 // ACTION ROUTINES
@@ -1010,13 +1081,24 @@ void A_Look(mobj_t *actor)
   // also return to player, without attacking them, if they
   // cannot find any targets. A marine's best friend :)
   
-  actor->threshold = actor->pursuecount = 0;
-  if (!(actor->flags & MF_FRIEND && P_LookForTargets(actor, false)) &&
+  actor->threshold =
+#ifdef SMARTMOBJ
+    actor->pursuecount =
+#endif
+    0;
+  if (
+#ifdef FRIENDMOBJ
+      !(actor->flags & MF_FRIEND && P_LookForTargets(actor, false)) &&
+#endif
       !((targ = actor->subsector->sector->soundtarget) &&
 	targ->flags & MF_SHOOTABLE &&
 	(P_SetTarget(&actor->target, targ),
 	 !(actor->flags & MF_AMBUSH) || P_CheckSight(actor, targ))) &&
-      (actor->flags & MF_FRIEND || !P_LookForTargets(actor, false)))
+      (
+#ifdef FRIENDMOBJ
+        actor->flags & MF_FRIEND || 
+#endif
+      !P_LookForTargets(actor, false)))
     return;
 
   // go into chase state
@@ -1062,9 +1144,13 @@ void A_KeepChasing(mobj_t *actor)
   if (actor->movecount)
     {
       actor->movecount--;
+#ifdef SMARTMOBJ
       if (actor->strafecount)
 	actor->strafecount--;
       P_SmartMove(actor);
+#else
+      P_Move(actor, false);
+#endif
     }
 }
 
@@ -1096,11 +1182,13 @@ void A_Chase(mobj_t *actor)
   }
 
   // turn towards movement direction if not there yet
+#ifdef SMARTMOBJ
   // killough 9/7/98: keep facing towards target if strafing or backing out
 
   if (actor->strafecount)
     A_FaceTarget(actor);
   else
+#endif
     if (actor->movedir < 8)
       {
 	int delta = (actor->angle &= (7<<29)) - (actor->movedir << 29);
@@ -1152,11 +1240,14 @@ void A_Chase(mobj_t *actor)
   
   if (!actor->threshold)
     {
+#ifdef SMARTMOBJ
       if (demo_version < 203)
 	{   // killough 9/9/98: for backward demo compatibility
+#endif
 	  if (netgame && !P_CheckSight(actor, actor->target) &&
 	      P_LookForPlayers(actor, true))
 	    return;  
+#ifdef SMARTMOBJ
 	}
       else  // killough 7/18/98, 9/9/98: new monster AI
 	if (help_friends && P_HelpFriend(actor))
@@ -1171,15 +1262,23 @@ void A_Chase(mobj_t *actor)
 	      // If current target is bad and a new one is found, return:
 	      
 	      if (!(actor->target && actor->target->health > 0 &&
-		    ((comp[comp_pursuit] && !netgame) || 
-		     (((actor->target->flags ^ actor->flags) & MF_FRIEND ||
-		       (!(actor->flags & MF_FRIEND) && monster_infighting)) &&
-		      P_CheckSight(actor, actor->target)))) &&
+		    ((comp[comp_pursuit] && !netgame) ||
+                     (
+#ifdef FRIENDMOBJ
+
+                      ((actor->target->flags ^ actor->flags) & MF_FRIEND ||
+                       (!(actor->flags & MF_FRIEND) && monster_infighting)) 
+#else                 
+                      monster_infighting 
+#endif
+                     &&
+                      P_CheckSight(actor, actor->target)))) &&
 		  P_LookForTargets(actor, true))
 		return;
 	      
 	      // (Current target was good, or no new target was found.)
 	      //
+#ifdef FRIENDMOBJ
 	      // If monster is a missile-less friend, give up pursuit and
 	      // return to player, if no attacks have occurred recently.
 	      
@@ -1190,14 +1289,24 @@ void A_Chase(mobj_t *actor)
 		  else if (P_LookForPlayers(actor, true))  // else return to player
 		    return;
 		}
+#endif
 	    }
+#endif
     }
-  
+
+#ifdef SMARTMOBJ
   if (actor->strafecount)
     actor->strafecount--;
+#endif
   
   // chase towards player
-  if (--actor->movecount<0 || !P_SmartMove(actor))
+  if (--actor->movecount<0 ||
+#ifdef SMARTMOBJ
+  !P_SmartMove(actor)
+#else
+  !P_Move(actor, false)
+#endif
+  )
     P_NewChaseDir(actor);
 
   // make active sound
@@ -1287,22 +1396,29 @@ void A_CPosRefire(mobj_t *actor)
   // keep firing unless target got out of sight
   A_FaceTarget(actor);
 
+#ifdef FRIENDMOBJ
   // killough 12/98: Stop firing if a friend has gotten in the way
   if (actor->flags & MF_FRIEND && P_HitFriend(actor))
     goto stop;
+#endif
 
   // killough 11/98: prevent refiring on friends continuously
   if (P_Random(pr_cposrefire) < 40)
     {
+#ifdef FRIENDMOBJ
       if (actor->target && actor->flags & actor->target->flags & MF_FRIEND)
 	goto stop;
       else
+#endif
 	return;
     }
   
   if (!actor->target || actor->target->health <= 0
       || !P_CheckSight(actor, actor->target))
-    stop: P_SetMobjState(actor, actor->info->seestate);
+#ifdef FRIENDMOBJ
+    stop:
+#endif
+    P_SetMobjState(actor, actor->info->seestate);
 }
 
 void A_SpidRefire(mobj_t* actor)
@@ -1310,18 +1426,24 @@ void A_SpidRefire(mobj_t* actor)
   // keep firing unless target got out of sight
   A_FaceTarget(actor);
 
+#ifdef FRIENDMOBJ
   // killough 12/98: Stop firing if a friend has gotten in the way
   if (actor->flags & MF_FRIEND && P_HitFriend(actor))
     goto stop;
-
+#endif
   if (P_Random(pr_spidrefire) < 10)
     return;
 
   // killough 11/98: prevent refiring on friends continuously
   if (!actor->target || actor->target->health <= 0
+#ifdef FRIENDMOBJ
       || actor->flags & actor->target->flags & MF_FRIEND
+#endif
       || !P_CheckSight(actor, actor->target))
-    stop: P_SetMobjState(actor, actor->info->seestate);
+#ifdef FRIENDMOBJ
+    stop:
+#endif
+    P_SetMobjState(actor, actor->info->seestate);
 }
 
 void A_BspiAttack(mobj_t *actor)
@@ -1661,12 +1783,12 @@ void A_VileChase(mobj_t* actor)
                       corpsehit->height = info->height; // fix Ghost bug
                       corpsehit->radius = info->radius; // fix Ghost bug
                     }                                               // phares
-
+#ifdef FRIENDMOBJ
 		  // killough 7/18/98: 
 		  // friendliness is transferred from AV to raised corpse
 		  corpsehit->flags = 
 		    (info->flags & ~MF_FRIEND) | (actor->flags & MF_FRIEND);
-		  
+#endif                  
                   corpsehit->health = info->spawnhealth;
 		  P_SetTarget(&corpsehit->target, NULL);  // killough 11/98
 
@@ -1990,8 +2112,10 @@ void A_PainShootSkull(mobj_t *actor, angle_t angle)
         }                                                         //   |
      }                                                            // phares
 
+#ifdef FRIENDMOBJ
   // killough 7/20/98: PEs shoot lost souls with the same friendliness
   newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (actor->flags & MF_FRIEND);
+#endif
 
   // killough 8/29/98: add to appropriate thread
   P_UpdateThinker(&newmobj->thinker);
@@ -2416,8 +2540,10 @@ void A_BrainSpit(mobj_t *mo)
   P_SetTarget(&newmobj->target, targ);
   newmobj->reactiontime = ((targ->y-mo->y)/newmobj->momy)/newmobj->state->tics;
 
+#ifdef FRIENDMOBJ
   // killough 7/18/98: brain friendliness is transferred
   newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (mo->flags & MF_FRIEND);
+#endif
 
   // killough 8/29/98: add to appropriate thread
   P_UpdateThinker(&newmobj->thinker);
@@ -2482,8 +2608,10 @@ void A_SpawnFly(mobj_t *mo)
 
   newmobj = P_SpawnMobj(targ->x, targ->y, targ->z, type);
 
+#ifdef FRIENDMOBJ
   // killough 7/18/98: brain friendliness is transferred
   newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (mo->flags & MF_FRIEND);
+#endif
 
   // killough 8/29/98: add to appropriate thread
   P_UpdateThinker(&newmobj->thinker);
@@ -2544,10 +2672,15 @@ void A_Spawn(mobj_t *mo)
 {
   if (mo->state->misc1)
     {
-      mobj_t *newmobj = P_SpawnMobj(mo->x, mo->y, 
+#ifdef FRIENDMOBJ
+      mobj_t *newmobj =
+#endif
+                        P_SpawnMobj(mo->x, mo->y,
 				    (mo->state->misc2 << FRACBITS) + mo->z, 
 				    mo->state->misc1 - 1);
+#ifdef FRIENDMOBJ
       newmobj->flags = (newmobj->flags & ~MF_FRIEND) | (mo->flags & MF_FRIEND);
+#endif
 
     }
 }

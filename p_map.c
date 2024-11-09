@@ -257,7 +257,9 @@ boolean P_TeleportMove(mobj_t *thing, fixed_t x, fixed_t y, boolean boss)
 
   thing->floorz = tmfloorz;
   thing->ceilingz = tmceilingz;
+#if defined(SMARTMOBJ) || defined(PHYSMBF)
   thing->dropoffz = tmdropoffz;        // killough 11/98
+#endif
 
   thing->x = x;
   thing->y = y;
@@ -355,7 +357,11 @@ static boolean PIT_CheckLine(line_t *ld) // killough 3/26/98: make static
 	return tmunstuck && !untouched(ld);  // killough 8/1/98: allow escape
 
       // killough 8/9/98: monster-blockers don't affect friends
-      if (!(tmthing->flags & MF_FRIEND || tmthing->player)
+      if (!(
+#ifdef FRIENDMOBJ
+      tmthing->flags & MF_FRIEND ||
+#endif
+      tmthing->player)
 	  && ld->flags & ML_BLOCKMONSTERS)
 	return false; // block monsters only
     }
@@ -741,6 +747,7 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 	      if (tmfloorz - tmdropoffz > 24*FRACUNIT)
 		return false;                      // don't stand over a dropoff
 	    }
+#ifdef SMARTMOBJ
 	  else
 	    if (!dropoff || (dropoff==2 &&  // large jump down (e.g. dogs)
 			     (tmfloorz-tmdropoffz > 128*FRACUNIT || 
@@ -755,8 +762,9 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 	    else  // dropoff allowed -- check for whether it fell more than 24
 	      felldown = !(thing->flags & MF_NOGRAVITY) &&
 		thing->z - tmfloorz > 24*FRACUNIT;
+#endif
 	}
-      
+#ifdef PHYSMBF
       if (thing->flags & MF_BOUNCES &&    // killough 8/13/98
 	  !(thing->flags & (MF_MISSILE|MF_NOGRAVITY)) &&
 	  !sentient(thing) && tmfloorz - thing->z > 16*FRACUNIT)
@@ -766,6 +774,7 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
       if (thing->intflags & MIF_FALLING && tmfloorz - thing->z >
 	  FixedMul(thing->momx,thing->momx)+FixedMul(thing->momy,thing->momy))
 	return false;
+#endif
     }
 
   // the move is ok,
@@ -777,7 +786,9 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
   oldy = thing->y;
   thing->floorz = tmfloorz;
   thing->ceilingz = tmceilingz;
+#if defined(SMARTMOBJ) || defined(PHYSMBF)
   thing->dropoffz = tmdropoffz;      // killough 11/98: keep track of dropoffs
+#endif
   thing->x = x;
   thing->y = y;
 
@@ -948,7 +959,9 @@ static boolean P_ThingHeightClip(mobj_t *thing)
 
   thing->floorz = tmfloorz;
   thing->ceilingz = tmceilingz;
+#if defined(SMARTMOBJ) || defined(PHYSMBF)
   thing->dropoffz = tmdropoffz;         // killough 11/98: remember dropoffs
+#endif
 
   if (onfloor)  // walking monsters rise and fall with the floor
     {
@@ -1261,7 +1274,9 @@ void P_SlideMove(mobj_t *mo)
 mobj_t *linetarget; // who got hit (or NULL)
 static mobj_t *shootthing;
 
+#ifdef FRIENDMOBJ
 static int aim_flags_mask; // killough 8/2/98: for more intelligent autoaiming
+#endif
 
 static fixed_t shootz;  // Height if not aiming up or down
 static int la_damage;
@@ -1332,10 +1347,12 @@ static boolean PTR_AimTraverse (intercept_t *in)
   if (!(th->flags&MF_SHOOTABLE))
     return true;    // corpse or something
 
+#ifdef FRIENDMOBJ
   // killough 7/19/98, 8/2/98:
   // friends don't aim at friends (except players), at least not first
   if (th->flags & shootthing->flags & aim_flags_mask && !th->player)
     return true;
+#endif
 
   // check angles to see if the thing can be aimed at
 
@@ -1494,8 +1511,10 @@ fixed_t P_AimLineAttack(mobj_t *t1,angle_t angle,fixed_t distance,int mask)
   attackrange = distance;
   linetarget = NULL;
 
+#ifdef FRIENDMOBJ
   // killough 8/2/98: prevent friends from aiming at friends
   aim_flags_mask = mask;
+#endif
 
   P_PathTraverse(t1->x,t1->y,x2,y2,PT_ADDLINES|PT_ADDTHINGS,PTR_AimTraverse);
 

@@ -277,6 +277,7 @@ void P_XYMovement (mobj_t* mo)
   if (mo->flags & (MF_MISSILE | MF_SKULLFLY) || mo->z > mo->floorz)
     return;
 
+#ifdef PHYSMBF
   // killough 8/11/98: add bouncers
   // killough 9/15/98: add objects falling off ledges
   // killough 11/98: only include bouncers hanging off ledges
@@ -286,6 +287,7 @@ void P_XYMovement (mobj_t* mo)
        mo->momy > FRACUNIT/4 || mo->momy < -FRACUNIT/4) &&
       mo->floorz != mo->subsector->sector->floorheight)
     return;  // do not stop sliding if halfway off a step with some momentum
+#endif
 
   // killough 11/98:
   // Stop voodoo dolls that have come to rest, despite any
@@ -607,8 +609,10 @@ void P_NightmareRespawn(mobj_t* mobj)
   if (mthing->options & MTF_AMBUSH)
     mo->flags |= MF_AMBUSH;
 
+#ifdef FRIENDMOBJ
   // killough 11/98: transfer friendliness from deceased
   mo->flags = (mo->flags & ~MF_FRIEND) | (mobj->flags & MF_FRIEND);
+#endif
 
   mo->reactiontime = 18;
 
@@ -641,6 +645,7 @@ void P_MobjThinker (mobj_t* mobj)
       if (mobj->thinker.function == P_RemoveThinkerDelayed) // killough
 	return;       // mobj was removed
     }
+#ifdef PHYSMBF
   else
     if (!(mobj->momx | mobj->momy) && !sentient(mobj))
       {                                  // non-sentient objects at rest
@@ -656,6 +661,7 @@ void P_MobjThinker (mobj_t* mobj)
 	else
 	  mobj->intflags &= ~MIF_FALLING, mobj->gear = 0;  // Reset torque
       }
+#endif
 
   // cycle through states,
   // calling action functions at transitions
@@ -695,11 +701,25 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
   mobj->flags  = info->flags;
 
   // killough 8/23/98: no friends, bouncers, or touchy things in old demos
+#if defined(FRIENDMOBJ) || defined(PHYSMBF)
   if (demo_version < 203)
-    mobj->flags &= ~(MF_BOUNCES | MF_FRIEND | MF_TOUCHY); 
+    mobj->flags &= ~(0
+#ifdef PHYSMBF
+     | MF_BOUNCES
+#endif
+#ifdef FRIENDMOBJ
+     | MF_FRIEND
+#endif
+#ifdef PHYSMBF
+     | MF_TOUCHY
+#endif
+     );
+#ifdef FRIENDMOBJ
   else
     if (type == MT_PLAYER)         // Except in old demos, players
       mobj->flags |= MF_FRIEND;    // are always friends.
+#endif
+#endif
 
   mobj->health = info->spawnhealth;
 
@@ -725,7 +745,9 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 
   P_SetThingPosition(mobj);
 
+#if defined(SMARTMOBJ) || defined(PHYSMBF)
   mobj->dropoffz =           // killough 11/98: for tracking dropoffs
+#endif
   mobj->floorz   = mobj->subsector->sector->floorheight;
   mobj->ceilingz = mobj->subsector->sector->ceilingheight;
   
@@ -1085,6 +1107,7 @@ spawnit:
   if (mobj->tics > 0)
     mobj->tics = 1 + (P_Random (pr_spawnthing) % mobj->tics);
 
+#ifdef FRIENDMOBJ
   if (!(mobj->flags & MF_FRIEND) &&
       mthing->options & MTF_FRIEND && 
       demo_version>=203)
@@ -1092,9 +1115,14 @@ spawnit:
       mobj->flags |= MF_FRIEND;            // killough 10/98:
       P_UpdateThinker(&mobj->thinker);     // transfer friendliness flag
     }
+#endif
 
+  if (!((mobj->flags ^ MF_COUNTKILL) & (
+#ifdef FRIENDMOBJ
   // killough 7/20/98: exclude friends
-  if (!((mobj->flags ^ MF_COUNTKILL) & (MF_FRIEND | MF_COUNTKILL)))
+  MF_FRIEND |
+#endif
+  MF_COUNTKILL)))
     totalkills++;
 
   if (mobj->flags & MF_COUNTITEM)
@@ -1250,8 +1278,14 @@ void P_SpawnPlayerMissile(mobj_t* source,mobjtype_t type)
   if (!beta_emulation || autoaim)
 #endif
     {
+      int mask =
+#ifdef FRIENDMOBJ
       // killough 8/2/98: prefer autoaiming at enemies
-      int mask = demo_version < 203 ? 0 : MF_FRIEND;
+      demo_version < 203 ? 0 : MF_FRIEND
+#else
+      0
+#endif
+      ;
       do
 	{
 	  slope = P_AimLineAttack(source, an, 16*64*FRACUNIT, mask);

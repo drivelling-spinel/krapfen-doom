@@ -105,17 +105,29 @@ typedef enum {
   pr_all_in_one,              // #50
   // Start new entries -- add new entries below
   pr_opendoor,                // #51
+#ifdef SMARTMOBJ
   pr_targetsearch,            // #52
+#endif
+#ifdef FRIENDMOBJ
   pr_friends,                 // #53
+#endif
   pr_threshold,               // #54
+#ifdef FRIENDMOBJ
   pr_skiptarget,              // #55
+#endif
+#ifdef SMARTMOBJ
   pr_enemystrafe,             // #56
   pr_avoidcrush,              // #57
   pr_stayonlift,              // #58
   pr_helpfriend,              // #59
+#endif
+#ifdef DOGS
   pr_dropoff,                 // #60
+#endif
   pr_randomjump,              // #61
+#ifdef FRIENDMOBJ
   pr_defect,                  // #62
+#endif
 
   // End of new entries
   NUMPRCLASS               // MUST be last item in list

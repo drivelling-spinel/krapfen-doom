@@ -288,15 +288,18 @@ extern int hudcolor_xyco; // color range of new coords on automap
 extern int hudcolor_mesg; // color range of scrolling messages
 extern int hudcolor_chat; // color range of chat lines
 extern int hudcolor_list; // color of list of past messages
-
+#ifdef FRIENDMOBJ
 extern int mapcolor_frnd;  // friends colors  // killough 8/8/98
+#endif
 extern int default_monsters_remember;                     
 extern int monsters_remember;                            
 
 extern int map_point_coordinates; // killough 10/98
 
 extern char* chat_macros[];  // chat macros
+#ifdef PRELOAD
 extern char *wad_files[], *deh_files[]; // killough 10/98
+#endif
 extern const char* shiftxform;
 extern int map_secret_after; //secrets do not appear til after bagged
 extern default_t defaults[];
@@ -2790,9 +2793,9 @@ setup_menu_t auto_settings2[] =  // 2nd AutoMap Settings screen
   {"player 2 arrow"                 ,S_COLOR ,m_null,AU_X,AU_Y+ 9*8, {"mapcolor_ply2"}},
   {"player 3 arrow"                 ,S_COLOR ,m_null,AU_X,AU_Y+10*8, {"mapcolor_ply3"}},
   {"player 4 arrow"                 ,S_COLOR ,m_null,AU_X,AU_Y+11*8, {"mapcolor_ply4"}},
-
+#ifdef FRIENDMOBJ
   {"friends"                        ,S_COLOR ,m_null,AU_X,AU_Y+12*8, {"mapcolor_frnd"}},        // killough 8/8/98
-
+#endif                 
   {"<- PREV",S_SKIP|S_PREV,m_null,AU_PREV,AU_Y+20*8, {auto_settings1}},
 
   // Final entry
@@ -2902,22 +2905,30 @@ setup_menu_t* enem_settings[] =
 };
 
 enum {
+#ifdef SMARTMOBJ
   enem_infighting,
-
-  enem_remember = 1,
-
+#endif
+  enem_remember
+#ifdef SMARTMOBJ
+  = 1
+#endif
+  ,
+#ifdef SMARTMOBJ
   enem_backing,
   enem_monkeys,
   enem_avoid_hazards,
+#endif
   enem_friction,
+#ifdef SMARTMOBJ
   enem_help_friends,
+#endif
 
 #ifdef DOGS 
   enem_helpers,
 #endif
-
+#ifdef FRIENDMOBJ
   enem_distfriend,
-
+#endif
 #ifdef DOGS 
   enem_dog_jumping,
 #endif
@@ -2927,11 +2938,12 @@ enum {
 
 setup_menu_t enem_settings1[] =  // Enemy Settings screen       
 {
+#ifdef SMARTMOBJ
   // killough 7/19/98
   {"Monster Infighting When Provoked",S_YESNO,m_null,E_X,E_Y+ enem_infighting*8, {"monster_infighting"}},
-
+#endif
   {"Remember Previous Enemy",S_YESNO,m_null,E_X,E_Y+ enem_remember*8, {"monsters_remember"}},
-
+#ifdef SMARTMOBJ
   // killough 9/8/98
   {"Monster Backing Out",S_YESNO,m_null,E_X,E_Y+ enem_backing*8, {"monster_backing"}},
 
@@ -2939,19 +2951,21 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
 
   // killough 9/9/98
   {"Intelligently Avoid Hazards",S_YESNO,m_null,E_X,E_Y+ enem_avoid_hazards*8, {"monster_avoid_hazards"}},
-
+#endif
   // killough 10/98
   {"Affected by Friction",S_YESNO,m_null,E_X,E_Y+ enem_friction*8, {"monster_friction"}},
-
+#ifdef SMARTMOBJ
   {"Rescue Dying Friends",S_YESNO,m_null,E_X,E_Y+ enem_help_friends*8, {"help_friends"}},
-
+#endif
 #ifdef DOGS // GB 2014, include friend_distance 
   // killough 7/19/98
   {"Number Of Single-Player Helper Dogs",S_NUM|S_LEVWARN,m_null,E_X,E_Y+ enem_helpers*8, {"player_helpers"}},
-
+#endif
+#ifdef FRIENDMOBJ
   // killough 8/8/98
   {"Distance Friends Stay Away",S_NUM,m_null,E_X,E_Y+ enem_distfriend*8, {"friend_distance"}},
-
+#endif
+#ifdef DOGS
   {"Allow dogs to jump down",S_YESNO,m_null,E_X,E_Y+ enem_dog_jumping*8, {"dog_jumping"}},
 #endif
 
@@ -3121,12 +3135,14 @@ enum {
   general_leds
 };
 
+#ifdef PRELOAD
 enum {
   general_wad1,
   general_wad2,
   general_deh1,
   general_deh2
 };
+#endif
 
 enum {
 #ifdef MAXCORPSE
@@ -3148,7 +3164,7 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 
   {"Keyboard LEDs Always Off", S_YESNO, m_null, G_X,
    G_Y + general_leds*8, {"leds_always_off"}, 0, 0, I_ResetLEDs},
-
+#ifdef PRELOAD
   {"Files Preloaded at Game Startup",S_SKIP|S_TITLE, m_null, G_X,
    G_Y3 - 12},
 
@@ -3159,7 +3175,7 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"DEH/BEX # 1", S_FILE, m_null, GF_X, G_Y3 + general_deh1*8, {"dehfile_1"}},
 
   {"DEH/BEX #2", S_FILE, m_null, GF_X, G_Y3 + general_deh2*8, {"dehfile_2"}},
-
+#endif
   {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, G_X, G_Y4 - 12},
 #ifdef MAXCORPSE
 //  GB 2014: Disabled, because of reported desync when connected computers have it set differently 
@@ -3248,7 +3264,9 @@ enum
   compat_falloff,
   compat_staylift,
   compat_doorstuck,
+#ifdef SMARTMOBJ
   compat_pursuit,
+#endif
   compat_vile,
   compat_pain,
   compat_skull,
@@ -3282,10 +3300,10 @@ setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
 
   {"Monsters get stuck on doortracks", S_YESNO, m_null, C_X,
    C_Y + compat_doorstuck * COMP_SPC, {"comp_doorstuck"}},
-
+#ifdef SMARTMOBJ
   {"Monsters don't give up pursuit of targets", S_YESNO, m_null, C_X,
    C_Y + compat_pursuit * COMP_SPC, {"comp_pursuit"}},
-
+#endif
   {"Arch-Vile resurrects invincible ghosts", S_YESNO, m_null, C_X,
    C_Y + compat_vile * COMP_SPC, {"comp_vile"}},
 

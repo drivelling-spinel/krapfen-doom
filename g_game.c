@@ -988,8 +988,9 @@ static void G_DoPlayDemo(void)
       weapon_recoil = 0;
 
       allow_pushers = 0;
-
+#ifdef SMARTMOBJ
       monster_infighting = 1;           // killough 7/19/98
+#endif
 
 #ifdef BETA
       classic_bfg = 0;                  // killough 7/19/98
@@ -1001,13 +1002,16 @@ static void G_DoPlayDemo(void)
       dog_jumping = 0;                  // killough 10/98
 #endif
 
+#ifdef SMARTMOBJ
       monster_backing = 0;              // killough 9/8/98
       
       monster_avoid_hazards = 0;        // killough 9/9/98
-
+#endif
       monster_friction = 0;             // killough 10/98
+#ifdef SMARTMOBJ
       help_friends = 0;                 // killough 9/9/98
       monkeys = 0;
+#endif
 
       // killough 3/6/98: rearrange to fix savegame bugs (moved fastparm,
       // respawnparm, nomonsters flags to G_LoadOptions()/G_SaveOptions())
@@ -1892,24 +1896,30 @@ void G_ReloadDefaults(void)
 
   monsters_remember = default_monsters_remember;   // remember former enemies
 
+#ifdef SMARTMOBJ
   monster_infighting = default_monster_infighting; // killough 7/19/98
+#endif
 
 #ifdef DOGS
   dogs = netgame ? 0 : G_GetHelpers();             // killough 7/19/98
   dog_jumping = default_dog_jumping;
 #endif
 
+#ifdef FRIENDMOBJ
   distfriend = default_distfriend;                 // killough 8/8/98
-
+#endif
+#ifdef SMARTMOBJ
   monster_backing = default_monster_backing;     // killough 9/8/98
 
   monster_avoid_hazards = default_monster_avoid_hazards; // killough 9/9/98
+#endif
 
   monster_friction = default_monster_friction;     // killough 10/98
-
+#ifdef SMARTMOBJ
   help_friends = default_help_friends;             // killough 9/9/98
 
   monkeys = default_monkeys;
+#endif
 
 #ifdef BETA
   classic_bfg = default_classic_bfg;               // killough 7/19/98
@@ -2128,8 +2138,11 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ =  rngseed        & 0xff;
 
   // Options new to v2.03 begin here
-
+#ifdef SMARTMOBJ
   *demo_p++ = monster_infighting;   // killough 7/19/98
+#else
+  *demo_p++ = 0;
+#endif
 
 #ifdef DOGS
   *demo_p++ = dogs;                 // killough 7/19/98
@@ -2145,16 +2158,31 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ = 0;
 #endif
 
+#ifdef FRIENDMOBJ
   *demo_p++ = (distfriend >> 8) & 0xff;  // killough 8/8/98  
-  *demo_p++ =  distfriend       & 0xff;  // killough 8/8/98  
+  *demo_p++ =  distfriend       & 0xff;  // killough 8/8/98
+#else
+  *demo_p++ = 0;
+  *demo_p++ = 0;
+#endif
 
+#ifdef SMARTMOBJ
   *demo_p++ = monster_backing;         // killough 9/8/98
 
   *demo_p++ = monster_avoid_hazards;    // killough 9/9/98
+#else
+  *demo_p++ = 0;
+  *demo_p++ = 0;
+#endif
 
   *demo_p++ = monster_friction;         // killough 10/98
 
+#ifdef SMARTMOBJ
   *demo_p++ = help_friends;             // killough 9/9/98
+#else
+  *demo_p++ = 0;
+#endif
+
 
 #ifdef DOGS
   *demo_p++ = dog_jumping;
@@ -2162,7 +2190,11 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ = 0;
 #endif
 
+#ifdef SMARTMOBJ
   *demo_p++ = monkeys;
+#else
+  *demo_p++ = 0;
+#endif
 
   {   // killough 10/98: a compatibility vector now
     int i;
@@ -2224,7 +2256,11 @@ byte *G_ReadOptions(byte *demo_p)
   // Options new to v2.03
   if (demo_version >= 203)
     {
+#ifdef SMARTMOBJ
       monster_infighting = *demo_p++;   // killough 7/19/98
+#else
+      demo_p++;
+#endif
 
 #ifdef DOGS
       dogs = *demo_p++;                 // killough 7/19/98
@@ -2243,16 +2279,29 @@ byte *G_ReadOptions(byte *demo_p)
       demo_p += 2;
 #endif
 
+#ifdef FRIENDMOBJ
       distfriend = *demo_p++ << 8;      // killough 8/8/98
       distfriend+= *demo_p++;
+#else
+      demo_p += 2;
+#endif
 
+#ifdef SMARTMOBJ
       monster_backing = *demo_p++;     // killough 9/8/98
 
       monster_avoid_hazards = *demo_p++; // killough 9/9/98
+#else
+      demo_p += 2;
+#endif
+
 
       monster_friction = *demo_p++;      // killough 10/98
 
+#ifdef SMARTMOBJ
       help_friends = *demo_p++;          // killough 9/9/98
+#else
+      demo_p ++;
+#endif
 
 #ifdef DOGS
       dog_jumping = *demo_p++;           // killough 10/98
@@ -2260,7 +2309,11 @@ byte *G_ReadOptions(byte *demo_p)
       demo_p++;
 #endif
 
+#ifdef SMARTMOBJ
       monkeys = *demo_p++;
+#else
+      demo_p++;
+#endif
 
       {   // killough 10/98: a compatibility vector now
 	int i;
@@ -2278,15 +2331,19 @@ byte *G_ReadOptions(byte *demo_p)
       for (i=0; i < COMP_TOTAL; i++)
 	comp[i] = compatibility;
 
+#ifdef SMARTMOBJ
       monster_infighting = 1;           // killough 7/19/98
 
       monster_backing = 0;              // killough 9/8/98
       
       monster_avoid_hazards = 0;        // killough 9/9/98
+#endif
 
       monster_friction = 0;             // killough 10/98
 
+#ifdef SMARTMOBJ
       help_friends = 0;                 // killough 9/9/98
+#endif
 
 #ifdef BETA
       classic_bfg = 0;                  // killough 7/19/98
@@ -2297,7 +2354,10 @@ byte *G_ReadOptions(byte *demo_p)
       dogs = 0;                         // killough 7/19/98
       dog_jumping = 0;                  // killough 10/98
 #endif
+
+#ifdef SMARTMOBJ
       monkeys = 0;
+#endif
     }
 
   return target;

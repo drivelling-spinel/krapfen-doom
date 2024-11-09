@@ -532,12 +532,16 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
   int killcount=0;
   thinker_t *currentthinker=&thinkercap;
   extern void A_PainDie(mobj_t *);
+#ifdef FRIENDMOBJ
   // killough 7/20/98: kill friendly monsters only if no others to kill
   int mask = MF_FRIEND;
   do
+#endif
     while ((currentthinker=currentthinker->next)!=&thinkercap)
       if (currentthinker->function == P_MobjThinker &&
-	  !(((mobj_t *) currentthinker)->flags & mask) && // killough 7/20/98
+#ifdef FRIENDMOBJ
+          !(((mobj_t *) currentthinker)->flags & mask) &&  // killough 7/20/98
+#endif
 	  (((mobj_t *) currentthinker)->flags & MF_COUNTKILL ||
 	   ((mobj_t *) currentthinker)->type == MT_SKULL))
 	{ // killough 3/6/98: kill even if PE is dead
@@ -552,7 +556,9 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
 	      P_SetMobjState((mobj_t *) currentthinker, S_PAIN_DIE6);
 	    }
 	}
+#ifdef FRIENDMOBJ
   while (!killcount && mask ? mask=0, 1 : 0);  // killough 7/20/98
+#endif
   // killough 3/22/98: make more intelligent about plural
   // Ty 03/27/98 - string(s) *not* externalized
   dmprintf("%d Monster%s Killed", killcount, killcount==1 ? "" : "s");

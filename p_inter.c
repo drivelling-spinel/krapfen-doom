@@ -668,8 +668,10 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
   if (source && source->player)
     {
       // count for intermission
+#ifdef FRIENDMOBJ
       // killough 7/20/98: don't count friends
       if (!(target->flags & MF_FRIEND))
+#endif
 	if (target->flags & MF_COUNTKILL)
 	  source->player->killcount++;
       if (target->player)
@@ -680,8 +682,10 @@ static void P_KillMobj(mobj_t *source, mobj_t *target)
         {
           // count all monster deaths,
           // even those caused by other monsters
+#ifdef FRIENDMOBJ
 	  // killough 7/20/98: don't count friends
 	  if (!(target->flags & MF_FRIEND))
+#endif
 	    players->killcount++;
         }
 
@@ -860,6 +864,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       return;
     }
 
+#if defined(FRIENDMOBJ)
   // killough 9/7/98: keep track of targets so that friends can help friends
   if (demo_version >= 203)
     {
@@ -882,7 +887,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 	  (target->thinker.cprev = cap)->cnext = &target->thinker;
 	}
     }
-
+#endif
   if ((justhit = (P_Random (pr_painchance) < target->info->painchance &&
 		  !(target->flags & MF_SKULLFLY)))) //killough 11/98: see below
     P_SetMobjState(target, target->info->painstate);
@@ -898,8 +903,15 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
   ) &&
       source->type != MT_VILE &&
       (!target->threshold || target->type == MT_VILE) &&
-      ((source->flags ^ target->flags) & MF_FRIEND ||
-       monster_infighting || demo_version < 203))
+      (
+#ifdef FRIENDMOBJ
+         (source->flags ^ target->flags) & MF_FRIEND ||
+#endif
+#ifdef SMARTMOBJ
+         monster_infighting ||
+#endif
+         demo_version < 203)
+       )
     {
 
       // if not intent on another player, chase after this one
@@ -909,9 +921,14 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       // killough 9/9/98: cleaned up, made more consistent:
 
       if (!target->lastenemy || target->lastenemy->health <= 0 ||
+//FIXME: when dealing with remembering last enemy during "BOOM" stage
+//       recheck again - LP 2024
 	  (demo_version < 203 ? !target->lastenemy->player :
+#ifdef FRIENDMOBJ
 	   !((target->flags ^ target->lastenemy->flags) & MF_FRIEND) &&
+#endif
 	   target->target != source)) // remember last enemy - killough
+
 	P_SetTarget(&target->lastenemy, target->target);
 
       P_SetTarget(&target->target, source);       // killough 11/98
@@ -921,9 +938,13 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
         P_SetMobjState (target, target->info->seestate);
     }
 
+  if (justhit
+#ifdef FRIENDMOBJ
   // killough 11/98: Don't attack a friend, unless hit by that friend.
-  if (justhit && (target->target == source || !target->target ||
-		  !(target->flags & target->target->flags & MF_FRIEND)))
+              && (target->target == source || !target->target ||
+		  !(target->flags & target->target->flags & MF_FRIEND))
+#endif
+     )
     target->flags |= MF_JUSTHIT;    // fight back!
 }
 

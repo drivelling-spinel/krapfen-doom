@@ -61,7 +61,9 @@ int mapcolor_sprt;    // general sprite color
 int mapcolor_hair;    // crosshair color
 int mapcolor_sngl;    // single player arrow color
 int mapcolor_plyr[4]; // colors for player arrows in multiplayer
+#ifdef FRIENDMOBJ
 int mapcolor_frnd;    // colors for friends of player
+#endif
 
 //jff 3/9/98 add option to not show secret sectors until entered
 int map_secret_after;
@@ -1674,8 +1676,11 @@ void AM_drawThings
         NUMTHINTRIANGLEGUYLINES,
         16<<FRACBITS,
         t->angle,
+#ifdef FRIENDMOBJ
 	// killough 8/8/98: mark friends specially
-	t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : mapcolor_sprt,
+	t->flags & MF_FRIEND && !t->player ? mapcolor_frnd :
+#endif
+        mapcolor_sprt,
         t->x,
         t->y
       );

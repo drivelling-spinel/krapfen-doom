@@ -71,8 +71,10 @@ int default_player_bobbing;      // killough 3/1/98: make local to each game
 int monsters_remember=1;        // killough 3/1/98
 int default_monsters_remember=1;
 
+#ifdef SMARTMOBJ
 int monster_infighting=1;       // killough 7/19/98: monster<=>monster attacks
 int default_monster_infighting=1;
+#endif
 
 int monster_friction=1;       // killough 10/98: monsters affected by friction 
 int default_monster_friction=1;
@@ -90,9 +92,12 @@ int dogs, default_dogs;         // killough 7/19/98: Marine's best friend :)
 int dog_jumping, default_dog_jumping;   // killough 10/98
 #endif
 
+#ifdef FRIENDMOBJ
 // killough 8/8/98: distance friends tend to move towards players
 int distfriend = 128, default_distfriend = 128;
+#endif
 
+#ifdef SMARTMOBJ
 // killough 9/8/98: whether monsters are allowed to strafe or retreat
 int monster_backing, default_monster_backing;
 
@@ -101,12 +106,15 @@ int monster_avoid_hazards, default_monster_avoid_hazards;
 
 // killough 9/9/98: whether monsters help friends
 int help_friends, default_help_friends;
+#endif
 
 int flashing_hom;     // killough 10/98
 
 int doom_weapon_toggles; // killough 10/98
 
+#ifdef SMARTMOBJ
 int monkeys, default_monkeys;
+#endif
 
 //----------------------------------------------------------------------------
 //
