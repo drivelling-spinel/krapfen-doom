@@ -75,7 +75,9 @@ static void cheat_ammo();
 static void cheat_ammox();
 static void cheat_smart();
 static void cheat_pitch();
+#ifdef CHEATMBF
 static void cheat_nuke();
+#endif
 
 #ifdef INSTRUMENTED
 static void cheat_printstats();   // killough 8/23/98
@@ -234,9 +236,10 @@ struct cheat_s cheat[] = {
 
   {"push",    NULL,                   not_net | not_demo, 
    cheat_pushers    },   // phares 3/10/98: toggle pushers
-
+#ifdef CHEATMBF
   {"nuke",    NULL,                   not_net | not_demo,
    cheat_nuke       },   // killough 12/98: disable nukage damage
+#endif
 
 #ifdef BETA
   {"aim",        NULL,                not_net | not_demo | beta_only,
@@ -687,13 +690,14 @@ static void cheat_pitch()
     "Pitch Effects Disabled";
 }
 
+#ifdef CHEATMBF
 static void cheat_nuke()
 {
   extern int disable_nuke;
   plyr->message = (disable_nuke = !disable_nuke) ? "Nukage Disabled" :
     "Nukage Enabled";
 }
-
+#endif
 //-----------------------------------------------------------------------------
 // 2/7/98: Cheat detection rewritten by Lee Killough, to avoid
 // scrambling and to use a more general table-driven approach.

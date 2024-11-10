@@ -181,7 +181,7 @@ void P_MovePlayer (player_t* player)
 
   mo->angle += cmd->angleturn << 16;
   onground = mo->z <= mo->floorz;
-
+                            
   // killough 10/98:
   //
   // We must apply thrust to the player and bobbing separately, to avoid
@@ -191,8 +191,14 @@ void P_MovePlayer (player_t* player)
 
   if (cmd->forwardmove | cmd->sidemove) // killough 10/98
     {
-      if (onground || mo->flags & MF_BOUNCES) // killough 8/9/98
-	{
+      if (onground
+#ifdef PHYSMBF
+      // TODO: player movement routing in MBF has been rewritten significantly
+      //       so worth revisiting later on -- LP 2024
+      || mo->flags & MF_BOUNCES // killough 8/9/98
+#endif
+      )                    
+        {                   
 	  int friction, movefactor = P_GetMoveFactor(mo, &friction);
 
 	  // killough 11/98:

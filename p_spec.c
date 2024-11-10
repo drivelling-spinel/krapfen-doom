@@ -2055,7 +2055,9 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
     }
 }
 
+#ifdef CHEATMBF
 int disable_nuke;  // killough 12/98: nukage disabling cheat
+#endif
 
 //
 // P_PlayerInSpecialSector()
@@ -2086,7 +2088,9 @@ void P_PlayerInSpecialSector (player_t *player)
           sector->special = 0;
 	}
       else
+#ifdef CHEATMBF
 	if (!disable_nuke)  // killough 12/98: nukage disabling cheat
+#endif
 	  switch (sector->special)
 	    {
 	    case 5:
@@ -2134,7 +2138,9 @@ void P_PlayerInSpecialSector (player_t *player)
     }
   else //jff 3/14/98 handle extended sector types for secrets and damage
     {
+#ifdef CHEATMBF
       if (!disable_nuke)  // killough 12/98: nukage disabling cheat
+#endif
 	switch ((sector->special&DAMAGE_MASK)>>DAMAGE_SHIFT)
 	  {
 	  case 0: // no damage
@@ -2436,7 +2442,7 @@ void P_SpawnSpecials (void)
         for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
           sectors[s].ceilinglightsec = sec;
         break;
-
+#ifdef SKYTRANSFER
         // killough 10/98:
         //
         // Support for sky textures being transferred from sidedefs.
@@ -2451,6 +2457,7 @@ void P_SpawnSpecials (void)
         for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
           sectors[s].sky = i | PL_SKYFLAT;
         break;
+#endif
       }
 }
 

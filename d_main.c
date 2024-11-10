@@ -391,8 +391,10 @@ void D_PageDrawer(void)
 	V_DrawPatch(0, 0, 0, W_CacheLumpName("DOGOVRLY", PU_CACHE));
 #endif //DOGS
     }
+#ifdef CREDITS
   else
     M_DrawCredits();
+#endif
 }
 
 //
@@ -446,26 +448,37 @@ static struct
       {G_DeferedPlayDemo, "demo1"},
       {G_DeferedPlayDemo, "demo1"},
     },
-
+#ifdef CREDIT
     {
       {D_SetPageName, NULL},
       {D_SetPageName, NULL},
       {D_SetPageName, NULL},
       {D_SetPageName, NULL},
     },
-
+#else
+    {
+      {D_SetPageName, "CREDIT"},
+      {D_SetPageName, "CREDIT"},
+      {D_SetPageName, "CREDIT"},
+      {D_SetPageName, "CREDIT"},
+    },
+#endif
     {
       {G_DeferedPlayDemo, "demo2"},
       {G_DeferedPlayDemo, "demo2"},
       {G_DeferedPlayDemo, "demo2"},
       {G_DeferedPlayDemo, "demo2"},
     },
-
     {
       {D_SetPageName, "HELP2"},
       {D_SetPageName, "HELP2"},
+#ifdef CREDITS
       {D_SetPageName, "CREDIT"},
       {D_DrawTitle1,  "TITLEPIC"},
+#else
+      {D_DrawTitle2,  "TITLEPIC"},
+      {D_SetPageName, "CREDIT"},
+#endif
     },
 
     {
@@ -474,14 +487,14 @@ static struct
       {G_DeferedPlayDemo, "demo3"},
       {G_DeferedPlayDemo, "demo3"},
     },
-
+#ifdef CREDIT
     {
       {NULL},
       {NULL},
       {NULL},
       {D_SetPageName, "CREDIT"},
     },
-
+#endif
     {
       {NULL},
       {NULL},

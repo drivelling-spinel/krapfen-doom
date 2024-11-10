@@ -62,7 +62,9 @@ boolean Check_Sides(mobj_t *, int, int);                    // phares
 
 int     P_GetMoveFactor(const mobj_t *mo, int *friction);   // killough 8/28/98
 int     P_GetFriction(const mobj_t *mo, int *factor);       // killough 8/28/98
+#ifdef PHYSMBF
 void    P_ApplyTorque(mobj_t *mo);                          // killough 9/12/98
+#endif
 
 // If "floatok" true, move would be ok if within "tmfloorz - tmceilingz".
 extern boolean floatok;

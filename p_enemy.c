@@ -2204,12 +2204,13 @@ void A_Fall(mobj_t *actor)
   actor->flags &= ~MF_SOLID;
 }
 
+#if defined(CPTRMBF) || defined(GRENADE)
 // killough 11/98: kill an object
 void A_Die(mobj_t *actor)
 {
   P_DamageMobj(actor, NULL, NULL, actor->health);
 }
-
+#endif
 //
 // A_Explode
 //
@@ -2218,6 +2219,7 @@ void A_Explode(mobj_t *thingy)
   P_RadiusAttack(thingy, thingy->target, 128);
 }
 
+#ifdef GRENADE
 //
 // A_Detonate
 // killough 8/9/98: same as A_Explode, except that the damage is variable
@@ -2227,7 +2229,9 @@ void A_Detonate(mobj_t *mo)
 {
   P_RadiusAttack(mo, mo->target, mo->info->damage);
 }
+#endif
 
+#ifdef MUSHROOM
 //
 // killough 9/98: a mushroom explosion effect, sorta :)
 // Original idea: Linguica
@@ -2257,6 +2261,7 @@ void A_Mushroom(mobj_t *actor)
 	mo->flags &= ~MF_NOGRAVITY;   // Make debris fall under gravity
       }
 }
+#endif
 
 //
 // A_BossDeath
@@ -2660,6 +2665,7 @@ void A_KeenDie(mobj_t* mo)
   EV_DoDoor(&junk,open);
 }
 
+#ifdef CPTRMBF
 //
 // killough 11/98
 //
@@ -2736,6 +2742,7 @@ void A_LineEffect(mobj_t *mo)
 	}
     }
 }
+#endif
 
 //----------------------------------------------------------------------------
 //

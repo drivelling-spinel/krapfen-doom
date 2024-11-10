@@ -195,9 +195,12 @@ typedef enum
     MF_TRANSLATION      = 0xc000000,
     // Hmm ???.
     MF_TRANSSHIFT       = 26,
-
+#ifdef GRENADE
     MF_TOUCHY = 0x10000000,        // killough 11/98: dies when solids touch it
+#endif
+#ifdef PHYSMBF
     MF_BOUNCES = 0x20000000,       // killough 7/11/98: for beta BFG fireballs
+#endif
 #ifdef FRIENDMOBJ
     MF_FRIEND = 0x40000000,        // killough 7/18/98: friendly monsters
 #endif
@@ -210,9 +213,16 @@ typedef enum
 // (some degree of opaqueness is good, to avoid compatibility woes)
 
 enum {
+  MIF_DUMMY = 0,
+#ifdef PHYSMBF
   MIF_FALLING = 1,      // Object is falling
+#endif
+#ifdef GRENADE
   MIF_ARMED = 2,        // Object is armed (for MF_TOUCHY objects)
+#endif
+#ifdef CPTRMBF
   MIF_LINEDONE = 4,     // Object has activated W1 or S1 linedef via DEH frame
+#endif
 };
 
 // Map Object definition.
@@ -286,7 +296,12 @@ typedef struct mobj_s
     int                 tics;   // state tic counter
     state_t*            state;
     int                 flags;
+#if defined(CPTRMBF) || defined(GRENADE) || defined(PHYSMBF)
     int                 intflags;  // killough 9/15/98: internal flags
+#else
+    int                 dummyint;
+#endif
+
     int                 health;
 
     // Movement direction, movement generation (zig-zagging).
@@ -317,7 +332,12 @@ typedef struct mobj_s
     short               dummypursue;
 #endif
 
+
+#ifdef PHYSMBF
     short               gear; // killough 11/98: used in torque simulation
+#else
+    short               dummygear; 
+#endif
 
     // Additional info record for player avatars only.
     // Only valid if type == MT_PLAYER
@@ -372,11 +392,13 @@ typedef struct mobj_s
 #define FLOATSPEED      (FRACUNIT*4)
 #define STOPSPEED       (FRACUNIT/16)
 
+#ifdef PHYSMBF
 // killough 11/98:
 // For torque simulation:
 
 #define OVERDRIVE 6
 #define MAXGEAR (OVERDRIVE+16)
+#endif
 
 // killough 11/98:
 // Whether an object is "sentient" or not. Used for environmental influences.

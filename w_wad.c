@@ -477,12 +477,16 @@ void W_ReadLump(int lump, void *dest)
       // killough 1/31/98: Reload hack (-wart) removed
       // killough 10/98: Add flashing disk indicator
 
+#ifdef DISKICON
       I_BeginRead();
+#endif
       lseek(l->handle, l->position, SEEK_SET);
       c = read(l->handle, dest, l->size);
       if (c < l->size)
         I_Error("W_ReadLump: only read %i of %i on lump %i", c, l->size, lump);
+#ifdef DISKICON
       I_EndRead();
+#endif
     }
 }
 

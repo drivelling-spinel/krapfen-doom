@@ -354,7 +354,9 @@ void M_DrawLoad(void);
 void M_DrawSave(void);
 void M_DrawSetup(void);                                     // phares 3/21/98
 void M_DrawHelp (void);                                     // phares 5/04/98
+#ifdef CREDITS
 void M_DrawCredits(void);                                   // killough 10/98
+#endif
 
 void M_DrawSaveLoadBorder(int x,int y);
 void M_SetupNextMenu(menu_t *menudef);
@@ -576,10 +578,17 @@ void M_FinishHelp(int choice)        // killough 10/98
 void M_DrawReadThis1(void)
 {
   inhelpscreens = true;
+#ifdef CREDITS
   if (gamemode == shareware)
     V_DrawPatchDirect (0,0,0,W_CacheLumpName("HELP2",PU_CACHE));
   else
     M_DrawCredits();
+#else
+  if (gamemode == shareware || gamemode == retail || gamemode == registered)
+    V_DrawPatchDirect (0,0,0,W_CacheLumpName("HELP1",PU_CACHE));
+  else
+    V_DrawPatchDirect (0,0,0,W_CacheLumpName("HELP",PU_CACHE));
+#endif
 }
 
 //
@@ -590,10 +599,18 @@ void M_DrawReadThis1(void)
 void M_DrawReadThis2(void)
 {
   inhelpscreens = true;
+#ifdef CREDITS
   if (gamemode == shareware)
     M_DrawCredits();
   else
     V_DrawPatchDirect (0,0,0,W_CacheLumpName("CREDIT",PU_CACHE));
+#else
+  if (gamemode == retail || gamemode == commercial)
+    V_DrawPatchDirect (0,0,0,W_CacheLumpName("CREDIT",PU_CACHE));
+  else
+    V_DrawPatchDirect (0,0,0,W_CacheLumpName("HELP2",PU_CACHE));
+#endif
+
 }
 
 /////////////////////////////
@@ -3046,7 +3063,9 @@ enum {
   general_fps, // GB 2014
   general_transpct,
   general_pcx,
+#ifdef DISKICON
   general_diskicon,
+#endif
   general_hom
 };
 
@@ -3063,7 +3082,11 @@ enum {
 #define G_Y  44
 #define G_Y2 (G_Y+82) 
 #define G_Y3 (G_Y+44)
+#ifdef PRELOAD
 #define G_Y4 (G_Y3+52)
+#else
+#define G_Y4 (G_Y3)
+#endif
 #define GF_X 76
 
 setup_menu_t gen_settings1[] = { // General Settings screen1
@@ -3090,17 +3113,17 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"PCX instead of BMP for screenshots", S_YESNO, m_null, G_X,
    G_Y + general_pcx*8, {"screenshot_pcx"}},
-
+#ifdef DISKICON
   {"Flash Icon During Disk IO", S_YESNO, m_null, G_X,
    G_Y + general_diskicon*8, {"disk_icon"}},
-
+#endif
   {"Flashing HOM indicator", S_YESNO, m_null, G_X,
    G_Y + general_hom*8, {"flashing_hom"}},
 
   {"Sound & Music ( use Setup.exe )", S_SKIP|S_TITLE, m_null, G_X, G_Y2 },
 
-  {"Sound Driver", S_NUM|S_DRIVER1|S_SKIP,m_null,G_X-100,G_Y2 + general_sndcard*8 +4, {"disk_icon"}},
-  {"Midi Driver" , S_NUM|S_DRIVER2|S_SKIP,m_null,G_X-100,G_Y2 + general_muscard*8 +4, {"disk_icon"}},
+  {"Sound Driver", S_NUM|S_DRIVER1|S_SKIP,m_null,G_X-100,G_Y2 + general_sndcard*8 +4, {"traditional_menu"}},
+  {"Midi Driver" , S_NUM|S_DRIVER2|S_SKIP,m_null,G_X-100,G_Y2 + general_muscard*8 +4, {"traditional_menu"}},
 
 // GB 2016 Policy change: Use setup.exe + setup.cfg
 /*
@@ -4152,6 +4175,7 @@ enum {
   cr_special,
 };
 
+#ifdef CREDITS
 #define CR_S 9
 #define CR_X 152
 #define CR_X2 (CR_X+8)
@@ -4197,7 +4221,7 @@ void M_DrawCredits(void)     // killough 10/98: credit screen
   V_MarkRect(0,0,SCREENWIDTH,SCREENHEIGHT);
   M_DrawScreenItems(cred_settings);
 }
-
+#endif
 /////////////////////////////////////////////////////////////////////////////
 //
 // M_Responder

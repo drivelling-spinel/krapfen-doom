@@ -196,6 +196,7 @@ void P_XYMovement (mobj_t* mo)
 	{
 	  // blocked move
 
+#ifdef PHYSMBF
 	  // killough 8/11/98: bouncing off walls
 	  // killough 10/98:
 	  // Add ability for objects other than players to bounce on ice
@@ -233,6 +234,7 @@ void P_XYMovement (mobj_t* mo)
 		mo->momx = mo->momy = 0;
 	    }
 	  else
+#endif
 	    if (player)   // try to slide along it
 	      P_SlideMove (mo);
 	    else 
@@ -358,6 +360,7 @@ static void P_ZMovement (mobj_t* mo)
   // killough 8/9/98: added support for non-missile objects bouncing
   // (e.g. grenade, mine, pipebomb)
 
+#ifdef PHYSMBF
   if (mo->flags & MF_BOUNCES && mo->momz)
     {
       mo->z += mo->momz;
@@ -380,11 +383,13 @@ static void P_ZMovement (mobj_t* mo)
 		    mo->momz = 0;
 		}
 
+#ifdef GRENADE
 	      // killough 11/98: touchy objects explode on impact
 	      if (mo->flags & MF_TOUCHY && mo->intflags & MIF_ARMED &&
 		  mo->health > 0)
 		P_DamageMobj(mo, NULL, NULL, mo->health);
 	      else
+#endif
 		if (mo->flags & MF_FLOAT && sentient(mo))
 		  goto floater;
 	      return;
@@ -440,7 +445,7 @@ static void P_ZMovement (mobj_t* mo)
     }
 
   // killough 8/9/98: end bouncing object code
-
+#endif
   // check for smooth step up
 
   if (mo->player &&
@@ -453,9 +458,9 @@ static void P_ZMovement (mobj_t* mo)
 
   // adjust altitude
   mo->z += mo->momz;
-
+#ifdef PHYSMBF
 floater:
-
+#endif
     // float down towards target if too close
 
     if (!((mo->flags ^ MF_FLOAT) & (MF_FLOAT | MF_SKULLFLY | MF_INFLOAT)) &&
@@ -478,11 +483,13 @@ floater:
 
       if (mo->momz < 0)
 	{
+#ifdef GRENADE
 	  // killough 11/98: touchy objects explode on impact
 	  if (mo->flags & MF_TOUCHY && mo->intflags & MIF_ARMED &&
 	      mo->health > 0)
 	    P_DamageMobj(mo, NULL, NULL, mo->health);
 	  else
+#endif
 	    if (mo->player && // killough 5/12/98: exclude voodoo dolls
 		mo->player->mo == mo &&
 		mo->momz < -GRAVITY*8)
@@ -649,8 +656,9 @@ void P_MobjThinker (mobj_t* mobj)
   else
     if (!(mobj->momx | mobj->momy) && !sentient(mobj))
       {                                  // non-sentient objects at rest
+#ifdef GRENADE
 	mobj->intflags |= MIF_ARMED;     // arm a mine which has come to rest
-
+#endif
 	// killough 9/12/98: objects fall off ledges if they are hanging off
 	// slightly push off of ledge if hanging more than halfway off
 
@@ -701,7 +709,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
   mobj->flags  = info->flags;
 
   // killough 8/23/98: no friends, bouncers, or touchy things in old demos
-#if defined(FRIENDMOBJ) || defined(PHYSMBF)
+#if defined(FRIENDMOBJ) || defined(PHYSMBF) || defined(GRENADE)
   if (demo_version < 203)
     mobj->flags &= ~(0
 #ifdef PHYSMBF
@@ -710,7 +718,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 #ifdef FRIENDMOBJ
      | MF_FRIEND
 #endif
-#ifdef PHYSMBF
+#ifdef GRENADE
      | MF_TOUCHY
 #endif
      );

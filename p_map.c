@@ -350,8 +350,12 @@ static boolean PIT_CheckLine(line_t *ld) // killough 3/26/98: make static
 	FixedMul(tmx-tmthing->x,ld->dy) > FixedMul(tmy-tmthing->y,ld->dx);
     }
 
+  if (!(tmthing->flags & (MF_MISSILE
+#ifdef PHYSMBF
   // killough 8/10/98: allow bouncing objects to pass through as missiles
-  if (!(tmthing->flags & (MF_MISSILE | MF_BOUNCES)))
+  | MF_BOUNCES
+#endif
+  )))
     {
       if (ld->flags & ML_BLOCKING)           // explicitly blocking everything
 	return tmunstuck && !untouched(ld);  // killough 8/1/98: allow escape
@@ -416,7 +420,11 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   int damage;
 
   // killough 11/98: add touchy things
-  if (!(thing->flags & (MF_SOLID|MF_SPECIAL|MF_SHOOTABLE|MF_TOUCHY)))
+  if (!(thing->flags & (MF_SOLID|MF_SPECIAL|MF_SHOOTABLE
+#ifdef GRENADE
+  |MF_TOUCHY
+#endif
+  )))
     return true;
 
   blockdist = thing->radius + tmthing->radius;
@@ -434,6 +442,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   if (thing == tmthing)
     return true;
 
+#ifdef GRENADE
   // killough 11/98:
   //
   // TOUCHY flag, for mines or other objects which die on contact with solids.
@@ -458,6 +467,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
       P_DamageMobj(thing, NULL, NULL, thing->health);  // kill object
       return true;
     }
+#endif
 
   // check for skulls slamming into things
 
@@ -479,10 +489,14 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
     }
 
   // missiles can hit other things
-  // killough 8/10/98: bouncing non-solid things can hit other things too
 
-  if (tmthing->flags & MF_MISSILE || (tmthing->flags & MF_BOUNCES &&
-				      !(tmthing->flags & MF_SOLID)))
+  if (tmthing->flags & MF_MISSILE
+#ifdef PHYSMBF
+  // killough 8/10/98: bouncing non-solid things can hit other things too
+                                  || (tmthing->flags & MF_BOUNCES &&
+				      !(tmthing->flags & MF_SOLID))
+#endif
+                                                                   )
     {
       // see if it went over / under
 
@@ -502,7 +516,8 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 	  else if (thing->type != MT_PLAYER)	// Explode, but do no damage.
 	    return false;	        // Let players missile other players.
 	}
-      
+
+#ifdef PHYSMBF
       // killough 8/10/98: if moving thing is not a missile, no damage
       // is inflicted, and momentum is reduced if object hit is solid.
 
@@ -522,6 +537,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 	      return false;
 	    }
 	}
+#endif
       
       if (!(thing->flags & MF_SHOOTABLE))
 	return !(thing->flags & MF_SOLID); // didn't do any damage
@@ -810,6 +826,7 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
   return true;
 }
 
+#ifdef PHYSMBF
 //
 // killough 9/12/98:
 //
@@ -916,7 +933,7 @@ void P_ApplyTorque(mobj_t *mo)
   for (bx = xl ; bx <= xh ; bx++)
     for (by = yl ; by <= yh ; by++)
       P_BlockLinesIterator(bx, by, PIT_ApplyTorque);
-      
+
   // If any momentum, mark object as 'falling' using engine-internal flags
   if (mo->momx | mo->momy)
     mo->intflags |= MIF_FALLING;
@@ -936,6 +953,7 @@ void P_ApplyTorque(mobj_t *mo)
     if (mo->gear < MAXGEAR)                      // Else if not at max gear,
       mo->gear++;                                // move up a gear
 }
+#endif
 
 //
 // P_ThingHeightClip
@@ -966,10 +984,11 @@ static boolean P_ThingHeightClip(mobj_t *thing)
   if (onfloor)  // walking monsters rise and fall with the floor
     {
       thing->z = thing->floorz;
-
+#ifdef PHYSMBF
       // killough 11/98: Possibly upset balance of objects hanging off ledges
       if (thing->intflags & MIF_FALLING && thing->gear >= MAXGEAR)
 	thing->gear = 0;
+#endif
     }
   else          // don't adjust a floating monster unless forced to
     if (thing->z + thing->height > thing->ceilingz)
@@ -1641,15 +1660,20 @@ static boolean PIT_RadiusAttack(mobj_t *thing)
 {
   fixed_t dx, dy, dist;
 
+
+  if (!(thing->flags & (MF_SHOOTABLE
+#ifdef PHYSMBF 
   // killough 8/20/98: allow bouncers to take damage 
   // (missile bouncers are already excluded with MF_NOBLOCKMAP)
-
-  if (!(thing->flags & (MF_SHOOTABLE | MF_BOUNCES)))
+  | MF_BOUNCES
+#endif
+  )))
     return true;
 
   // Boss spider and cyborg
   // take no damage from concussion.
 
+#ifdef PHYSMBF
   // killough 8/10/98: allow grenades to hurt anyone, unless
   // fired by Cyberdemons, in which case it won't hurt Cybers.
 
@@ -1657,6 +1681,7 @@ static boolean PIT_RadiusAttack(mobj_t *thing)
       thing->type == MT_CYBORG && bombsource->type == MT_CYBORG :
       thing->type == MT_CYBORG || thing->type == MT_SPIDER)
     return true;
+#endif
 
   dx = abs(thing->x - bombspot->x);
   dy = abs(thing->y - bombspot->y);
@@ -1752,6 +1777,7 @@ static boolean PIT_ChangeSector(mobj_t *thing)
       return true;      // keep checking
     }
 
+#ifdef GRENADE 
   // killough 11/98: kill touchy things immediately
   if (thing->flags & MF_TOUCHY &&
       (thing->intflags & MIF_ARMED || sentient(thing)))
@@ -1759,6 +1785,7 @@ static boolean PIT_ChangeSector(mobj_t *thing)
       P_DamageMobj(thing, NULL, NULL, thing->health);  // kill object
       return true;   // keep checking
     }
+#endif
 
   if (!(thing->flags & MF_SHOOTABLE))
     return true;        // assume it is bloody gibs or something

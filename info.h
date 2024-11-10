@@ -1165,12 +1165,12 @@ typedef enum
   S_TECH2LAMP3,
   S_TECH2LAMP4,
   S_TNT1, // add state for invisible sprite         // phares 3/8/98 
-
+#ifdef GRENADE
   S_GRENADE,   // killough 8/9/98: grenade launcher
   S_DETONATE,  // killough 8/9/98: detonation of objects
   S_DETONATE2,
   S_DETONATE3, 
-
+#endif
 #ifdef DOGS
   S_DOGS_STND,      // killough 7/19/98: Marine's best friend :)
   S_DOGS_STND2,
@@ -1243,9 +1243,9 @@ typedef enum
   S_BSKUL_DIE7,
   S_BSKUL_DIE8,
 #endif
-
+#ifdef MUSHROOM
   S_MUSHROOM,  // killough 10/98: mushroom explosion effect
-
+#endif
   NUMSTATES  // Counter of how many there are
 } statenum_t;
 

@@ -1281,8 +1281,13 @@ extern void A_BrainSpit();
 extern void A_SpawnSound();
 extern void A_SpawnFly();
 extern void A_BrainExplode();
+#ifdef GRENADE
 extern void A_Detonate();        // killough 8/9/98
+#endif
+#ifdef MUSHROOM
 extern void A_Mushroom();        // killough 10/98
+#endif
+#ifdef CPTRMBF
 extern void A_Die();             // killough 11/98
 extern void A_Spawn();           // killough 11/98
 extern void A_Turn();            // killough 11/98
@@ -1291,6 +1296,7 @@ extern void A_Scratch();         // killough 11/98
 extern void A_PlaySound();       // killough 11/98
 extern void A_RandomJump();      // killough 11/98
 extern void A_LineEffect();      // killough 11/98
+#endif
 
 typedef struct {
   actionf_t cptr;  // actual pointer to the subroutine
@@ -1373,8 +1379,13 @@ deh_bexptr deh_bexptrs[] =
   {A_SpawnSound,     "A_SpawnSound"},
   {A_SpawnFly,       "A_SpawnFly"},
   {A_BrainExplode,   "A_BrainExplode"},
+#ifdef GRENADE
   {A_Detonate,       "A_Detonate"},       // killough 8/9/98
+#endif
+#ifdef MUSHROOM
   {A_Mushroom,       "A_Mushroom"},       // killough 10/98
+#endif
+#ifdef CPTRMBF
   {A_Die,            "A_Die"},            // killough 11/98
   {A_Spawn,          "A_Spawn"},          // killough 11/98
   {A_Turn,           "A_Turn"},           // killough 11/98
@@ -1383,7 +1394,7 @@ deh_bexptr deh_bexptrs[] =
   {A_PlaySound,      "A_PlaySound"},      // killough 11/98
   {A_RandomJump,     "A_RandomJump"},     // killough 11/98
   {A_LineEffect,     "A_LineEffect"},     // killough 11/98
-
+#endif
   // This NULL entry must be the last in the list
   {NULL,             "A_NULL"},  // Ty 05/16/98
 };
