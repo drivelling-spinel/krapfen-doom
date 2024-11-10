@@ -206,7 +206,9 @@ extern int key_forward;
 extern int key_leftturn;
 extern int key_rightturn;
 extern int key_backward;
+#ifdef WEAPONBOOM
 extern int key_weapontoggle;
+#endif
 extern int key_weapon1;
 extern int key_weapon2;
 extern int key_weapon3;
@@ -242,11 +244,17 @@ extern int joybfire;
 extern int joybstrafe;                               
 extern int joybuse;                                   
 extern int joybspeed;                                     
-extern int default_weapon_recoil;   // weapon recoil        
-extern int weapon_recoil;           // weapon recoil           
+#ifdef RECOIL
+extern int default_weapon_recoil;   // weapon recoil
+extern int weapon_recoil;           // weapon recoil
+#endif
+#ifdef BOBBING
 extern int default_player_bobbing;  // whether player bobs or not         
-extern int player_bobbing;          // whether player bobs or not       
-extern int weapon_preferences[2][NUMWEAPONS+1];                   
+extern int player_bobbing;          // whether player bobs or not
+#endif
+#ifdef WEAPONBOOM
+extern int weapon_preferences[2][NUMWEAPONS+1];
+#endif
 extern int health_red;    // health amount less than which status is red
 extern int health_yellow; // health amount less than which status is yellow
 extern int health_green;  // health amount above is blue, below is green
@@ -379,7 +387,9 @@ void M_ClearMenus (void);
 int  M_GetKeyString(int,int);
 void M_Setup(int choice);                               
 void M_KeyBindings(int choice);                        
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 void M_Weapons(int);
+#endif
 void M_StatusBar(int);
 void M_Automap(int);
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
@@ -392,7 +402,9 @@ void M_ExtHelpNextScreen(int);
 void M_ExtHelp(int);
 int  M_GetPixelWidth(char*);
 void M_DrawKeybnd(void);
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 void M_DrawWeapons(void);
+#endif
 void M_DrawMenuString(int,int,int);                    
 void M_DrawStatusHUD(void);
 void M_DrawExtHelp(void);
@@ -590,10 +602,8 @@ void M_DrawReadThis1(void)
   else
     M_DrawCredits();
 #else
-  if (gamemode == shareware || gamemode == retail || gamemode == registered)
-    V_DrawPatchDirect (0,0,0,W_CacheLumpName("HELP1",PU_CACHE));
-  else
-    V_DrawPatchDirect (0,0,0,W_CacheLumpName("HELP",PU_CACHE));
+  // Show dynamic help screen instead of static lump -- LP 2024
+  M_DrawHelp();
 #endif
 }
 
@@ -1572,7 +1582,9 @@ void M_SizeDisplay(int choice)
 
 boolean setup_active      = false; // in one of the setup screens
 boolean set_keybnd_active = false; // in key binding setup screens
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 boolean set_weapon_active = false; // in weapons setup screen
+#endif
 boolean set_status_active = false; // in status bar/hud setup screen
 boolean set_auto_active   = false; // in automap setup screen
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
@@ -1612,8 +1624,10 @@ enum
 {
   set_compat,
   set_key_bindings,                                     
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
   set_weapons,                                           
-  set_statbar,                                           
+#endif
+  set_statbar,
   set_automap,
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
   set_enemy,
@@ -1637,7 +1651,9 @@ menuitem_t SetupMenu[]=
 {
   {1,"M_COMPAT",M_Compat,     'p'},
   {1,"M_KEYBND",M_KeyBindings,'k'},
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
   {1,"M_WEAP"  ,M_Weapons,    'w'},
+#endif
   {1,"M_STAT"  ,M_StatusBar,  's'},               
   {1,"M_AUTO"  ,M_Automap,    'a'},                    
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
@@ -1710,6 +1726,7 @@ menu_t KeybndDef =
   0
 };
 
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 menu_t WeaponDef =
 {
   generic_setup_end,
@@ -1719,6 +1736,7 @@ menu_t WeaponDef =
   34,5,      // skull drawn here
   0
 };
+#endif
 
 menu_t StatusHUDDef =
 {
@@ -2047,14 +2065,18 @@ void M_DrawSetting(setup_menu_t* s)
 
   // Is the item a weapon number?
   // OR, Is the item a colored text string from the Automap?
+  
+  if (flags & (
+#ifdef WEAPONBOOM
   //
   // killough 10/98: removed special code, since the rest of the engine
   // already takes care of it, and this code prevented the user from setting
   // their overall weapons preferences while playing Doom 1.
   //
   // killough 11/98: consolidated weapons code with color range code
-  
-  if (flags & (S_WEAP|S_CRITEM)) // weapon number or color range
+  S_WEAP|
+#endif
+  S_CRITEM)) // weapon number or color range
     {
       sprintf(menu_buffer,"%d", *s->var.def->location);
       M_DrawMenuString(x,y, flags & S_CRITEM ? *s->var.def->location : color);
@@ -2296,12 +2318,16 @@ void M_DrawInstructions()
       (s = "Press key or button for this action", 49)                        :
       (s = "Press key for this action", 84)                                  :
       flags & S_YESNO  ? (s = "Press ENTER key to toggle", 78)               :
+#ifdef WEAPONBOOM
       flags & S_WEAP   ? (s = "Enter weapon number", 97)                     :
+#endif
       flags & S_NUM    ? (s = "Enter value. Press ENTER when finished.", 37) :
       flags & S_COLOR  ? (s = "Select color and press enter", 70)            :
       flags & S_CRITEM ? (s = "Enter value", 125)                            :
       flags & S_CHAT   ? (s = "Type/edit chat string and Press ENTER", 43)   :
+#ifdef PRELOAD
       flags & S_FILE   ? (s = "Type/edit filename and Press ENTER", 52)      :
+#endif
       flags & S_RESET  ? 43 : 0  /* when you're changing something */        :
       flags & S_RESET  ? (s = "Press ENTER key to reset to defaults", 43)    :
       (s = "Press Enter to Change", 91);
@@ -2470,8 +2496,10 @@ setup_menu_t keys_settings3[] =  // Key Binding screen strings
   {"PLASMA"  ,S_KEY       ,m_scrn,KB_X,KB_Y+ 6*8,{&key_weapon6}},
   {"BFG",     S_KEY       ,m_scrn,KB_X,KB_Y+ 7*8,{&key_weapon7}},
   {"CHAINSAW",S_KEY       ,m_scrn,KB_X,KB_Y+ 8*8,{&key_weapon8}},
+#ifdef WEAPONBOOM
   {"SSG"     ,S_KEY       ,m_scrn,KB_X,KB_Y+ 9*8,{&key_weapon9}},
   {"BEST"    ,S_KEY       ,m_scrn,KB_X,KB_Y+10*8,{&key_weapontoggle}},
+#endif
   {"FIRE"    ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_fire},&mousebfire,&joybfire},
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings2}},
@@ -2558,6 +2586,7 @@ void M_DrawKeybnd(void)
     M_DrawDefVerify();
 }
 
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 /////////////////////////////
 //
 // The Weapon Screen tables.
@@ -2573,9 +2602,16 @@ void M_DrawKeybnd(void)
 // neighboring screens.
 
 enum {           // killough 10/98: enum for y-offset info
+#ifdef RECOIL
   weap_recoil,
+#endif
+#ifdef BOBBING
   weap_bobbing,
+#endif
+#ifdef BETA
   weap_bfg,
+#endif
+#ifdef WEAPONBOOM
   weap_stub1,
   weap_pref1,
   weap_pref2,
@@ -2586,9 +2622,12 @@ enum {           // killough 10/98: enum for y-offset info
   weap_pref7,
   weap_pref8,
   weap_pref9,
+#endif
+#ifdef WEAPONMBF
   weap_stub2,
   weap_toggle,
   weap_toggle2,
+#endif
 };
 
 setup_menu_t weap_settings1[];
@@ -2601,14 +2640,19 @@ setup_menu_t* weap_settings[] =
 
 setup_menu_t weap_settings1[] =  // Weapons Settings screen       
 {
+#ifdef RECOIL
   {"ENABLE RECOIL", S_YESNO,m_null,WP_X, WP_Y+ weap_recoil*8, {"weapon_recoil"}},
+#endif
+#ifdef BOBBING
   {"ENABLE BOBBING",S_YESNO,m_null,WP_X, WP_Y+weap_bobbing*8, {"player_bobbing"}},
+#endif
 
 #ifdef BETA
   {"CLASSIC BFG"      ,S_YESNO,m_null,WP_X,  // killough 8/8/98
    WP_Y+ weap_bfg*8, {"classic_bfg"}},
 #endif
 
+#ifdef WEAPONBOOM
   {"1ST CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref1*8, {"weapon_choice_1"}},
   {"2nd CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref2*8, {"weapon_choice_2"}},
   {"3rd CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref3*8, {"weapon_choice_3"}},
@@ -2618,9 +2662,12 @@ setup_menu_t weap_settings1[] =  // Weapons Settings screen
   {"7th CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref7*8, {"weapon_choice_7"}},
   {"8th CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref8*8, {"weapon_choice_8"}},
   {"9th CHOICE WEAPON",S_WEAP,m_null,WP_X,WP_Y+weap_pref9*8, {"weapon_choice_9"}},
+#endif
 
+#ifdef WEAPONMBF
   {"Enable Fist/Chainsaw\n& SG/SSG toggle", S_YESNO, m_null, WP_X,
    WP_Y+ weap_toggle*8, {"doom_weapon_toggles"}},
+#endif
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -2670,6 +2717,7 @@ void M_DrawWeapons(void)
   if (default_verify)
     M_DrawDefVerify();
 }
+#endif
 
 /////////////////////////////
 //
@@ -3305,7 +3353,9 @@ setup_menu_t* comp_settings[] =
 enum
 {
   compat_telefrag,
+#ifdef PHYSMBF
   compat_dropoff,
+#endif
   compat_falloff,
   compat_staylift,
   compat_doorstuck,
@@ -3333,9 +3383,10 @@ setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
 {
   {"Any monster can telefrag on MAP30", S_YESNO, m_null, C_X,
    C_Y + compat_telefrag * COMP_SPC, {"comp_telefrag"}},
-
+#ifdef PHYSMBF
   {"Some objects never hang over tall ledges", S_YESNO, m_null, C_X,
    C_Y + compat_dropoff * COMP_SPC, {"comp_dropoff"}},
+#endif
 
   {"Objects don't fall under their own weight", S_YESNO, m_null, C_X,
    C_Y + compat_falloff * COMP_SPC, {"comp_falloff"}},
@@ -3665,7 +3716,9 @@ void M_SelectDone(setup_menu_t* ptr)
 static setup_menu_t **setup_screens[] =
 {
   keys_settings,
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
   weap_settings,
+#endif
   stat_settings,
   auto_settings,
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
@@ -4073,8 +4126,10 @@ setup_menu_t helpstrings[] =  // HELP screen strings
   {"PLASMA"      ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y1+ 6*8,{&key_weapon6}},
   {"BFG 9000"    ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y1+ 7*8,{&key_weapon7}},
   {"CHAINSAW"    ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y1+ 8*8,{&key_weapon8}},
+#ifdef WEAPONBOOM
   {"SSG"         ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y1+ 9*8,{&key_weapon9}},
   {"BEST"        ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y1+10*8,{&key_weapontoggle}},
+#endif
   {"FIRE"        ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y1+11*8,{&key_fire},&mousebfire,&joybfire},
 
   {"MOVEMENT"    ,S_SKIP|S_TITLE,m_null,KT_X3,KT_Y3},
@@ -4908,7 +4963,7 @@ boolean M_Responder (event_t* ev)
 	    M_SelectDone(ptr1);       // phares 4/17/98
 	    return true;
 	  }
-
+#ifdef WEAPONBOOM
       // Weapons
 
       if (set_weapon_active) // on the weapons setup screen
@@ -4944,7 +4999,7 @@ boolean M_Responder (event_t* ev)
 	    M_SelectDone(ptr1);       // phares 4/17/98
 	    return true;
 	  }
-
+#endif
       // Automap
 
       if (set_auto_active) // on the automap setup screen
@@ -5165,7 +5220,9 @@ boolean M_Responder (event_t* ev)
 	  ptr1->m_flags &= ~(S_HILITE|S_SELECT);// phares 4/19/98
 	  setup_active = false;
 	  set_keybnd_active = false;
+#if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 	  set_weapon_active = false;
+#endif
 	  set_status_active = false;
 	  set_auto_active = false;
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
@@ -5663,8 +5720,14 @@ void M_InitHelpScreen()
 	src->m_flags = S_SKIP; // Don't show setting or item
       if ((strncmp(src->m_text,"BFG",3) == 0) && (gamemode == shareware))
 	src->m_flags = S_SKIP; // Don't show setting or item
-      if ((strncmp(src->m_text,"SSG",3) == 0) && (gamemode != commercial))
+#ifdef WEAPONBOOM
+      if ((strncmp(src->m_text,"SSG",3) == 0) && (gamemode != commercial)
+#ifdef SSGD1
+        && (!ssgparm)
+#endif
+        )
 	src->m_flags = S_SKIP; // Don't show setting or item
+#endif
       src++;
     }
 }

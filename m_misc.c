@@ -209,14 +209,14 @@ default_t defaults[] = {
     2, {0,2},number, ss_none, wad_no,
     "1=take special steps ensuring demo sync, 2=only during recordings"
   },
-
+#ifdef RECOIL
   { // phares
     "weapon_recoil",
     &default_weapon_recoil, &weapon_recoil,
     0, {0,1}, number, ss_weap, wad_yes,
     "1 to enable recoil from weapon fire"
   },
-
+#endif
 #ifdef BETA
   { // killough 7/19/98
     "classic_bfg",
@@ -225,20 +225,22 @@ default_t defaults[] = {
     "1 to enable pre-beta BFG2704"
   },
 #endif
-
+#ifdef WEAPONMBF
   { // killough 10/98
     "doom_weapon_toggles",
     &doom_weapon_toggles, NULL,
     1, {0,1}, number, ss_weap, wad_no,
     "1 to toggle between SG/SSG and Fist/Chainsaw"
   },
-
+#endif
+#ifdef BOBBING
   { // phares 2/25/98
     "player_bobbing",
     &default_player_bobbing, &player_bobbing,
     1, {0,1}, number, ss_weap, wad_no,
     "1 to enable player bobbing (view moving up/down slightly)"
   },
+#endif
 #ifdef REMEMBER
   { // killough 3/1/98
     "monsters_remember",
@@ -466,14 +468,14 @@ default_t defaults[] = {
     0, {0,1}, number, ss_comp, wad_yes,
     "Monsters can telefrag on MAP30"
   },
-
+#ifdef PHYSMBF
   {
     "comp_dropoff",
     &default_comp[comp_dropoff], &comp[comp_dropoff],
     0, {0,1}, number, ss_comp, wad_yes,
     "Some objects never move over tall ledges"
   },
-
+#endif
   {
     "comp_falloff",
     &default_comp[comp_falloff], &comp[comp_falloff],
@@ -950,14 +952,14 @@ default_t defaults[] = {
     'r', {0,255}, number, ss_keys, wad_no,
     "key to chat with player 4"
   },
-
+#ifdef WEAPONBOOM
   {
     "key_weapontoggle",
     &key_weapontoggle, NULL,
     '0', {0,255}, number, ss_keys, wad_no,
     "key to toggle between two most preferred weapons with ammo"
   },
-
+#endif
   {
     "key_weapon1",
     &key_weapon1, NULL,
@@ -1553,7 +1555,7 @@ default_t defaults[] = {
     1, {0,1}, number, ss_stat, wad_yes,
     "1 to disable display of kills/items/secrets on HUD"
   },
-
+#ifdef WEAPONBOOM
   {  // killough 2/8/98: weapon preferences set by user:
     "weapon_choice_1",
     &weapon_preferences[0][0], NULL,
@@ -1616,7 +1618,7 @@ default_t defaults[] = {
     1, {1,9}, number, ss_weap, wad_yes,
     "ninth choice for weapon (worst)"
   },
-
+#endif
   {NULL}         // last entry
 };
 

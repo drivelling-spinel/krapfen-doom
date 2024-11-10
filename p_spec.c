@@ -703,6 +703,7 @@ int P_FindMinSurroundingLight(sector_t *sector, int min)
   return min;
 }
 
+#ifdef GENERALIZED
 //
 // P_CanUnlockGenDoor()
 //
@@ -822,6 +823,7 @@ boolean P_CanUnlockGenDoor(line_t *line, player_t *player)
     }
   return true;
 }
+#endif
 
 //
 // P_SectorActive()
@@ -933,7 +935,12 @@ int P_CheckTag(line_t *line)
 
 boolean P_IsSecret(sector_t *sec)
 {
-  return sec->special == 9 || sec->special & SECRET_MASK;
+  return sec->special == 9
+#ifdef GENERALIZED
+                           || sec->special & SECRET_MASK
+#endif
+                                                        ;
+
 }
 
 //
@@ -948,7 +955,11 @@ boolean P_IsSecret(sector_t *sec)
 
 boolean P_WasSecret(sector_t *sec)
 {
-  return sec->oldspecial == 9 || sec->oldspecial & SECRET_MASK;
+  return sec->oldspecial == 9
+#ifdef GENERALIZED
+                              || sec->oldspecial & SECRET_MASK
+#endif
+                                                              ;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1008,6 +1019,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       }
   }
 
+#ifdef GENERALIZED
   //jff 02/04/98 add check here for generalized lindef types
   if (!demo_compatibility) // generalized types not recognized if old demo
     {
@@ -1098,6 +1110,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
             return;
           }
     }
+#endif
 
   if (!thing->player)
     {
@@ -1881,6 +1894,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
 //
 void P_ShootSpecialLine(mobj_t *thing, line_t *line)
 {
+#ifdef GENERALIZED
   //jff 02/04/98 add check here for generalized linedef
   if (!demo_compatibility)
     {
@@ -1984,6 +1998,7 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
             return;
           }
     }
+#endif
 
   // Impacts that other things can activate.
   if (!thing->player)
@@ -2136,6 +2151,7 @@ void P_PlayerInSpecialSector (player_t *player)
 	      break;
 	    }
     }
+#ifdef GENERALIZED
   else //jff 3/14/98 handle extended sector types for secrets and damage
     {
 #ifdef CHEATMBF
@@ -2179,6 +2195,7 @@ void P_PlayerInSpecialSector (player_t *player)
       // point, since the code to deal with those situations is
       // handled by Thinkers.
     }
+#endif
 }
 
 //
@@ -2333,8 +2350,10 @@ void P_SpawnSpecials (void)
       if (!sector->special)
         continue;
 
+#ifdef GENERALIZED
       if (sector->special&SECRET_MASK) //jff 3/15/98 count extended
         totalsecret++;                 // secret sectors too
+#endif
 
       switch (sector->special&31)
         {
@@ -2356,7 +2375,9 @@ void P_SpawnSpecials (void)
         case 4:
           // strobe fast/death slime
           P_SpawnStrobeFlash(sector,FASTDARK,0);
+#ifdef GENERAZLIED
           sector->special |= 3<<DAMAGE_SHIFT; //jff 3/14/98 put damage bits in
+#endif
           break;
 
         case 8:
@@ -2365,8 +2386,11 @@ void P_SpawnSpecials (void)
           break;
         case 9:
           // secret sector
+#ifdef GENERALIZED
           if (sector->special<32) //jff 3/14/98 bits don't count unless not
-            totalsecret++;        // a generalized sector type
+                                  // a generalized sector type
+#endif
+            totalsecret++;        
           break;
 
         case 10:
@@ -2971,7 +2995,9 @@ void T_Pusher(pusher_t *p)
   // Be sure the special sector type is still turned on. If so, proceed.
   // Else, bail out; the sector type has been changed on us.
 
+#ifdef GENERALIZED
   if (!(sec->special & PUSH_MASK))
+#endif
     return;
 
   // For constant pushers (wind/current) there are 3 situations:

@@ -74,6 +74,7 @@
 #define FASTDARK        15
 #define SLOWDARK        35
 
+#ifdef GENERALIZED
 //jff 3/14/98 add bits and shifts for generalized sector types
 
 #define DAMAGE_MASK     0x60
@@ -312,6 +313,8 @@ typedef enum
   YSkull,
   AllKeys,
 } keykind_e;
+
+#endif
 
 //////////////////////////////////////////////////////////////////
 //
@@ -800,7 +803,9 @@ sector_t *getNextSector(line_t *line, sector_t *sec);
 
 int P_CheckTag(line_t *line); // jff 2/27/98
 
+#ifdef GENERALIZED
 boolean P_CanUnlockGenDoor(line_t *line, player_t *player);
+#endif
 
 int P_SectorActive(special_e t, sector_t *s);
 
@@ -920,6 +925,7 @@ int EV_DoPlat(line_t *line, plattype_e type, int amount);
 
 int EV_StopPlat(line_t *line);
 
+#ifdef GENERALIZED
 // p_genlin
 
 int EV_DoGenFloor(line_t *line);
@@ -935,6 +941,8 @@ int EV_DoGenCrusher(line_t *line);
 int EV_DoGenDoor(line_t *line);
 
 int EV_DoGenLockedDoor(line_t *line);
+
+#endif
 
 ////////////////////////////////////////////////////////////////
 //

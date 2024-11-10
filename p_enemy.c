@@ -712,7 +712,13 @@ static void P_NewChaseDir(mobj_t *actor)
     {
       if (actor->floorz - actor->dropoffz > FRACUNIT*24 &&
 	  actor->z <= actor->floorz && !(actor->flags & (MF_DROPOFF|MF_FLOAT)) &&
-	  !comp[comp_dropoff] && P_AvoidDropoff(actor)) // Move away from dropoff
+#ifdef PHYSMBF
+          //FIXME: It takes a smart mobj to move away from a ledge
+          //       but ledges logic is dependent on advanced physics being enabled
+          //       go figure...      -- LP 2024
+	  !comp[comp_dropoff] &&
+#endif
+          P_AvoidDropoff(actor)) // Move away from dropoff
 	{
 	  P_DoNewChaseDir(actor, dropoff_deltax, dropoff_deltay);
 	  

@@ -108,8 +108,15 @@ void P_CalcHeight (player_t* player)
    player->bob = demo_compatibility ?
     (FixedMul (player->mo->momx, player->mo->momx)
      + FixedMul (player->mo->momy,player->mo->momy))>>2 :
-    player_bobbing ? (FixedMul(player->momx,player->momx) +
-        FixedMul(player->momy,player->momy))>>2 : 0;
+#ifdef BOBBING
+    player_bobbing ?
+#endif
+                     (FixedMul(player->momx,player->momx) +
+        FixedMul(player->momy,player->momy))>>2
+#ifdef BOBBING
+                                                : 0
+#endif
+                                                   ;
 
   if (player->bob > MAXBOB)                             
     player->bob = MAXBOB;
@@ -365,11 +372,13 @@ void P_PlayerThink (player_t* player)
 
       newweapon = (cmd->buttons & BT_WEAPONMASK)>>BT_WEAPONSHIFT;
 
+#ifdef WEAPONBOOM
       // killough 3/22/98: For demo compatibility we must perform the fist
       // and SSG weapons switches here, rather than in G_BuildTiccmd(). For
       // other games which rely on user preferences, we must use the latter.
 
       if (demo_compatibility)
+#endif
 	{ // compatibility mode -- required for old demos -- killough
 	  if (newweapon == wp_fist && player->weaponowned[wp_chainsaw] &&
 	      (player->readyweapon != wp_chainsaw ||

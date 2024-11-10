@@ -70,8 +70,10 @@ typedef struct
   fixed_t sy;
 } pspdef_t;
 
+#ifdef WEAPONBOOM
 extern int weapon_preferences[2][NUMWEAPONS+1];      // killough 5/2/98
 int P_WeaponPreferred(int w1, int w2);
+#endif
 
 struct player_s;
 int P_SwitchWeapon(struct player_s *player);

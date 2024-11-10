@@ -113,7 +113,9 @@ extern int  key_forward;
 extern int  key_leftturn;
 extern int  key_rightturn;
 extern int  key_backward;
+#ifdef WEAPONBOOM
 extern int  key_weapontoggle;
+#endif
 extern int  key_weapon1;
 extern int  key_weapon2;
 extern int  key_weapon3;

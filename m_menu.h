@@ -97,6 +97,9 @@ extern int warning_about_changes, print_warning_about_changes;
 #define S_PREV     0x100 // Previous menu exists
 #define S_NEXT     0x200 // Next menu exists
 #define S_KEY      0x400 // Key Binding
+//FIXME: Ideally should go away when WEAPONBOOM is not defined
+//       but don't want to spend time with dependent macro tweaks below
+//       which need to take other macrodefs into account as well -- LP 2024
 #define S_WEAP     0x800 // Weapon #
 #define S_NUM     0x1000 // Numerical item
 #define S_SKIP    0x2000 // Cursor can't land here
@@ -105,11 +108,11 @@ extern int warning_about_changes, print_warning_about_changes;
 #define S_LEVWARN 0x10000// killough 8/30/98: Always warn about pending change
 #define S_PRGWARN 0x20000// killough 10/98: Warn about change until next run
 #define S_BADVAL  0x40000// killough 10/98: Warn about bad value
+//FIXME: Same as S_WEAP above but with ifdef ifdef PRELOAD
 #define S_FILE    0x80000// killough 10/98: Filenames
 #define S_LEFTJUST 0x100000 // killough 10/98: items which are left-justified
-#ifdef CREDITS
+//FIXME: Same as S_WEAP above but with ifdef CREDITS
 #define S_CREDIT  0x200000  // killough 10/98: credit
-#endif
 #define S_BADVID  0x400000  // killough 12/98: video mode change error
 #define S_BADOPT  0x800000  // GB 2014: bad video option
 #define S_DRIVER1 0x1000000  // GB 2014: sound driver name. ( flag value 0x7FFFFFFF is the max I suppose )
@@ -120,11 +123,7 @@ extern int warning_about_changes, print_warning_about_changes;
 // S_STRING    = the set of items whose settings are strings -- killough 10/98:
 // S_HASDEFPTR = the set of items whose var field points to default array
 
-#ifdef CREDITS
 #define S_SHOWDESC (S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_RESET|S_PREV|S_NEXT|S_KEY|S_WEAP|S_NUM|S_FILE|S_CREDIT)
-#else
-#define S_SHOWDESC (S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_RESET|S_PREV|S_NEXT|S_KEY|S_WEAP|S_NUM|S_FILE)
-#endif
 
 #define S_SHOWSET  (S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_KEY|S_WEAP|S_NUM|S_FILE)
 

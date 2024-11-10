@@ -7223,7 +7223,7 @@ static const char m_stat[]=  // "Status Bar / HUD"
 };
 
 
-
+#if defined(WEAPONBOOM) || defined(WEAPONMBF) || defined(RECOIL) || defined(BOBBING) || defined(BETA)
 static const char m_weap[]=  // "Weapons"
 {
   101,  0, 15,  0,  0,  0,  0,  0,
@@ -7353,6 +7353,7 @@ static const char m_weap[]=  // "Weapons"
   186,188,191,  0,  8,  6,  0,191,187,186,186,187,191,  0,255,  3,
     4,  0,191,191,191,191,  0,  9,  4,  0,191,191,191,191,  0,255,
 };
+#endif
 
 static const char m_mess[]=  // "Messages"
 {
@@ -15678,7 +15679,9 @@ const lumpinfo_t predefined_lumps[]={
   { "M_ENEM",   sizeof m_enem,   m_enem  },   // phares 4/08/98 menu item
 #endif
   { "M_STAT",   sizeof m_stat,   m_stat  },   // phares 3/29/98 menu item
+#if defined(WEAPONBOOM) || defined(WEAPONMBF) || defined(RECOIL) || defined(BOBBING) || defined(BETA)
   { "M_WEAP",   sizeof m_weap,   m_weap  },   // phares 3/28/98 menu item
+#endif
   { "M_MESS"  , sizeof m_mess,   m_mess  },   // phares 4/08/98 menu item
   { "M_COLORS", sizeof m_colors, m_colors},   // phares 4/01/98 menu item
   { "M_PALNO",  sizeof m_palno,  m_palno},    // phares 4/01/98 menu item
