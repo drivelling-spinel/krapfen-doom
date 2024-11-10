@@ -291,8 +291,10 @@ extern int hudcolor_list; // color of list of past messages
 #ifdef FRIENDMOBJ
 extern int mapcolor_frnd;  // friends colors  // killough 8/8/98
 #endif
-extern int default_monsters_remember;                     
+#ifdef REMEMBER
+extern int default_monsters_remember;
 extern int monsters_remember;                            
+#endif
 
 extern int map_point_coordinates; // killough 10/98
 
@@ -380,7 +382,9 @@ void M_KeyBindings(int choice);
 void M_Weapons(int);
 void M_StatusBar(int);
 void M_Automap(int);
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 void M_Enemy(int);
+#endif
 void M_Messages(int);
 void M_ChatStrings(int);
 void M_InitExtendedHelp(void);
@@ -393,7 +397,9 @@ void M_DrawMenuString(int,int,int);
 void M_DrawStatusHUD(void);
 void M_DrawExtHelp(void);
 void M_DrawAutoMap(void);
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 void M_DrawEnemy(void);
+#endif
 void M_DrawMessages(void);
 void M_DrawChatStrings(void);
 void M_Compat(int);       // killough 10/98
@@ -1569,7 +1575,9 @@ boolean set_keybnd_active = false; // in key binding setup screens
 boolean set_weapon_active = false; // in weapons setup screen
 boolean set_status_active = false; // in status bar/hud setup screen
 boolean set_auto_active   = false; // in automap setup screen
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 boolean set_enemy_active  = false; // in enemies setup screen
+#endif
 boolean set_mess_active   = false; // in messages setup screen
 boolean set_chat_active   = false; // in chat string setup screen
 boolean setup_select      = false; // changing an item
@@ -1607,7 +1615,9 @@ enum
   set_weapons,                                           
   set_statbar,                                           
   set_automap,
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
   set_enemy,
+#endif
   set_messages,
   set_chatstrings,
   set_setup_end
@@ -1630,7 +1640,9 @@ menuitem_t SetupMenu[]=
   {1,"M_WEAP"  ,M_Weapons,    'w'},
   {1,"M_STAT"  ,M_StatusBar,  's'},               
   {1,"M_AUTO"  ,M_Automap,    'a'},                    
-  {1,"M_ENEM"  ,M_Enemy,      'e'},                     
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
+  {1,"M_ENEM"  ,M_Enemy,      'e'},
+#endif
   {1,"M_MESS"  ,M_Messages,   'm'},                     
   {1,"M_CHAT"  ,M_ChatStrings,'c'},                     
 };
@@ -1728,6 +1740,7 @@ menu_t AutoMapDef =
   0
 };
 
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 menu_t EnemyDef =                                           // phares 4/08/98
 {
   generic_setup_end,
@@ -1737,6 +1750,7 @@ menu_t EnemyDef =                                           // phares 4/08/98
   34,5,      // skull drawn here
   0
 };
+#endif
 
 menu_t MessageDef =                                         // phares 4/08/98
 {
@@ -2905,7 +2919,7 @@ void M_DrawAutoMap(void)
     M_DrawDefVerify();
 }
 
-
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 /////////////////////////////
 //
 // The Enemies table.
@@ -2925,17 +2939,21 @@ enum {
 #ifdef SMARTMOBJ
   enem_infighting,
 #endif
+#ifdef REMEMBER
   enem_remember
 #ifdef SMARTMOBJ
   = 1
 #endif
   ,
+#endif
 #ifdef SMARTMOBJ
   enem_backing,
   enem_monkeys,
   enem_avoid_hazards,
 #endif
+#ifdef PHYSMBF
   enem_friction,
+#endif
 #ifdef SMARTMOBJ
   enem_help_friends,
 #endif
@@ -2959,7 +2977,9 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
   // killough 7/19/98
   {"Monster Infighting When Provoked",S_YESNO,m_null,E_X,E_Y+ enem_infighting*8, {"monster_infighting"}},
 #endif
+#ifdef REMEMBER
   {"Remember Previous Enemy",S_YESNO,m_null,E_X,E_Y+ enem_remember*8, {"monsters_remember"}},
+#endif
 #ifdef SMARTMOBJ
   // killough 9/8/98
   {"Monster Backing Out",S_YESNO,m_null,E_X,E_Y+ enem_backing*8, {"monster_backing"}},
@@ -2969,8 +2989,10 @@ setup_menu_t enem_settings1[] =  // Enemy Settings screen
   // killough 9/9/98
   {"Intelligently Avoid Hazards",S_YESNO,m_null,E_X,E_Y+ enem_avoid_hazards*8, {"monster_avoid_hazards"}},
 #endif
+#ifdef PHYSMBF
   // killough 10/98
   {"Affected by Friction",S_YESNO,m_null,E_X,E_Y+ enem_friction*8, {"monster_friction"}},
+#endif
 #ifdef SMARTMOBJ
   {"Rescue Dying Friends",S_YESNO,m_null,E_X,E_Y+ enem_help_friends*8, {"help_friends"}},
 #endif
@@ -3036,7 +3058,7 @@ void M_DrawEnemy(void)
   if (default_verify)
     M_DrawDefVerify();
 }
-
+#endif
 
 /////////////////////////////
 //
@@ -3646,7 +3668,9 @@ static setup_menu_t **setup_screens[] =
   weap_settings,
   stat_settings,
   auto_settings,
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
   enem_settings,
+#endif
   mess_settings,
   chat_settings,
   gen_settings,      // killough 10/98
@@ -4969,7 +4993,10 @@ boolean M_Responder (event_t* ev)
       
       // killough 10/98: consolidate handling into one place:
       if (setup_select &&
-	  set_enemy_active | set_general_active | set_chat_active | 
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
+	  set_enemy_active |
+#endif
+          set_general_active | set_chat_active |
 	  set_mess_active | set_status_active | set_compat_active)
 	{
 	  if (ptr1->m_flags & S_STRING) // creating/editing a string?
@@ -5141,7 +5168,9 @@ boolean M_Responder (event_t* ev)
 	  set_weapon_active = false;
 	  set_status_active = false;
 	  set_auto_active = false;
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 	  set_enemy_active = false;
+#endif
 	  set_mess_active = false;
 	  set_chat_active = false;
 	  colorbox_active = false;

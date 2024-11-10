@@ -6224,7 +6224,7 @@ static const char boxur[]=  // end message background characters
     0, 10, 11,126, 11,126,126,126,126,  0,255,  0,  8,  0,159, 10,
    10, 10, 10,  9, 10,  9,  0,255,
 };
-
+#ifdef V11V12LUMPS
 static const char sttminus[]=  // minus on status bar
 {
     8,  0,  6,  0,  0,  0,  0,  0,
@@ -6237,7 +6237,7 @@ static const char sttminus[]=  // minus on status bar
   255,  0,  6,  0,191,191,191,191,191,109,  0,255,  1,  5,  0,109,
   109,109,109,109,  0,255,
 };
-
+#endif
 // An invisible sprite, used for the TNT1 sprite for point wind
 static const char invis_sprite[]=
 {
@@ -6852,6 +6852,7 @@ static const char m_chat[]=  // "Chat Strings"
     4,  0,191,191,191,191,  0,255,
 };
 
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 static const char m_enem[]=  // "Enemies"
 {
    91,  0, 15,  0,  0,  0,  0,  0,
@@ -6974,6 +6975,7 @@ static const char m_enem[]=  // "Enemies"
   187,191,  0,255,  3,  4,  0,191,191,191,191,  0,  9,  4,  0,191,
   191,191,191,  0,255,
 };
+#endif
 
 static const char m_stat[]=  // "Status Bar / HUD"
 {
@@ -9537,6 +9539,7 @@ static const char cr_yellow[]=
      224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,
      240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255};
 
+#ifdef V11V12LUMPS
 // There are some lumps that need to be included in order to use old
 // versions of the DOOM IWADs, notably versions 1.1 and 1.2.  These
 // are included here.
@@ -10686,7 +10689,9 @@ static const char dsgetpow[] = {  // sound for getting powerup
   128,127,126,126,126,126,126,126,126,126,126,126,126,126,126,126,126,126,126,
   126,
 };
+#endif
 
+#ifdef CREDITS
 static const char mbftext[] = {
   242,0,15,0,0,0,0,0,208,3,0,0,226,3,0,0,245,3,0,0,9,4,0,0,29,4,0,0,48,4,0,0,
   67,4,0,0,79,4,0,0,91,4,0,0,103,4,0,0,115,4,0,0,134,4,0,0,153,4,0,0,173,4,0,0,
@@ -10904,6 +10909,7 @@ static const char mbftext[] = {
   10,191,191,187,182,182,180,179,179,183,187,191,191,255,5,8,191,191,191,187,
   185,185,187,191,191,191,255,7,4,191,191,191,191,191,191,255,
 };
+#endif
 
 #ifdef DOGS
 static const char dogsd5[] = {
@@ -15560,12 +15566,13 @@ const lumpinfo_t predefined_lumps[]={
   { "BOXLL",    sizeof boxll, boxll },
   { "BOXLC",    sizeof boxlc, boxlc },
   { "BOXLR",    sizeof boxlr, boxlr },
+#ifdef V11V12LUMPS
   { "STTMINUS", sizeof sttminus, sttminus }, //jff 2/27/98 -- for v1.2
   { "WIMINUS",  sizeof wiminus,  wiminus},   // killough 4/25/98 -- for v1.1
   { "M_NMARE",  sizeof m_nmare,  m_nmare},   // killough 4/25/98 -- for v1.1
   { "STBAR",    sizeof stbar,    stbar},     // killough 4/25/98 -- for v1.1
   { "DSGETPOW", sizeof dsgetpow, dsgetpow},  // killough 4/25/98 -- for v1.1
-
+#endif
   // killough 8/98: remove ENDBOOM lump, use id's ENDOOM instead
 
   { "S_START"},                              // killough 3/21/98
@@ -15667,7 +15674,9 @@ const lumpinfo_t predefined_lumps[]={
   { "M_KEYBND", sizeof m_keybnd, m_keybnd},   // phares 3/24/98 menu item
   { "M_AUTO"  , sizeof m_auto,   m_auto  },   // phares 3/30/98 menu item
   { "M_CHAT"  , sizeof m_chat,   m_chat  },   // phares 4/10/98 menu item
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
   { "M_ENEM",   sizeof m_enem,   m_enem  },   // phares 4/08/98 menu item
+#endif
   { "M_STAT",   sizeof m_stat,   m_stat  },   // phares 3/29/98 menu item
   { "M_WEAP",   sizeof m_weap,   m_weap  },   // phares 3/28/98 menu item
   { "M_MESS"  , sizeof m_mess,   m_mess  },   // phares 4/08/98 menu item
@@ -15690,7 +15699,9 @@ const lumpinfo_t predefined_lumps[]={
   { "CRBLUE2",  sizeof cr_blue2, cr_blue2},   // jff 4/24/98 blue2 color range
   { "CRORANGE", sizeof cr_orange,cr_orange},  // jff 4/24/98 orange color range
   { "CRYELLOW", sizeof cr_yellow,cr_yellow},  // jff 4/24/98 yellow color range
+#ifdef CREDITS
   { "MBFTEXT",  sizeof mbftext, mbftext},     // killough 11/98: mbf title text
+#endif
 };
 
 // Calculate how many of them there are

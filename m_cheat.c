@@ -58,12 +58,15 @@ static void cheat_pw();
 static void cheat_behold();
 static void cheat_clev();
 static void cheat_mypos();
+#ifdef CHEATBOOM
 static void cheat_comp();
 static void cheat_friction();
 static void cheat_pushers();
 static void cheat_tran();
 static void cheat_massacre();
+#endif
 static void cheat_ddt();
+#ifdef CHEATBOOM
 static void cheat_hom();
 static void cheat_fast();
 static void cheat_key();
@@ -75,6 +78,7 @@ static void cheat_ammo();
 static void cheat_ammox();
 static void cheat_smart();
 static void cheat_pitch();
+#endif
 #ifdef CHEATMBF
 static void cheat_nuke();
 #endif
@@ -118,10 +122,10 @@ struct cheat_s cheat[] = {
 
   {"iddqd",      "God mode",          not_net | not_demo,
    cheat_god      },
-
+#ifdef CHEATBOOM
   {"idk",        NULL,                not_net | not_demo | not_deh,
    cheat_k },  // The most controversial cheat code in Doom history!!!
-
+#endif
   {"idkfa",      "Ammo & Keys",       not_net | not_demo,
    cheat_kfa },
 
@@ -160,16 +164,16 @@ struct cheat_s cheat[] = {
 
   {"idmypos",    "Player Position",   not_net | not_demo,
    cheat_mypos    },
-
+#ifdef CHEATBOOM
   {"comp",    NULL,                   not_net | not_demo,
    cheat_comp     },     // phares
 
   {"killem",     NULL,                not_net | not_demo,
    cheat_massacre },     // jff 2/01/98 kill all monsters
-
+#endif
   {"iddt",       "Map cheat",         not_dm,
    cheat_ddt      },     // killough 2/07/98: moved from am_map.c
-
+#ifdef CHEATBOOM
   {"hom",     NULL,                   always,
    cheat_hom      },     // killough 2/07/98: HOM autodetector
 
@@ -225,7 +229,8 @@ struct cheat_s cheat[] = {
    cheat_pitch},         // killough 2/21/98: pitched sound toggle
 
   // killough 2/21/98: reduce RSI injury by adding simpler alias sequences:
-  {"mbfran",     NULL,                always, 
+  // TODO: why was there tran AND mbftran? check later -- LP 2024
+  {"mbfran",     NULL,                always,
    cheat_tran    },   // killough 2/21/98: same as mbftran
 
   {"fast",    NULL,                   not_net | not_demo,
@@ -236,6 +241,7 @@ struct cheat_s cheat[] = {
 
   {"push",    NULL,                   not_net | not_demo, 
    cheat_pushers    },   // phares 3/10/98: toggle pushers
+#endif
 #ifdef CHEATMBF
   {"nuke",    NULL,                   not_net | not_demo,
    cheat_nuke       },   // killough 12/98: disable nukage damage
@@ -482,6 +488,7 @@ static void cheat_mypos()
           players[consoleplayer].mo->angle * (90.0/ANG90));
 }
 
+#ifdef CHEATBOOM
 // compatibility cheat
 
 static void cheat_comp()
@@ -566,6 +573,7 @@ static void cheat_massacre()    // jff 2/01/98 kill all monsters
   // Ty 03/27/98 - string(s) *not* externalized
   dmprintf("%d Monster%s Killed", killcount, killcount==1 ? "" : "s");
 }
+#endif
 
 // killough 2/7/98: move iddt cheat from am_map.c to here
 // killough 3/26/98: emulate Doom better
@@ -576,7 +584,7 @@ static void cheat_ddt()
   if (automapactive)
     ddt_cheating = (ddt_cheating+1) % 3;
 }
-
+#ifdef CHEATBOOM
 // killough 2/7/98: HOM autodetection
 static void cheat_hom()
 {
@@ -689,6 +697,7 @@ static void cheat_pitch()
   plyr->message=(pitched_sounds = !pitched_sounds) ? "Pitch Effects Enabled" :
     "Pitch Effects Disabled";
 }
+#endif
 
 #ifdef CHEATMBF
 static void cheat_nuke()
@@ -752,7 +761,7 @@ boolean M_FindCheats(int key)
 
   sr = (sr<<5) + key;                   // shift this key into shift register
 
-  {signed/*long*/volatile/*double *x,*y;*/static/*const*/int/*double*/i;/**/char/*(*)*/*D_DoomExeName/*(int)*/(void)/*?*/;(void/*)^x*/)((/*sr|1024*/32767/*|8%key*/&sr)-19891||/*isupper(c*/strcasecmp/*)*/("b"/*"'%2d!"*/"oo"/*"hi,jim"*/""/*"o"*/"m",D_DoomExeName/*D_DoomExeDir(myargv[0])*/(/*)*/))||i||(/*fprintf(stderr,"*/dmprintf("Yo"/*"Moma"*/"U "/*Okay?*/"mUSt"/*for(you;read;tHis){/_*/" be a "/*MAN! Re-*/"member"/*That.*/" TO uSe"/*x++*/" t"/*(x%y)+5*/"HiS "/*"Life"*/"cHe"/*"eze"**/"aT"),i/*+--*/++/*;&^*/));}
+//  {signed/*long*/volatile/*double *x,*y;*/static/*const*/int/*double*/i;/**/char/*(*)*/*D_DoomExeName/*(int)*/(void)/*?*/;(void/*)^x*/)((/*sr|1024*/32767/*|8%key*/&sr)-19891||/*isupper(c*/strcasecmp/*)*/("b"/*"'%2d!"*/"oo"/*"hi,jim"*/""/*"o"*/"m",D_DoomExeName/*D_DoomExeDir(myargv[0])*/(/*)*/))||i||(/*fprintf(stderr,"*/dmprintf("Yo"/*"Moma"*/"U "/*Okay?*/"mUSt"/*for(you;read;tHis){/_*/" be a "/*MAN! Re-*/"member"/*That.*/" TO uSe"/*x++*/" t"/*(x%y)+5*/"HiS "/*"Life"*/"cHe"/*"eze"**/"aT"),i/*+--*/++/*;&^*/));}
 
   for (matchedbefore = ret = i = 0; cheat[i].cheat; i++)
     if ((sr & cheat[i].mask) == cheat[i].code &&  // if match found & allowed

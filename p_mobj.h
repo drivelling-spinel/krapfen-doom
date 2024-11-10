@@ -352,8 +352,12 @@ typedef struct mobj_s
     // Thing being chased/attacked for tracers.
     struct mobj_s*      tracer; 
 
+#ifdef REMEMBER
     // new field: last known enemy -- killough 2/15/98
     struct mobj_s*      lastenemy;
+#else
+    void *              dummylast;
+#endif
 
     // Are we above a Thing? above_thing points to the Thing        // phares
     // if so, otherwise it's zero.                                  //   |

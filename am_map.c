@@ -146,6 +146,7 @@ mline_t player_arrow[] =
 #undef R
 #define NUMPLYRLINES (sizeof(player_arrow)/sizeof(mline_t))
 
+#ifdef CHEATBOOM
 #define R ((8*PLAYERRADIUS)/7)
 mline_t cheat_player_arrow[] =
 { // killough 3/22/98: He's alive, Jim :)
@@ -166,6 +167,7 @@ mline_t cheat_player_arrow[] =
 };
 #undef R
 #define NUMCHEATPLYRLINES (sizeof(cheat_player_arrow)/sizeof(mline_t))
+#endif
 
 #define R (FRACUNIT)
 mline_t triangle_guy[] =
@@ -1544,6 +1546,7 @@ void AM_drawPlayers(void)
 
   if (!netgame)
   {
+#ifdef CHEATBOOM
     if (ddt_cheating)
       AM_drawLineCharacter
       (
@@ -1556,6 +1559,7 @@ void AM_drawPlayers(void)
         plr->mo->y
       ); 
     else
+#endif
       AM_drawLineCharacter
       (
         player_arrow,

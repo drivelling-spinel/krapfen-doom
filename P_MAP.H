@@ -68,7 +68,9 @@ void    P_ApplyTorque(mobj_t *mo);                          // killough 9/12/98
 
 // If "floatok" true, move would be ok if within "tmfloorz - tmceilingz".
 extern boolean floatok;
+#ifdef PHYSMBF
 extern boolean felldown;   // killough 11/98: indicates object pushed off ledge
+#endif
 extern fixed_t tmfloorz;
 extern fixed_t tmceilingz;
 extern line_t *ceilingline;

@@ -925,9 +925,9 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       // sleeping early; 2/21/98: Place priority on players
       // killough 9/9/98: cleaned up, made more consistent:
 
-      if (!target->lastenemy || target->lastenemy->health <= 0 ||
-//FIXME: when dealing with remembering last enemy during "BOOM" stage
-//       recheck again - LP 2024
+#ifdef REMEMBER
+      if (
+         !target->lastenemy || target->lastenemy->health <= 0 ||
 	  (demo_version < 203 ? !target->lastenemy->player :
 #ifdef FRIENDMOBJ
 	   !((target->flags ^ target->lastenemy->flags) & MF_FRIEND) &&
@@ -935,6 +935,7 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 	   target->target != source)) // remember last enemy - killough
 
 	P_SetTarget(&target->lastenemy, target->target);
+#endif
 
       P_SetTarget(&target->target, source);       // killough 11/98
       target->threshold = BASETHRESHOLD;

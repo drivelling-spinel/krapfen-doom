@@ -347,8 +347,12 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
 {
   fixed_t tryx, tryy, deltax, deltay;
   boolean try_ok;
+#ifdef PHYSMBF
+  //TODO: check via boomedit.wad if player variable friciton
+  //      is still successfully applied even with PHYSMBF off -- LP 2024
   int movefactor = ORIG_FRICTION_FACTOR;    // killough 10/98
   int friction = ORIG_FRICTION;
+#endif
   int speed;
 
   if (actor->movedir == DI_NODIR)
@@ -358,26 +362,32 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
   if ((unsigned)actor->movedir >= 8)
     I_Error ("Weird actor->movedir!");
 #endif
-  
+
+#ifdef PHYSMBF
   // killough 10/98: make monsters get affected by ice and sludge too:
 
   if (monster_friction)
     movefactor = P_GetMoveFactor(actor, &friction);
-
+#endif
   speed = actor->info->speed;
 
+#ifdef PHYSMBF
   if (friction < ORIG_FRICTION &&     // sludge
       !(speed = ((ORIG_FRICTION_FACTOR - (ORIG_FRICTION_FACTOR-movefactor)/2)
 		 * speed) / ORIG_FRICTION_FACTOR))
     speed = 1;      // always give the monster a little bit of speed
+#endif
 
   tryx = actor->x + (deltax = speed * xspeed[actor->movedir]);
   tryy = actor->y + (deltay = speed * yspeed[actor->movedir]);
 
+#ifdef PHYSMBF
   // killough 12/98: rearrange, fix potential for stickiness on ice
 
   if (friction <= ORIG_FRICTION)
+#endif
     try_ok = P_TryMove(actor, tryx, tryy, dropoff);
+#ifdef PHYSMBF
   else
     {
       fixed_t x = actor->x;
@@ -408,6 +418,7 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
 	  actor->momy += FixedMul(deltay, movefactor);
 	}
     }
+#endif
 
   if (!try_ok)
     {      // open any specials
@@ -456,10 +467,13 @@ static boolean P_Move(mobj_t *actor, boolean dropoff) // killough 9/12/98
   else
     actor->flags &= ~MF_INFLOAT;
 
+  if (!(actor->flags & MF_FLOAT)
+#ifdef PHYSMBF
   // killough 11/98: fall more slowly, under gravity, if felldown==true
-  if (!(actor->flags & MF_FLOAT) && (!felldown || demo_version < 203))
+  && (!felldown || demo_version < 203)
+#endif
+  )
     actor->z = actor->floorz;
-
   return true;
 }
 
@@ -807,8 +821,9 @@ static boolean PIT_FindTarget(mobj_t *mo)
 #endif
   if (!P_IsVisible(actor, mo, current_allaround))
     return true;
-       
+#ifdef REMEMBER       
   P_SetTarget(&actor->lastenemy, actor->target);  // Remember previous target
+#endif
   P_SetTarget(&actor->target, mo);                // Found target
 
   // Move the selected monster to the end of its associated
@@ -878,8 +893,12 @@ static boolean P_LookForPlayers(mobj_t *actor, boolean allaround)
 
   c = 0;
 
-  stopc = demo_version < 203 && !demo_compatibility && monsters_remember ?
-    MAXPLAYERS : 2;       // killough 9/9/98
+  stopc =
+#ifdef REMEMBER
+          demo_version < 203 && !demo_compatibility && monsters_remember ?
+    MAXPLAYERS :  // killough 9/9/98
+#endif
+    2;      
 
   for (;; actor->lastlook = (actor->lastlook+1)&(MAXPLAYERS-1))
     {
@@ -909,6 +928,7 @@ static boolean P_LookForPlayers(mobj_t *actor, boolean allaround)
     }
 }
 
+#if defined(FRIENDMOBJ) || defined(REMEMBER)
 // 
 // Friendly monsters, by Lee Killough 7/18/98
 //
@@ -926,6 +946,7 @@ static boolean P_LookForMonsters(mobj_t *actor, boolean allaround)
   if (demo_compatibility)
     return false;
 
+#ifdef REMEMBER
   if (actor->lastenemy && actor->lastenemy->health > 0 && monsters_remember 
 #ifdef FRIENDMOBJ
      && !(actor->lastenemy->flags & actor->flags & MF_FRIEND) // not friends
@@ -936,6 +957,7 @@ static boolean P_LookForMonsters(mobj_t *actor, boolean allaround)
       P_SetTarget(&actor->lastenemy, NULL);
       return true;
     }
+#endif
 
 #ifdef FRIENDMOBJ
   if (demo_version < 203)  // Old demos do not support monster-seeking bots
@@ -998,6 +1020,7 @@ static boolean P_LookForMonsters(mobj_t *actor, boolean allaround)
 
   return false;  // No monster found
 }
+#endif
 
 //
 // P_LookForTargets
@@ -1012,9 +1035,11 @@ static boolean P_LookForTargets(mobj_t *actor, int allaround)
     actor->flags & MF_FRIEND ?
       P_LookForMonsters(actor, allaround) || P_LookForPlayers (actor, allaround):
 #endif
-//FIXME: once monsters_remember gets "featurized" during "BOOM" stage 
-//       the whole P_LookForTarget can be reduced to LookForPlayers - LP 2024
-    P_LookForPlayers (actor, allaround) || P_LookForMonsters(actor, allaround);
+    P_LookForPlayers (actor, allaround)
+#ifdef REMEMBER
+    || P_LookForMonsters(actor, allaround)
+#endif
+    ;
 }
 
 #ifdef SMARTMOBJ
@@ -1793,8 +1818,15 @@ void A_VileChase(mobj_t* actor)
 		  P_SetTarget(&corpsehit->target, NULL);  // killough 11/98
 
 		  if (demo_version >= 203)
-		    {         // kilough 9/9/98
+		    {
+#ifdef REMEMBER 
+                              // kilough 9/9/98
 		      P_SetTarget(&corpsehit->lastenemy, NULL);
+                      // FIXME: I guess it's fine if dead monsters forget
+                      //        they were fighting back - which I assume
+                      //        did not happen in vanilla? Otherwise worth
+                      //        putting, say, ifdef SMARTMOBJ above. -- LP 2024
+#endif
 		      corpsehit->flags &= ~MF_JUSTHIT;
 		    }
 
