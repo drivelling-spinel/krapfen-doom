@@ -950,6 +950,11 @@ static void WI_drawShowNextLoc(void)
         WI_drawOnLnode(wbs->next, yah); 
     }
 
+#ifdef SAKITOSHI
+  if (gamemission == pack_nerve && wbs->last == 7)
+    return; // MAP08 end game
+#endif
+
   // draws which level you are entering..
   if ( (gamemode != commercial)
        || wbs->next != 30)  // check for MAP30 end game
@@ -1690,6 +1695,11 @@ static void WI_drawStats(void)
   V_DrawPatch(SP_TIMEX, SP_TIMEY, FB, time);
   WI_drawTime(SCREENWIDTH/2 - SP_TIMEX, SP_TIMEY, cnt_time);
 
+#ifdef SAKITOSHI
+  // Sakitoshi 2019 allow drawing par times for episode 4 and sigil if a deh is provided
+  if (!modifiedgame || deh_pars || gamemission==pack_nerve)
+    if (!wbs->partime == 0)
+#else
   // Ty 04/11/98: redid logic: should skip only if with pwad but 
   // without deh patch
   // killough 2/22/98: skip drawing par times on pwads
@@ -1697,6 +1707,7 @@ static void WI_drawStats(void)
 
   if (!modifiedgame || deh_pars)
     if (wbs->epsd < 3)
+#endif
       {
 	V_DrawPatch(SCREENWIDTH/2 + SP_TIMEX, SP_TIMEY, FB, par);
 	WI_drawTime(SCREENWIDTH - SP_TIMEX, SP_TIMEY, cnt_par);
@@ -1795,6 +1806,22 @@ void WI_DrawBackground(void)
     strcpy(name, "INTERPIC");
   else 
     sprintf(name, "WIMAP%d", wbs->epsd);
+
+#ifdef SAKITOSHI
+  if (W_CheckNumForName(name) == -1) {
+    if ((wbs->epsd == 4) && (W_CheckNumForName("SIGILINT") != -1))
+      // SIGIL support
+      strcpy(name, "SIGILINT");
+#ifdef DGONDOS
+    else if ((wbs->epsd == 5) && (W_CheckNumForName("SIGILIN2") != -1))
+      // SIGIL II support
+      strcpy(name, "SIGILIN2");
+#endif
+    else
+      // default intermission for extra custom episodes
+      strcpy(name, "INTERPIC");
+  }
+#endif
 
   // background
   bg = W_CacheLumpName(name, PU_CACHE);    

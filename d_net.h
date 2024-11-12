@@ -69,6 +69,7 @@ typedef struct
     ticcmd_t            cmds[BACKUPTICS];
 } doomdata_t;
 
+#ifndef KRFNSLIM
 //
 // Startup packet difference
 // SG: 4/12/98
@@ -110,6 +111,7 @@ typedef struct
   unsigned long rngseed;
   char filler[sizeof(ticcmd_t)*BACKUPTICS-STARTUPLEN];
 } startup_t;
+#endif
 
 typedef struct
 {

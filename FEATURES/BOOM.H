@@ -14,10 +14,10 @@
 #define BOBBING
 
 // FRICTION    - whether variable friction physics is supported (not implemented)
-//#define FRICTION
+#define FRICTION
 
-// PUSHERS     - controls pushers code, states, etc. (not implemented)
-//#define PUSHERS
+// PUSHER      - controls pushers code, states, etc. (not implemented)
+#define PUSHER
 
 // GENERALIZED - whether generalized linedefs are supported
 #define GENERALIZED
@@ -30,9 +30,11 @@
 //       licensed resources likely taken directly from IWAD -- LP 2024
 #define V11V12LUMPS
 
+// PCXSSHOT    - ability to take screenshots in PCX format
+#define PCXSSHOT
+
 #if (defined(PUSHERS) || defined(FRICTION)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif
-
 
 #endif

@@ -28,6 +28,7 @@ rcsid[] = "$Id: hu_stuff.c,v 1.3 2000-08-12 21:29:25 fraggle Exp $";
 
 // killough 5/3/98: remove unnecessary headers
 
+#include "features.h"
 #include "doomstat.h"
 #include "hu_stuff.h"
 #include "hu_lib.h"
@@ -38,6 +39,9 @@ rcsid[] = "$Id: hu_stuff.c,v 1.3 2000-08-12 21:29:25 fraggle Exp $";
 #include "sounds.h"
 #include "d_deh.h"   /* Ty 03/27/98 - externalization of mapnamesx arrays */
 #include "r_draw.h"
+#ifdef MAPCOORD
+#include "am_map.h"
+#endif
 
 // global heads up display controls
 
@@ -54,6 +58,9 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 // These four shortcuts modifed to reflect char ** of mapnamesx[]
 #define HU_TITLE  (*mapnames[(gameepisode-1)*9+gamemap-1])
 #define HU_TITLE2 (*mapnames2[gamemap-1])
+#ifdef SAKITOSHI
+#define HU_TITLEN (*mapnamesn[gamemap-1])
+#endif
 #define HU_TITLEP (*mapnamesp[gamemap-1])
 #define HU_TITLET (*mapnamest[gamemap-1])
 #define HU_TITLEHEIGHT  1
@@ -244,6 +251,9 @@ extern int armor_green;
 // See modified HUTITLEx macros
 extern char **mapnames[];
 extern char **mapnames2[];
+#ifdef SAKITOSHI
+extern char **mapnamesn[];
+#endif
 extern char **mapnamesp[];
 extern char **mapnamest[];
 
@@ -511,9 +521,12 @@ void HU_Start(void)
 		  hu_msgbg, &message_list_on);      // killough 11/98
 
   // initialize the automap's level title widget
-
   s = gamemode != commercial ? HU_TITLE : gamemission == pack_tnt ?
-    HU_TITLET : gamemission == pack_plut ? HU_TITLEP : HU_TITLE2;
+    HU_TITLET : gamemission == pack_plut ? HU_TITLEP :
+#ifdef SAKITOSHI
+      gamemission == pack_nerve ? HU_TITLEN :
+#endif
+    HU_TITLE2;
 
   while (*s)
     HUlib_addCharToTextLine(&w_title, *s++);
@@ -682,12 +695,19 @@ void HU_Drawer(void)
   // draw the automap widgets if automap is displayed
   if (automapactive)
     {
+#ifndef MAPCOORD
       fixed_t x,y,z;   // killough 10/98:
       void AM_Coordinates(const mobj_t *, fixed_t *, fixed_t *, fixed_t *);
-
+#endif
       // map title
       HUlib_drawTextLine(&w_title, false);
 
+#ifdef MAPCOORD
+    if (map_show_coordinates)
+      {
+        fixed_t x,y,z;   // killough 10/98:
+        void AM_Coordinates(const mobj_t *, fixed_t *, fixed_t *, fixed_t *);
+#endif
       // killough 10/98: allow coordinates to display non-following pointer 
       AM_Coordinates(plr->mo, &x, &y, &z);
 
@@ -718,6 +738,9 @@ void HU_Drawer(void)
       while (*s)
         HUlib_addCharToTextLine(&w_coordz, *s++);
       HUlib_drawTextLine(&w_coordz, false);
+#ifdef MAPCOORD
+    }
+#endif
     }
 
   // draw the weapon/health/ammo/armor/kills/keys displays if optioned

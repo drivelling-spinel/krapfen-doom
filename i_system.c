@@ -46,6 +46,10 @@ extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 #include "v_video.h"
 #include "m_argv.h"
 
+#ifdef PERIDOT
+#include <dos.h>
+#endif
+
 ticcmd_t *I_BaseTiccmd(void)
 {
   static ticcmd_t emptycmd; // killough
@@ -270,11 +274,45 @@ void I_EndDoom(void)
 {
   int lump;
   if (lumpinfo && (lump = W_CheckNumForName("ENDOOM")) != -1) // killough 10/98
-    {  // killough 8/19/98: simplify
-      memcpy(0xb8000 + (byte *) __djgpp_conventional_base,
-	     W_CacheLumpNum(lump, PU_CACHE), 0xf00);
+#ifdef PERIDOT
+   {
+     int i = 0;
+     union REGS reg_in, reg_out;
+     byte * msg = W_CacheLumpNum(lump, PU_CACHE);
+
+     memset(&reg_in, 0, sizeof(reg_in));
+
+     for(i = 0 ; i < 0xf00 ; i+=2)
+       {
+         reg_in.h.ah = 2;
+         reg_in.h.dh = i / 2 / 80;
+         reg_in.h.dl = i / 2 % 80;
+         reg_in.w.cx = 0;
+         int86(0x10, &reg_in, &reg_out);
+
+         reg_in.h.ah = 9;
+         reg_in.w.dx = 0;
+         reg_in.w.cx = 1;
+         reg_in.h.al = msg[i];
+         reg_in.h.bl = msg[i+1];
+         int86(0x10, &reg_in, &reg_out);
+       } 
+        
       gotoxy(0,24);
     }
+#else
+    {  // killough 8/19/98: simplify
+      memcpy(0xb8000 + (byte *) __djgpp_conventional_base,
+#ifdef CRVS
+            W_CacheLumpNum(lump, PU_CACHE), 0xfa0);
+      gotoxy(1,25);
+      textbackground(BLACK); textcolor(LIGHTGRAY); // restore normal colors
+#else
+            W_CacheLumpNum(lump, PU_CACHE), 0xf00);
+      gotoxy(0,24);
+#endif
+    }
+#endif
 }
 
 //----------------------------------------------------------------------------

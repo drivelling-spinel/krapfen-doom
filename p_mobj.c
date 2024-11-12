@@ -355,6 +355,14 @@ void P_XYMovement (mobj_t* mo)
 
 static void P_ZMovement (mobj_t* mo)
 {
+#ifdef SOULBOUNCE
+  // haleyjd: part of lost soul fix, moved up here for maximum
+  //          scope
+  int correct_lost_soul_bounce =
+    (demo_version > 203) ? !comp[comp_soulbounce] :
+    ((demo_version > 109) || (demo_version == 109 && gamemission != doom2));
+#endif
+
   // killough 7/11/98:
   // BFG fireballs bounced on floors and ceilings in Pre-Beta Doom
   // killough 8/9/98: added support for non-missile objects bouncing
@@ -478,7 +486,24 @@ floater:
     {
       // hit the floor
 
+#ifdef SOULBOUNCE
+      /*
+         A Mystery Unravelled - Discovered by cph -- haleyjd
+      
+         The code below was once below the point where mo->momz
+         was set to zero. Someone added a comment and moved this 
+         code here.
+
+         06/30: updated with new prboom code -- fix is conditional
+	        not only on demo version, but also on gamemission!
+		cph has found that Doom 2 v1.9 is a different engine 
+		version from Ultimate DOOM / Final DOOM / DOOM 95 / 
+		Linux DOOM with respect to demo compatibility.
+      */      
+      if(correct_lost_soul_bounce && (mo->flags & MF_SKULLFLY))
+#else
       if (mo->flags & MF_SKULLFLY)
+#endif
 	mo->momz = -mo->momz; // the skull slammed into something
 
       if (mo->momz < 0)
@@ -506,6 +531,17 @@ floater:
 	}
 
       mo->z = mo->floorz;
+
+#ifdef SOULBOUNCE
+      /* cph 2001/05/26 -
+       * See lost soul bouncing comment above. We need this here for
+       * bug compatibility with original Doom2 v1.9 - if a soul is
+       * charging and is hit by a raising floor this incorrectly 
+       * reverses its Z momentum.
+       */
+      if(!correct_lost_soul_bounce && (mo->flags & MF_SKULLFLY))
+	 mo->momz = -mo->momz;
+#endif
 
       if (!((mo->flags ^ MF_MISSILE) & (MF_MISSILE | MF_NOCLIP)))
 	{

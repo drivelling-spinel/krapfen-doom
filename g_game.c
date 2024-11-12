@@ -569,6 +569,20 @@ static void G_DoLoadLevel(void)
       case 4: // Special Edition sky
         skytexture = R_TextureNumForName ("SKY4");
         break;
+#ifdef SAKITOSHI
+      default:
+    //and lets not forget about DOOM, Ultimate DOOM and Sigil
+    {
+     // Each episode has its own sky, numbered after it
+     char skyname[9];
+     //FIXME: except sky in Sigil and Sigil II is borked in ancient ports -- LP 2024
+     sprintf(skyname, "SKY%d_ZD", gameepisode);
+     skytexture = R_CheckTextureNumForName(skyname);
+     if (skytexture == -1)
+       // default sky, in case of custom episodes with missing SKY
+       skytexture = R_TextureNumForName ("SKY1");
+    }
+#endif
       }//jff 3/27/98 end sky setting fix
 
   levelstarttic = gametic;        // for time calculation
@@ -869,6 +883,11 @@ static void G_DoCompleted(void)
             wminfo.next = 30; break;
           case 31:
             wminfo.next = 31; break;
+#ifdef SAKITOSHI
+          default:
+            if (gamemission == pack_nerve && gamemap == 4)
+              wminfo.next = 8;
+#endif
           }
       else
         switch(gamemap)
@@ -877,6 +896,11 @@ static void G_DoCompleted(void)
           case 32:
             wminfo.next = 15; break;
           default:
+#ifdef SAKITOSHI
+            if (gamemission == pack_nerve && gamemap == 9)
+              wminfo.next = 4;
+            else
+#endif
             wminfo.next = gamemap;
           }
     }
@@ -902,6 +926,16 @@ static void G_DoCompleted(void)
               case 4:
                 wminfo.next = 2;
                 break;
+#ifdef SAKITOSHI
+              case 5:
+                wminfo.next = 6;
+                break;
+#endif
+#ifdef DGONDOS
+              case 6:
+                wminfo.next = 7;
+                break;
+#endif
               }
           }
         else
@@ -914,6 +948,11 @@ static void G_DoCompleted(void)
   wminfo.maxfrags = 0;
 
   if ( gamemode == commercial )
+#ifdef SAKITOSHI
+    if ( gamemission == pack_nerve )
+      wminfo.partime = TICRATE*npars[gamemap-1];
+    else
+#endif
     wminfo.partime = TICRATE*cpars[gamemap-1];
   else
     wminfo.partime = TICRATE*pars[gameepisode][gamemap];
@@ -1001,13 +1040,16 @@ static void G_DoPlayDemo(void)
       memset(comp, 0xff, sizeof comp);  // killough 10/98: a vector now
 
       // killough 3/2/98: force these variables to be 0 in demo_compatibility
-
+#ifdef FRICTION
       variable_friction = 0;
+#endif
 #ifdef RECOIL
       weapon_recoil = 0;
 #endif
 
+#ifdef PUSHER
       allow_pushers = 0;
+#endif
 #ifdef SMARTMOBJ
       monster_infighting = 1;           // killough 7/19/98
 #endif
@@ -1833,11 +1875,28 @@ void G_ScreenShot(void)
 }
 
 // DOOM Par Times
-int pars[4][10] = {
+int pars[
+#ifdef DGONDOS
+7
+#else
+#ifdef SAKITOSHI
+6
+#else
+4
+#endif
+#endif
+][10] = {
   {0},
   {0,30,75,120,90,165,180,180,30,165},
   {0,90,90,90,120,90,360,240,30,170},
   {0,90,45,90,150,90,90,165,30,135}
+#ifdef SAKITOSHI
+  , {0}  // Sakitoshi 2019 episode 4 doesn't have pars, better report 0 :)
+  , {0}  // also report 0 for episode 5.
+#endif
+#ifdef DGONDOS
+  , {0} // and for episode 6 as well
+#endif
 };
 
 // DOOM II Par Times
@@ -1847,6 +1906,14 @@ int cpars[34] = {
   240,150,180,150,150,300,330,420,300,180,  // 21-30
   120,30,30,30          // 31-34
 };
+
+#ifdef SAKITOSHI
+// No Rest For The Living Par Times
+int npars[9] = {
+  75,105,120,105,210,105,165,105,135
+};
+#endif
+
 
 //
 // G_WorldDone
@@ -1868,11 +1935,20 @@ void G_WorldDone(void)
           if (!secretexit)
             break;
         case 6:
+#ifdef SAKITOSHI
+          if (gamemission == pack_nerve)
+            break;
+#endif
         case 11:
         case 20:
         case 30:
           F_StartFinale();
           break;
+#ifdef SAKITOSHI
+        default:
+          if (gamemission == pack_nerve && gamemap == 8)
+            F_StartFinale();
+#endif
         }
     }
 }
@@ -1917,7 +1993,15 @@ void G_ReloadDefaults(void)
   player_bobbing = default_player_bobbing;  // whether player bobs or not
 #endif
 
-  variable_friction = allow_pushers = true;
+#ifdef FRICTION
+  variable_friction =
+#endif
+#ifdef PUSHER
+  allow_pushers =
+#endif
+#if defined(PUSHER) || defined(FRICTION)
+  true;
+#endif
 #ifdef REMEMBER
   monsters_remember = default_monsters_remember;   // remember former enemies
 #endif
@@ -2059,8 +2143,18 @@ void G_InitNew(skill_t skill, int episode, int map)
 
   if (gamemode == retail)
     {
+#ifdef DGONDOS
+      if (episode > 6)
+        episode = 6;
+#else
+#ifdef SAKITOSHI
+      if (episode > 5)
+        episode = 5;
+#else
       if (episode > 4)
         episode = 4;
+#endif
+#endif
     }
   else
     if (gamemode == shareware)
@@ -2144,7 +2238,11 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ = 0;
 #endif
 
+#ifdef FRICTION
   *demo_p++ = variable_friction;  // ice & mud
+#else
+  *demo_p++ = 0;
+#endif
 
 #ifdef RECOIL
   *demo_p++ = weapon_recoil;      // weapon recoil
@@ -2152,7 +2250,11 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ = 0;
 #endif
 
+#ifdef PUSHER
   *demo_p++ = allow_pushers;      // MT_PUSH Things
+#else
+  *demo_p++ = 0;
+#endif
 
   *demo_p++ = 0;
 
@@ -2266,7 +2368,9 @@ byte *G_ReadOptions(byte *demo_p)
   demo_p++;
 #endif
 
+#ifdef FRICTION
   variable_friction = *demo_p;  // ice & mud
+#endif
   demo_p++;
 
 #ifdef RECOIL
@@ -2274,7 +2378,9 @@ byte *G_ReadOptions(byte *demo_p)
 #endif
   demo_p++;
 
+#ifdef PUSHER
   allow_pushers = *demo_p;      // MT_PUSH Things
+#endif
   demo_p++;
 
   demo_p++;

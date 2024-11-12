@@ -1409,8 +1409,10 @@ typedef enum {
   MT_MISC84,
   MT_MISC85,
   MT_MISC86,
+#if defined(PUSHER) || defined(DOGS)
   MT_PUSH,    // controls push source                     // phares
   MT_PULL,    // controls pull source                     // phares 3/20/98
+#endif
 
 #ifdef DOGS
   MT_DOGS,    // killough 7/19/98: Marine's best friend

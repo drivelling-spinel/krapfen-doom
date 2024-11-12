@@ -56,11 +56,15 @@ int general_translucency;    // killough 10/98
 
 int demo_insurance, default_demo_insurance;        // killough 1/16/98
 
+#ifdef PUSHER
 int  allow_pushers = 1;      // MT_PUSH Things              // phares 3/10/98
 int  default_allow_pushers;  // killough 3/1/98: make local to each game
+#endif
 
+#ifdef FRICTION
 int  variable_friction = 1;      // ice & mud               // phares 3/10/98
 int  default_variable_friction;  // killough 3/1/98: make local to each game
+#endif
 
 #ifdef RECOIL
 int  weapon_recoil;              // weapon recoil                   // phares

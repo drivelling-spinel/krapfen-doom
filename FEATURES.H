@@ -3,5 +3,7 @@
 
 #include "features/boom.h"
 #include "features/mbf.h"
+#include "features/patches.h"
+#include "features/krfn.h"
 
 #endif

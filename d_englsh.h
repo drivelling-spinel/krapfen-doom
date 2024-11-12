@@ -198,6 +198,30 @@
 #define HUSTR_E4M8  "E4M8: Unto The Cruel"
 #define HUSTR_E4M9  "E4M9: Fear"
 
+#ifdef SAKITOSHI
+#define HUSTR_E5M1  "E5M1: Baphomet's Demesne"
+#define HUSTR_E5M2  "E5M2: Sheol"
+#define HUSTR_E5M3  "E5M3: Cages of the Damned"
+#define HUSTR_E5M4  "E5M4: Paths of Wretchedness"
+#define HUSTR_E5M5  "E5M5: Abaddon's Void"
+#define HUSTR_E5M6  "E5M6: Unspeakable Persecution"
+#define HUSTR_E5M7  "E5M7: Nightmare Underworld"
+#define HUSTR_E5M8  "E5M8: Halls of Perdition"
+#define HUSTR_E5M9  "E5M9: Realm of Iblis"
+#endif
+
+#ifdef DGONDOS
+#define HUSTR_E6M1  "E6M1: Cursed Darkness"
+#define HUSTR_E6M2  "E6M2: Violent Hatred"
+#define HUSTR_E6M3  "E6M3: Twilight Desolation"
+#define HUSTR_E6M4  "E6M4: Fragments of Sanity"
+#define HUSTR_E6M5  "E6M5: Wrathful Reckoning"
+#define HUSTR_E6M6  "E6M6: Vengeance Unleashed"
+#define HUSTR_E6M7  "E6M7: Descent Into Terror"
+#define HUSTR_E6M8  "E6M8: Abyss of Despair"
+#define HUSTR_E6M9  "E6M9: Shattered Homecoming"
+#endif
+
 #define HUSTR_1     "level 1: entryway"
 #define HUSTR_2     "level 2: underhalls"
 #define HUSTR_3     "level 3: the gantlet"
@@ -233,6 +257,18 @@
   
 #define HUSTR_31    "level 31: wolfenstein"
 #define HUSTR_32    "level 32: grosse"
+
+#ifdef SAKITOSHI
+#define NHUSTR_1    "level 1: the earth base"
+#define NHUSTR_2    "level 2: the pain labs"
+#define NHUSTR_3    "level 3: canyon of the dead"
+#define NHUSTR_4    "level 4: hell mountain"
+#define NHUSTR_5    "level 5: vivisection"
+#define NHUSTR_6    "level 6: inferno of blood"
+#define NHUSTR_7    "level 7: baron's banquet"
+#define NHUSTR_8    "level 8: tomb of malevolence"
+#define NHUSTR_9    "level 9: march of the demons"
+#endif
 
 #define PHUSTR_1    "level 1: congo"
 #define PHUSTR_2    "level 2: well of souls"
@@ -453,8 +489,36 @@
   "of demons run amok among our cities.\n"\
   "\n"\
   "next stop, hell on earth!"
-  
-  
+
+
+#ifdef SAKITOSHI
+#define E5TEXT \
+  "Baphomet was only doing Satan's bidding\n"\
+  "by bringing you back to Hell. Somehow they\n"\
+  "didn't understand that you're the reason\n"\
+  "they failed in the first place.\n"\
+  "\n"\
+  "After mopping up the place with your\n"\
+  "arsenal, you're ready to face the more\n"\
+  "advanced demons that were sent to Earth.\n"\
+  "\n"\
+  "Lock and load. Rip and tear."
+#endif  
+
+
+#ifdef DGONDOS
+#define E6TEXT \
+  "Satan erred in casting you to Hell's\n"\
+  "darker depths. His plan failed. He has\n"\
+  "tried for so long to destroy you, and he\n"\
+  "has lost every single time. His only\n"\
+  "option is to flood Earth with demons\n"\
+  "and hope you go down fighting.\n"\
+  "\n"\
+  "Prepare for HELLION!"
+#endif
+
+
 // after level 6, put this:
   
 #define C1TEXT \
@@ -544,7 +608,31 @@
   "CONGRATULATIONS, YOU'VE FOUND THE\n"\
   "SUPER SECRET LEVEL!  YOU'D BETTER\n"\
   "BLAZE THROUGH THIS ONE!\n"
+
+#ifdef SAKITOSHI
+// No Rest For The Living end:
   
+  #define NERVETEXT \
+  "Trouble was brewing again in your favorite\n"\
+  "vacation spot... Hell. Some Cyberdemon\n"\
+  "punk thought he could turn Hell into a\n"\
+  "personal amusement park, and make Earth\n"\
+  "the ticket booth.\n"\
+  "\n"\
+  "Well that half-robot freak show didn't\n"\
+  "know who was coming to the fair. There's\n"\
+  "nothing like a shooting gallery full of\n"\
+  "hellspawn to get the blood pumping...\n"\
+  "\n"\
+  "Now the walls of the demon's labyrinth\n"\
+  "echo with the sound of his metallic limbs\n"\
+  "hitting the floor. His death moan gurgles\n"\
+  "out through the mess you left of his face.\n"\
+  "\n"\
+  "This ride is closed."
+#endif
+
+
 // after map 06 
   
   #define P1TEXT  \

@@ -105,6 +105,17 @@ void F_StartFinale (void)
              finaleflat = bgflatE4;
              finaletext = s_E4TEXT;
              break;
+#ifdef SAKITOSHI
+        case 5:
+             finaleflat = bgflatE5;
+             finaletext = s_E5TEXT;
+#endif
+#ifdef DGONDOS
+        case 6:
+             finaleflat = bgflatE6;
+             finaletext = s_E6TEXT;
+             break;
+#endif
         default:
              // Ouch.
              break;
@@ -152,9 +163,16 @@ void F_StartFinale (void)
 	                  gamemission == pack_plut ? s_P6TEXT : s_C6TEXT;
              break;
         default:
-             // Ouch.
+              // Ouch.
              break;
       }
+#ifdef SAKITOSHI
+      if (gamemission == pack_nerve && gamemap == 8)
+      {
+        finaleflat = bgflat06;
+        finaletext = s_NERVETEXT;
+      }
+#endif
       // Ty 08/27/98 - end gamemission logic
 
       break;
@@ -241,7 +259,11 @@ void F_Ticker(void)
 	    if (!demo_compatibility && midstage)
 	      {
 	      next_level:
-		if (gamemap == 30)
+		if (gamemap == 30
+#ifdef SAKITOSHI
+                || (gamemission == pack_nerve && gamemap == 8)
+#endif
+                )
 		  F_StartCast();              // cast of Doom 2 characters
 		else
 		  gameaction = ga_worlddone;  // next level, e.g. MAP07
@@ -722,6 +744,18 @@ void F_Drawer (void)
            V_DrawPatch (0,0,0,
              W_CacheLumpName("ENDPIC",PU_CACHE));
            break;
+#ifdef SAKITOSHI
+      case 5:
+           V_DrawPatch (0,0,0,
+             W_CacheLumpName("SIGILEND",PU_CACHE));
+           break;
+#endif
+#ifdef DGONDOS
+      case 6:
+           V_DrawPatch (0,0,0,
+             W_CacheLumpName("SIGILIN2",PU_CACHE));
+           break;
+#endif
     }
   }
 }

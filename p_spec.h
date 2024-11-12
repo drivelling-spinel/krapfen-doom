@@ -708,6 +708,7 @@ typedef struct {
   } type;              // Type of scroll effect
 } scroll_t;
 
+#ifdef FRICTION
 // phares 3/12/98: added new model of friction for ice/sludge effects
 
 typedef struct {
@@ -716,7 +717,9 @@ typedef struct {
   int movefactor;      // inertia factor when adding to momentum
   int affectee;        // Number of affected sector
 } friction_t;
+#endif
 
+#ifdef PUSHER
 // phares 3/20/98: added new model of Pushers for push/pull effects
 
 typedef struct {
@@ -737,6 +740,7 @@ typedef struct {
   int y;               // Y of point source if point pusher
   int affectee;        // Number of affected sector
 } pusher_t;
+#endif
 
 //////////////////////////////////////////////////////////////////
 //
@@ -856,9 +860,13 @@ void T_MoveElevator(elevator_t *elevator);
 
 void T_Scroll(scroll_t *);      // killough 3/7/98: scroll effect thinker
 
+#ifdef FRICTION
 void T_Friction(friction_t *);  // phares 3/12/98: friction thinker
+#endif
 
+#ifdef PUSHER
 void T_Pusher(pusher_t *);      // phares 3/20/98: Push thinker
+#endif
 
 void T_FireFlicker(fireflicker_t *);  // killough 10/4/98
 

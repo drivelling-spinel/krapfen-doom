@@ -135,20 +135,20 @@ OBJS=	\
         $(O)/d_deh.o	    \
  	$(O)/emu8kmid.o	    
 
-doom all: $(O)/mbf.exe
-	upx -9 $(O)\mbf.exe
+doom all: $(O)/krfn.exe
+	upx -9 $(O)\krfn.exe
 
 debug:
 	$(MAKE) MODE=DEBUG
 
 clean:
-	$(RM) mbf.exe
+	$(RM) krfn.exe
 	$(RM) $(O_RELEASE)\*.exe
 	$(RM) $(O_DEBUG)\*.exe
 	$(RM) $(O_RELEASE)\*.o
 	$(RM) $(O_DEBUG)\*.o
 
-$(O)/mbf.exe: $(OBJS) $(O)/version.o
+$(O)/krfn.exe: $(OBJS) $(O)/version.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(O)/version.o -o $@ $(LIBS)
 	$(RM) $(O)\version.o
 
@@ -166,7 +166,7 @@ $(OBJS): Makefile
 
 # individual file depedencies follow
 
-features.h: features/mbf.h features/boom.h
+features.h: features/mbf.h features/boom.h features/krfn.h features/patches.h
 	$(TOUCH) features.h
 
 $(O)/doomdef.o: doomdef.c doomdef.h z_zone.h m_swap.h version.h features.h

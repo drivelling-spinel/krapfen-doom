@@ -27,6 +27,7 @@
 #ifndef __AMMAP_H__
 #define __AMMAP_H__
 
+#include "features.h"
 #include "d_event.h"
 
 // Used by ST StatusBar stuff.
@@ -98,6 +99,9 @@ extern int mapcolor_frnd;     // killough 8/8/98: colors for friends
 extern int map_secret_after;  // secrets do not appear til after bagged
 
 extern int map_point_coordinates;  // killough 10/98
+#ifdef MAPCOORD
+extern int map_show_coordinates;   // sakitoshi 2019
+#endif
 
 #endif
 

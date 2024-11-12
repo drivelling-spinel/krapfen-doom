@@ -326,6 +326,48 @@ extern char *s_HUSTR_E4M8; // = HUSTR_E4M8;
 //#define HUSTR_E4M9    "E4M9: Fear"
 extern char *s_HUSTR_E4M9; // = HUSTR_E4M9;
 
+#ifdef SAKITOSHI
+//#define HUSTR_E5M1    "E5M1: Baphomet's Demesne";
+extern char *s_HUSTR_E5M1; // = HUSTR_E5M1;
+//#define HUSTR_E5M2    "E5M2: Sheol";
+extern char *s_HUSTR_E5M2; // = HUSTR_E5M2;
+//#define HUSTR_E5M3    "E5M3: Cages of the Damned";
+extern char *s_HUSTR_E5M3; // = HUSTR_E5M3;
+//#define HUSTR_E5M4    "E5M4: Paths of Wretchedness";
+extern char *s_HUSTR_E5M4; // = HUSTR_E5M4;
+//#define HUSTR_E5M5    "E5M5: Abaddon's Void";
+extern char *s_HUSTR_E5M5; // = HUSTR_E5M5;
+//#define HUSTR_E5M6    "E5M6: Unspeakable Persecution";
+extern char *s_HUSTR_E5M6; // = HUSTR_E5M6;
+//#define HUSTR_E5M7    "E5M7: Nightmare Underworld";
+extern char *s_HUSTR_E5M7; // = HUSTR_E5M7;
+//#define HUSTR_E5M8    "E5M8: Halls of Perdition";
+extern char *s_HUSTR_E5M8; // = HUSTR_E5M8;
+//#define HUSTR_E5M9    "E5M9: Realm of Iblis";
+extern char *s_HUSTR_E5M9; // = HUSTR_E5M9;
+#endif
+
+#ifdef DGONDOS
+//#define HUSTR_E6M1    "E6M1: Cursed Darkness";
+extern char *s_HUSTR_E6M1; // = HUSTR_E6M1;
+//#define HUSTR_E6M2    "E6M2: Violent Hatred";
+extern char *s_HUSTR_E6M2; // = HUSTR_E6M2;
+//#define HUSTR_E6M3    "E6M3: Twilight Desolation";
+extern char *s_HUSTR_E6M3; // = HUSTR_E6M3;
+//#define HUSTR_E6M4    "E6M4: Fragments of Sanity";
+extern char *s_HUSTR_E6M4; // = HUSTR_E6M4;
+//#define HUSTR_E6M5    "E6M5: Wrathful Reckoning";
+extern char *s_HUSTR_E6M5; // = HUSTR_E6M5;
+//#define HUSTR_E6M6    "E6M6: Vengeance Unleashed";
+extern char *s_HUSTR_E6M6; // = HUSTR_E6M6;
+//#define HUSTR_E6M7    "E6M7: Descent Into Terror";
+extern char *s_HUSTR_E6M7; // = HUSTR_E6M7;
+//#define HUSTR_E6M8    "E6M8: Abyss of Despair";
+extern char *s_HUSTR_E6M8; // = HUSTR_E6M8;
+//#define HUSTR_E6M9    "E6M9: Shattered Homecoming";
+extern char *s_HUSTR_E6M9; // = HUSTR_E6M9;
+#endif
+
 //#define HUSTR_1       "level 1: entryway"
 extern char *s_HUSTR_1; // = HUSTR_1;
 //#define HUSTR_2       "level 2: underhalls"
@@ -393,6 +435,27 @@ extern char *s_HUSTR_30; // = HUSTR_30;
 extern char *s_HUSTR_31; // = HUSTR_31;
 //#define HUSTR_32      "level 32: grosse"
 extern char *s_HUSTR_32; // = HUSTR_32;
+
+#ifdef SAKITOSHI
+//#define NHUSTR_1      "level 1: the earth base"
+extern char *s_NHUSTR_1; // = NHUSTR_1;
+//#define NHUSTR_2      "level 2: the pain labs"
+extern char *s_NHUSTR_2; // = NHUSTR_2;
+//#define NHUSTR_3      "level 3: canyon of the dead"
+extern char *s_NHUSTR_3; // = NHUSTR_3;
+//#define NHUSTR_4      "level 4: hell mountain"
+extern char *s_NHUSTR_4; // = NHUSTR_4;
+//#define NHUSTR_5      "level 5: vivisection"
+extern char *s_NHUSTR_5; // = NHUSTR_5;
+//#define NHUSTR_6      "level 6: inferno of blood"
+extern char *s_NHUSTR_6; // = NHUSTR_6;
+//#define NHUSTR_7      "level 7: baron's banquet"
+extern char *s_NHUSTR_7; // = NHUSTR_7;
+//#define NHUSTR_8      "level 8: tomb of malevolence"
+extern char *s_NHUSTR_8; // = NHUSTR_8;
+//#define NHUSTR_9      "level 9: march of the demons"
+extern char *s_NHUSTR_9; // = NHUSTR_9;
+#endif
 
 //#define PHUSTR_1      "level 1: congo"
 extern char *s_PHUSTR_1; // = PHUSTR_1;
@@ -728,6 +791,36 @@ extern char *s_E3TEXT; // = E3TEXT;
 extern char *s_E4TEXT; // = E4TEXT;
 
 
+#ifdef SAKITOSHI
+//#define E5TEXT 
+//"Baphomet was only doing Satan's bidding\n"
+//"by bringing you back to Hell. Somehow they\n"
+//"didn't understand that you're the reason\n"
+//"they failed in the first place.\n"
+//"\n"
+//"After mopping up the place with your\n"
+//"arsenal, you're ready to face the more\n"
+//"advanced demons that were sent to Earth.\n"
+//"\n"
+//"Lock and load. Rip and tear."
+extern char *s_E5TEXT; // = E5TEXT;
+#endif
+
+
+#ifdef DGONDOS
+//#define E6TEXT 
+//"Satan erred in casting you to Hell's\n"
+//"darker depths. His plan failed. He has\n"
+//"tried for so long to destroy you, and he\n"
+//"has lost every single time. His only\n"
+//"option is to flood Earth with demons\n"
+//"and hope you go down fighting.\n"
+//"\n"
+//"Prepare for HELLION!"
+extern char *s_E6TEXT; // = E6TEXT;
+#endif
+
+
 // after level 6, put this:
 
 //#define C1TEXT 
@@ -823,6 +916,31 @@ extern char *s_C5TEXT; // = C5TEXT;
 //"SUPER SECRET LEVEL!  YOU'D BETTER\n"
 //"BLAZE THROUGH THIS ONE!\n"
 extern char *s_C6TEXT; // = C6TEXT;
+
+
+#ifdef SAKITOSHI
+// No Rest For The Living end:
+  
+//#define NERVETEXT
+//"Trouble was brewing again in your favorite\n"
+//"vacation spot... Hell. Some Cyberdemon\n"
+//"punk thought he could turn Hell into a\n"
+//"personal amusement park, and make Earth\n"
+//"the ticket booth.\n"
+//"\n"
+//"Well that half-robot freak show didn't\n"
+//"know who was coming to the fair. There's\n"
+//"nothing like a shooting gallery full of\n"
+//"hellspawn to get the blood pumping...\n"
+//"\n"
+//"Now the walls of the demon's labyrinth\n"
+//"echo with the sound of his metallic limbs\n"
+//"hitting the floor. His death moan gurgles\n"
+//"out through the mess you left of his face.\n"
+//"\n"
+//"This ride is closed."
+extern char *s_NERVETEXT; // = NERVETEXT;
+#endif
 
 // after map 06 
 
@@ -1028,6 +1146,14 @@ extern char *bgflatE2;
 extern char *bgflatE3;
 // char*        bgflatE4 = "MFLR8_3";
 extern char *bgflatE4;
+#ifdef SAKITOSHI
+// char*        bgflatE5 = "FLOOR7_2";
+extern char *bgflatE5;
+#endif
+#ifdef DGONDOS
+// char*        bgflatE6 = "FLOOR7_2";
+extern char *bgflatE6;
+#endif
 
 // char*        bgflat06 = "SLIME16";
 extern char *bgflat06;

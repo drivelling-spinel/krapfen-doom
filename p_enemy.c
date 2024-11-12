@@ -2370,6 +2370,16 @@ void A_BossDeath(mobj_t *mo)
             }
           break;
 
+#ifdef SAKITOSHI
+        case 5: // sigil
+          return;
+#endif
+
+#ifdef DGONDOS
+        case 6: // sigil II
+          return;
+#endif
+
         default:
           if (gamemap != 8)
             return;

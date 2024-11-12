@@ -853,6 +853,9 @@ void AM_doFollowPlayer(void)
 //
 
 int map_point_coordinates;
+#ifdef MAPCOORD
+int map_show_coordinates;
+#endif
 
 void AM_Coordinates(const mobj_t *mo, fixed_t *x, fixed_t *y, fixed_t *z)
 {

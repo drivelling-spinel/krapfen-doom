@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: w_wad.c,v 1.2 2000-08-12 21:29:34 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include <unistd.h>
 #include <fcntl.h>
@@ -512,6 +513,8 @@ void *W_CacheLumpNum(int lump, int tag)
 
 // W_CacheLumpName macroized in w_wad.h -- killough
 
+#ifndef KRFNSLIM
+
 // WritePredefinedLumpWad
 // Args: Filename - string with filename to write to
 // Returns: void
@@ -565,7 +568,7 @@ void WritePredefinedLumpWad(const char *filename)
   }
  I_Error("Cannot open predefined lumps wad %s for output\n", filename);
 }
-
+#endif
 //----------------------------------------------------------------------------
 //
 // $Log: w_wad.c,v $

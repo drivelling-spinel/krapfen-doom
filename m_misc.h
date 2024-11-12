@@ -44,7 +44,9 @@ struct default_s *M_LookupDefault(const char *name);     // killough 11/98
 boolean M_ParseOption(const char *name, boolean wad);    // killough 11/98
 void M_LoadOptions(void);                                // killough 11/98
 
+#ifdef PCXSSHOT
 extern int screenshot_pcx;                               // killough 10/98
+#endif
 
 // phares 4/21/98:
 // Moved from m_misc.c so m_menu.c could see it.

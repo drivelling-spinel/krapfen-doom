@@ -127,6 +127,9 @@ enum {
   comp_infcheat,
   comp_zerotags,
   comp_respawnfix,
+#ifdef SOULBOUNCE
+  comp_soulbounce,
+#endif
   COMP_TOTAL=32  // Some extra room for additional variables
 };
 
@@ -325,11 +328,15 @@ extern thinker_t thinkercap;  // Both the head and tail of the thinker list
 // v1.1-like pitched sounds
 extern int pitched_sounds, default_pitched_sounds;     // killough 2/21/98
 
+#ifdef PUSHER
 extern int allow_pushers;         // MT_PUSH Things    // phares 3/10/98
 extern int default_allow_pushers;
+#endif
 
+#ifdef FRICTION
 extern int variable_friction;  // ice & mud            // phares 3/10/98
 extern int default_variable_friction;
+#endif
 
 #ifdef REMEMBER
 extern int monsters_remember;                          // killough 3/1/98
