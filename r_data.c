@@ -28,6 +28,7 @@
 static const char
 rcsid[] = "$Id: r_data.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "w_wad.h"
 #include "r_main.h"
@@ -720,18 +721,28 @@ void R_InitSpriteLumps(void)
 
 void R_InitColormaps(void)
 {
+#ifdef DEEPWATER
   int i;
   firstcolormaplump = W_GetNumForName("C_START");
   lastcolormaplump  = W_GetNumForName("C_END");
-  numcolormaps = lastcolormaplump - firstcolormaplump;
+#endif
+  numcolormaps =
+#ifdef DEEPWATER
+                 lastcolormaplump - firstcolormaplump;
+#else
+                 1;
+#endif
   colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps, PU_STATIC, 0);
 
   colormaps[0] = W_CacheLumpNum(W_GetNumForName("COLORMAP"), PU_STATIC);
 
+#ifdef DEEPWATER
   for (i=1; i<numcolormaps; i++)
     colormaps[i] = W_CacheLumpNum(i+firstcolormaplump, PU_STATIC);
+#endif
 }
 
+#ifdef DEEPWATER
 // killough 4/4/98: get colormap number from name
 // killough 4/11/98: changed to return -1 for illegal names
 // killough 4/17/98: changed to use ns_colormaps tag
@@ -744,6 +755,7 @@ int R_ColormapNumForName(const char *name)
       i -= firstcolormaplump;
   return i;
 }
+#endif
 
 //
 // R_InitTranMap

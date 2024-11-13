@@ -430,8 +430,10 @@ void W_InitMultipleFiles(char *const *filenames)
   W_CoalesceMarkedResource("S_START", "S_END", ns_sprites);
   W_CoalesceMarkedResource("F_START", "F_END", ns_flats);
 
+#ifdef DEEPWATER
   // killough 4/4/98: add colormap markers
   W_CoalesceMarkedResource("C_START", "C_END", ns_colormaps);
+#endif
 
   // set up caching
   lumpcache = calloc(sizeof *lumpcache, numlumps); // killough

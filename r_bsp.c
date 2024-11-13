@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: r_bsp.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "m_bbox.h"
 #include "i_system.h"
@@ -272,13 +273,29 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
                      boolean back)
 {
   if (floorlightlevel)
-    *floorlightlevel = sec->floorlightsec == -1 ?
-      sec->lightlevel : sectors[sec->floorlightsec].lightlevel;
+    *floorlightlevel =
+#ifdef LIGHTTRANSFER
+                       sec->floorlightsec == -1 ?
+#endif
+      sec->lightlevel
+#ifdef LIGHTTRANSFER
+                      : sectors[sec->floorlightsec].lightlevel
+#endif
+                                                              ;
+
 
   if (ceilinglightlevel)
-    *ceilinglightlevel = sec->ceilinglightsec == -1 ? // killough 4/11/98
-      sec->lightlevel : sectors[sec->ceilinglightsec].lightlevel;
+    *ceilinglightlevel =
+#ifdef LIGHTTRANSFER
+                         sec->ceilinglightsec == -1 ? // killough 4/11/98
+#endif
+      sec->lightlevel
+#ifdef LIGHTTRANSFER
+                      : sectors[sec->ceilinglightsec].lightlevel
+#endif
+                                                                ;
 
+#ifdef DEEPWATER
   if (sec->heightsec != -1)
     {
       const sector_t *s = &sectors[sec->heightsec];
@@ -320,12 +337,28 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
           tempsec->lightlevel  = s->lightlevel;
 
           if (floorlightlevel)
-            *floorlightlevel = s->floorlightsec == -1 ? s->lightlevel :
-            sectors[s->floorlightsec].lightlevel; // killough 3/16/98
+            *floorlightlevel =
+#ifdef LIGHTTRANSFER
+                               s->floorlightsec == -1 ?
+#endif
+                                                        s->lightlevel
+#ifdef LIGHTTRANSFER
+                                                                      :
+            sectors[s->floorlightsec].lightlevel  // killough 3/16/98
+#endif
+                                                ;
 
           if (ceilinglightlevel)
-            *ceilinglightlevel = s->ceilinglightsec == -1 ? s->lightlevel :
-            sectors[s->ceilinglightsec].lightlevel; // killough 4/11/98
+            *ceilinglightlevel =
+#ifdef LIGHTTRANSFER
+                                 s->ceilinglightsec == -1 ?
+#endif
+                                                            s->lightlevel
+#ifdef LIGHTTRANSFER
+                                                                         :
+            sectors[s->ceilinglightsec].lightlevel  // killough 4/11/98
+#endif
+                                                  ;
         }
       else
         if (heightsec != -1 && viewz >= sectors[heightsec].ceilingheight &&
@@ -349,15 +382,31 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
             tempsec->lightlevel  = s->lightlevel;
 
             if (floorlightlevel)
-              *floorlightlevel = s->floorlightsec == -1 ? s->lightlevel :
-              sectors[s->floorlightsec].lightlevel; // killough 3/16/98
-
+              *floorlightlevel =
+#ifdef LIGHTTRANSFER
+                                 s->floorlightsec == -1 ?
+#endif
+                                                          s->lightlevel
+#ifdef LIGHTTRANSFER
+                                                                        :
+              sectors[s->floorlightsec].lightlevel  // killough 3/16/98
+#endif
+                                                  ;
             if (ceilinglightlevel)
-              *ceilinglightlevel = s->ceilinglightsec == -1 ? s->lightlevel :
-              sectors[s->ceilinglightsec].lightlevel; // killough 4/11/98
+              *ceilinglightlevel =
+#ifdef LIGHTTRANSFER
+                                   s->ceilinglightsec == -1 ?
+#endif
+                                                              s->lightlevel
+#ifdef LIGHTTRANSFER
+                                                                            :
+              sectors[s->ceilinglightsec].lightlevel  // killough 4/11/98
+#endif
+                                                    ;
           }
       sec = tempsec;               // Use other sector
     }
+#endif
   return sec;
 }
 
@@ -474,9 +523,11 @@ static void R_AddLine (seg_t *line)
       && backsector->ceiling_xoffs == frontsector->ceiling_xoffs
       && backsector->ceiling_yoffs == frontsector->ceiling_yoffs
 
+#ifdef LIGHTTRANSFER 
       // killough 4/16/98: consider altered lighting
       && backsector->floorlightsec == frontsector->floorlightsec
       && backsector->ceilinglightsec == frontsector->ceilinglightsec
+#endif
       )
     return;
 
@@ -624,9 +675,13 @@ static void R_Subsector(int num)
   // killough 3/16/98: add floorlightlevel
   // killough 10/98: add support for skies transferred from sidedefs
 
-  floorplane = frontsector->floorheight < viewz || // killough 3/7/98
+  floorplane = frontsector->floorheight < viewz
+#ifdef DEEPWATER
+                                                || // killough 3/7/98
     (frontsector->heightsec != -1 &&
-     sectors[frontsector->heightsec].ceilingpic == skyflatnum) ?
+     sectors[frontsector->heightsec].ceilingpic == skyflatnum)
+#endif
+                                                               ?
     R_FindPlane(frontsector->floorheight,
 #ifdef SKYTRANSFER
                 frontsector->floorpic == skyflatnum && // kilough 10/98 
@@ -639,9 +694,13 @@ static void R_Subsector(int num)
                 ) : NULL;
 
   ceilingplane = frontsector->ceilingheight > viewz ||
-    frontsector->ceilingpic == skyflatnum ||
+    frontsector->ceilingpic == skyflatnum
+#ifdef DEEPWATER
+                                          ||
     (frontsector->heightsec != -1 &&
-     sectors[frontsector->heightsec].floorpic == skyflatnum) ?
+     sectors[frontsector->heightsec].floorpic == skyflatnum)
+#endif
+                                                             ?
     R_FindPlane(frontsector->ceilingheight,     // killough 3/8/98
 #ifdef SKYTRANSFER
 		frontsector->ceilingpic == skyflatnum &&  // kilough 10/98

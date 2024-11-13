@@ -30,6 +30,7 @@
 // sqrt, etc.-- killough
 #include <math.h>
 
+#include "features.h"
 // Screenwidth.
 #include "doomdef.h"
 
@@ -117,13 +118,19 @@ typedef struct
   fixed_t   floor_xoffs,   floor_yoffs;
   fixed_t ceiling_xoffs, ceiling_yoffs;
 
+#ifdef DEEPWATER
   // killough 3/7/98: support flat heights drawn at another sector's heights
   int heightsec;    // other sector, or -1 if no other sector
+#endif
 
+#ifdef LIGHTTRANSFER
   // killough 4/11/98: support for lightlevels coming from another sector
   int floorlightsec, ceilinglightsec;
+#endif
 
+#ifdef DEEPWATER
   int bottommap, midmap, topmap; // killough 4/4/98: dynamic colormaps
+#endif
 
   // killough 10/98: support skies coming from sidedefs. Allows scrolling
   // skies and other effects. No "level info" kind of lump is needed, 
@@ -339,9 +346,11 @@ typedef struct vissprite_s
 
   // for color translation and shadow draw, maxbright frames as well
   lighttable_t *colormap;
-   
+
+#ifdef DEEPWATER
   // killough 3/27/98: height sector for underwater/fake ceiling support
   int heightsec;
+#endif
 
 } vissprite_t;
 

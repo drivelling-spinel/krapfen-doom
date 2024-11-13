@@ -154,6 +154,14 @@ default_t defaults[] = {
     "1 to enable wait for vsync to avoid display tearing"
   },
 
+#ifdef USEVESA
+  {
+    "usevesa", &usevesa, NULL,
+    1, {0,1}, number, ss_gen, wad_no,
+    "1 to enable vesa mode search"
+  },
+#endif
+
   {
     "realtic_clock_rate",
     &realtic_clock_rate, NULL,

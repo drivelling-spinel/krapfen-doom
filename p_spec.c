@@ -2462,8 +2462,12 @@ void P_SpawnSpecials (void)
   for (i=0; i<numlines; i++)
     switch (lines[i].special)
       {
-        int s, sec;
-
+        int s
+#if defined(DEEPWATER) || defined(LIGHTTRANSFER)
+        , sec
+#endif
+        ;
+#ifdef DEEPWATER
         // killough 3/7/98:
         // support for drawn heights coming from different sector
       case 242:
@@ -2471,7 +2475,8 @@ void P_SpawnSpecials (void)
         for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
           sectors[s].heightsec = sec;
         break;
-
+#endif
+#ifdef LIGHTTRANSFER
         // killough 3/16/98: Add support for setting
         // floor lighting independently (e.g. lava)
       case 213:
@@ -2487,6 +2492,7 @@ void P_SpawnSpecials (void)
         for (s = -1; (s = P_FindSectorFromLineTag(lines+i,s)) >= 0;)
           sectors[s].ceilinglightsec = sec;
         break;
+#endif
 #ifdef SKYTRANSFER
         // killough 10/98:
         //
@@ -2584,10 +2590,13 @@ void T_Scroll(scroll_t *s)
 
       sec = sectors + s->affectee;
       height = sec->floorheight;
-      waterheight = sec->heightsec != -1 &&
+      waterheight = 
+#ifdef DEEPWATER
+                    sec->heightsec != -1 &&
         sectors[sec->heightsec].floorheight > height ?
-        sectors[sec->heightsec].floorheight : MININT;
-
+        sectors[sec->heightsec].floorheight : 
+#endif
+      MININT;
       // Move objects only if on floor or underwater,
       // non-floating, and clipped.
 
@@ -3022,7 +3031,9 @@ void T_Pusher(pusher_t *p)
   int xspeed,yspeed;
   int xl,xh,yl,yh,bx,by;
   int radius;
+#ifdef DEEPWATER
   int ht = 0;
+#endif
 
   if (!allow_pushers)
     return;
@@ -3075,8 +3086,10 @@ void T_Pusher(pusher_t *p)
 
   // constant pushers p_wind and p_current
 
+#ifdef DEEPWATER
   if (sec->heightsec != -1) // special water sector?
     ht = sectors[sec->heightsec].floorheight;
+#endif
   node = sec->touching_thinglist; // things touching this sector
   for ( ; node ; node = node->m_snext)
     {
@@ -3085,7 +3098,9 @@ void T_Pusher(pusher_t *p)
         continue;
       if (p->type == p_wind)
         {
+#ifdef DEEPWATER
           if (sec->heightsec == -1) // NOT special water sector
+#endif
             if (thing->z > thing->floorz) // above ground
               {
                 xspeed = p->x_mag; // full force
@@ -3096,6 +3111,7 @@ void T_Pusher(pusher_t *p)
                 xspeed = (p->x_mag)>>1; // half force
                 yspeed = (p->y_mag)>>1;
               }
+#ifdef DEEPWATER
           else // special water sector
             {
               if (thing->z > ht) // above ground
@@ -3112,10 +3128,13 @@ void T_Pusher(pusher_t *p)
                     yspeed = (p->y_mag)>>1;
                   }
             }
+#endif
         }
       else // p_current
         {
+#ifdef DEEPWATER
           if (sec->heightsec == -1) // NOT special water sector
+#endif
             if (thing->z > sec->floorheight) // above ground
               xspeed = yspeed = 0; // no force
             else // on ground
@@ -3123,6 +3142,7 @@ void T_Pusher(pusher_t *p)
                 xspeed = p->x_mag; // full force
                 yspeed = p->y_mag;
               }
+#ifdef DEEPWATER
           else // special water sector
             if (thing->z > ht) // above ground
               xspeed = yspeed = 0; // no force
@@ -3131,6 +3151,7 @@ void T_Pusher(pusher_t *p)
                 xspeed = p->x_mag; // full force
                 yspeed = p->y_mag;
               }
+#endif
         }
       thing->momx += xspeed<<(FRACBITS-PUSH_FACTOR);
       thing->momy += yspeed<<(FRACBITS-PUSH_FACTOR);

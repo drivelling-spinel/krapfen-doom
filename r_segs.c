@@ -29,6 +29,7 @@
 static const char
 rcsid[] = "$Id: r_segs.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "r_main.h"
 #include "r_bsp.h"
@@ -558,13 +559,15 @@ void R_StoreWallRange(const int start, const int stop)
         // killough 3/7/98: Add checks for (x,y) offsets
         || backsector->floor_xoffs != frontsector->floor_xoffs
         || backsector->floor_yoffs != frontsector->floor_yoffs
-
+#ifdef DEEPWATER
         // killough 4/15/98: prevent 2s normals
         // from bleeding through deep water
         || frontsector->heightsec != -1
-
+#endif
+#ifdef LIGHTTRANSFER 
         // killough 4/17/98: draw floors if different light levels
         || backsector->floorlightsec != frontsector->floorlightsec
+#endif
         ;
 
       markceiling = worldhigh != worldtop
@@ -574,14 +577,16 @@ void R_StoreWallRange(const int start, const int stop)
         // killough 3/7/98: Add checks for (x,y) offsets
         || backsector->ceiling_xoffs != frontsector->ceiling_xoffs
         || backsector->ceiling_yoffs != frontsector->ceiling_yoffs
-
+#ifdef DEEPWATER
         // killough 4/15/98: prevent 2s normals
         // from bleeding through fake ceilings
         || (frontsector->heightsec != -1 &&
             frontsector->ceilingpic!=skyflatnum)
-
+#endif
+#ifdef LIGHTTRANSFER
         // killough 4/17/98: draw ceilings if different light levels
         || backsector->ceilinglightsec != frontsector->ceilinglightsec
+#endif
         ;
 
       if (backsector->ceilingheight <= frontsector->floorheight
@@ -676,7 +681,7 @@ void R_StoreWallRange(const int start, const int stop)
 
   // if a floor / ceiling plane is on the wrong side of the view
   // plane, it is definitely invisible and doesn't need to be marked.
-
+#ifdef DEEPWATER
   // killough 3/7/98: add deep water check
   if (frontsector->heightsec == -1)
     {
@@ -686,7 +691,7 @@ void R_StoreWallRange(const int start, const int stop)
           frontsector->ceilingpic != skyflatnum)   // below view plane
         markceiling = false;
     }
-
+#endif
   // calculate incremental stepping values for texture edges
   worldtop >>= 4;
   worldbottom >>= 4;

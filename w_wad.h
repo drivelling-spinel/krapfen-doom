@@ -67,7 +67,9 @@ typedef struct
     ns_global=0,
     ns_sprites,
     ns_flats,
+#ifdef DEEPWATER
     ns_colormaps
+#endif
   } namespace;
 
   int handle;

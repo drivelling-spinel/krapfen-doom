@@ -589,6 +589,7 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
   if (rejectmatrix[pnum>>3] & (1 << (pnum&7)))   // can't possibly be connected
     return false;
 
+#ifdef DEEPWATER
   // killough 4/19/98: make fake floors and ceilings block monster view
   if ((s1->heightsec != -1 &&
        ((t1->z + t1->height <= sectors[s1->heightsec].floorheight &&
@@ -602,7 +603,7 @@ boolean P_CheckSight(mobj_t *t1, mobj_t *t2)
         (t2->z >= sectors[s2->heightsec].ceilingheight &&
          t1->z + t2->height <= sectors[s2->heightsec].ceilingheight))))
     return false;
-
+#endif
   // killough 11/98: shortcut for melee situations
   // if (t1->subsector == t2->subsector) // same subsector? obviously visible
 

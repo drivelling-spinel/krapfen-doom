@@ -3144,7 +3144,10 @@ setup_menu_t* gen_settings[] =
 };
 
 enum {
-  general_hires,  
+#ifdef USEVESA
+  general_vesa,
+#endif
+  general_hires,
   general_pageflip,
   general_vsync,
   general_trans,
@@ -3182,6 +3185,11 @@ enum {
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Video"       ,S_SKIP|S_TITLE, m_null, G_X, G_Y - 12},
+
+#ifdef USEVESA 
+  {"VESA modes", S_YESNO|S_PRGWARN, m_null, G_X, G_Y + general_vesa*8,
+   {"usevesa"}, 0, 0 },
+#endif
 
   {"High Resolution", S_YESNO, m_null, G_X, G_Y + general_hires*8,
    {"hires"}, 0, 0, I_ResetScreen},
