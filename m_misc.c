@@ -370,14 +370,14 @@ default_t defaults[] = {
     0, {0,1}, number, ss_stat, wad_yes,
     "1 to make percent signs on status bar always gray"
   },
-
+#ifdef TRADKEY
   { // killough 2/28/98
     "sts_traditional_keys",
     &sts_traditional_keys, NULL,
     1, {0,1}, number, ss_stat, wad_yes,
     "1 to disable doubled card and skull key display on status bar"
   },
-
+#endif
   { // killough 4/17/98
     "traditional_menu",
     &traditional_menu, NULL,
@@ -728,9 +728,19 @@ default_t defaults[] = {
     0,
 #endif
        {0,1}, number, ss_comp, wad_yes,
-    "Lost Souls don't bounce off floor or ceiling"
+    "Lost Souls don't bounce off floors"
   },
 #endif
+
+#ifdef AIRTELEPT
+  {
+    "comp_airteleport",
+    &default_comp[comp_airteleport], &comp[comp_airteleport],
+    0, {0,1}, number, ss_comp, wad_yes,
+    "Teleporters can send players above the ground"
+  },
+#endif
+
 
   // For key bindings, the values stored in the key_* variables       // phares
   // are the internal Doom Codes. The values stored in the default.cfg
@@ -1344,7 +1354,12 @@ default_t defaults[] = {
   { // black //jff 4/6/98 new black
     "mapcolor_back",
     &mapcolor_back, NULL,
-    247, {0,255}, number, ss_auto, wad_yes,
+#ifdef KRFNDFLT
+    0,
+#else
+    247,
+#endif
+         {0,255}, number, ss_auto, wad_yes,
     "color used as background for automap"
   },
 
@@ -1358,28 +1373,48 @@ default_t defaults[] = {
   { // red-brown
     "mapcolor_wall",
     &mapcolor_wall, NULL,
-    23, {0,255}, number, ss_auto, wad_yes,
+#ifdef KRFNDFLT
+    176,
+#else
+    23,
+#endif
+        {0,255}, number, ss_auto, wad_yes,
     "color used for one side walls on automap"
   },
 
   { // lt brown
     "mapcolor_fchg",
     &mapcolor_fchg, NULL,
-    55, {0,255}, number, ss_auto, wad_yes,
+#ifdef KRFNDFLT
+    64,
+#else
+    55,
+#endif
+        {0,255}, number, ss_auto, wad_yes,
     "color used for lines floor height changes across"
   },
 
   { // orange
     "mapcolor_cchg",
     &mapcolor_cchg, NULL,
-    215, {0,255}, number, ss_auto, wad_yes,
+#ifdef KRFNDFLT
+    231,
+#else
+    215,
+#endif
+         {0,255}, number, ss_auto, wad_yes,
     "color used for lines ceiling height changes across"
   },
 
   { // white
     "mapcolor_clsd",
     &mapcolor_clsd, NULL,
-    208, {0,255}, number, ss_auto, wad_yes,
+#ifdef KRFNDFLT
+    231,
+#else
+    208,
+#endif
+         {0,255}, number, ss_auto, wad_yes,
     "color used for lines denoting closed doors, objects"
   },
 
@@ -1456,7 +1491,12 @@ default_t defaults[] = {
   { // lt gray
     "mapcolor_flat",
     &mapcolor_flat, NULL,
-    88, {0,255}, number, ss_auto, wad_yes,
+#ifdef KRFNDFLT
+    96,
+#else
+    88,
+#endif
+        {0,255}, number, ss_auto, wad_yes,
     "color used for lines with no height changes"
   },
 
@@ -1554,14 +1594,24 @@ default_t defaults[] = {
   { // gold range
     "hudcolor_titl",
     &hudcolor_titl, NULL,
-    5, {0,9}, number, ss_auto, wad_yes,
+#ifdef KRFNDFLT
+    6,
+#else
+    5,
+#endif
+       {0,9}, number, ss_auto, wad_yes,
     "color range used for automap level title"
   },
 
   { // green range
     "hudcolor_xyco",
     &hudcolor_xyco, NULL,
-    3, {0,9}, number, ss_auto, wad_yes,
+#ifdef KRFNDFLT
+    6,
+#else
+    3,
+#endif
+       {0,9}, number, ss_auto, wad_yes,
     "color range used for automap coordinates"
   },
 

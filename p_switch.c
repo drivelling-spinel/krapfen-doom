@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: p_switch.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "w_wad.h"
 #include "r_main.h"
@@ -342,11 +343,13 @@ P_UseSpecialLine
       case 32:        // MANUAL BLUE
       case 33:        // MANUAL RED
       case 34:        // MANUAL YELLOW
+#ifdef TRIGGERBOOM
       //jff 3/5/98 add ability to use teleporters for monsters
       case 195:       // switch teleporters
       case 174:
       case 210:       // silent switch teleporters
       case 209:
+#endif
         break;
           
       default:
@@ -564,6 +567,7 @@ P_UseSpecialLine
       // added inner switch, relaxed check to demo_compatibility
 
     default:
+#ifdef TRIGGERBOOM
       if (!demo_compatibility)
         switch (line->special)
         {
@@ -988,6 +992,7 @@ P_UseSpecialLine
           // 1/29/98 jff end of added SR linedef types
 
         }
+#endif
       break;
 
     // Buttons (retriggerable switches)

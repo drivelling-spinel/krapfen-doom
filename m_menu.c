@@ -266,7 +266,9 @@ extern int ammo_yellow;   // ammo percent less is yellow more green
 extern int sts_always_red;// status numbers do not change colors
 extern int sts_pct_always_gray;// status percents do not change colors
 extern int hud_nosecrets; // status does not list secrets/items/kills
+#ifdef TRADKEY
 extern int sts_traditional_keys;  // display keys the traditional way
+#endif
 extern int hud_list_bgon; // solid window background for list of messages
 extern int hud_msg_lines; // number of message lines in window up to 16
 extern int hud_msg_scrollup; // killough 11/98: whether list scrolls upwards
@@ -2754,7 +2756,9 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
 
   {"USE RED NUMBERS"   ,S_YESNO, m_null,ST_X,ST_Y+ 2*8, {"sts_always_red"}},
   {"GRAY %"            ,S_YESNO, m_null,ST_X,ST_Y+ 3*8, {"sts_pct_always_gray"}},
+#ifdef TRADKEY
   {"SINGLE KEY DISPLAY",S_YESNO, m_null,ST_X,ST_Y+ 4*8, {"sts_traditional_keys"}},
+#endif
 
   {"HEADS-UP DISPLAY"  ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+ 6*8},
 
@@ -3397,6 +3401,9 @@ enum
   compat_zerotags,
   compat_respawnfix,
   compat_menu,
+#ifdef AIRTELEPT
+  compat_airteleport,
+#endif
 };
 
 setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
@@ -3432,7 +3439,7 @@ setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
   {"Blazing doors make double closing sounds", S_YESNO, m_null, C_X,
    C_Y + compat_blazing * COMP_SPC, {"comp_blazing"}},
 #ifdef SOULBOUNCE    
-  {"Lost Souls don't bounce off floor or ceiling", S_YESNO, m_null, C_X,
+  {"Lost Souls don't bounce off floors", S_YESNO, m_null, C_X,
    C_Y + compat_soulbounce * COMP_SPC, {"comp_soulbounce"}},
 #endif
   // Button for resetting to defaults
@@ -3479,7 +3486,16 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
   {"Use Doom's main menu ordering", S_YESNO, m_null, C_X,
    C_Y + compat_menu * COMP_SPC, {"traditional_menu"}, 0, 0, M_ResetMenu},
 
-  {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV,{comp_settings1}},
+#ifdef AIRTELEPT
+  {"Teleporters can send above the ground", S_YESNO, m_null, C_X,
+   C_Y + compat_airteleport * COMP_SPC, {"comp_airteleport"}},
+#endif
+  //FIXME: need more space sadly -- LP 2024
+  {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV
+#ifdef AIRTELEPT
+    + COMP_SPC
+#endif
+  ,{comp_settings1}},
 
   // Final entry
 

@@ -583,6 +583,14 @@ void S_Init(int sfxVolume, int musicVolume)
 
   S_SetMusicVolume(musicVolume);
 
+#ifdef PERIDOT
+  if(W_CheckNumForName("GENMIDI") >= 0)
+    {
+      I_LoadSoundBank(W_CacheLumpName("GENMIDI", PU_CACHE));
+      printf("S_Init: loading sound banks from GENMIDI lump.\n");
+    }
+#endif
+
   // no sounds are playing, and they are not mus_paused
   mus_paused = 0;
 }

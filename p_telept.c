@@ -74,6 +74,10 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
           if (!P_TeleportMove(thing, m->x, m->y, false)) // killough 8/9/98
             return 0;
 
+#ifdef AIRTELEPT
+          if((demo_version > 203) ? !comp[comp_airteleport] :
+          ((demo_version != 109) || (gamemission != pack_tnt && gamemission != pack_plut)))
+#endif
           thing->z = thing->floorz;
 
           if (player)
@@ -110,6 +114,8 @@ int EV_Teleport(line_t *line, int side, mobj_t *thing)
         }
   return 0;
 }
+
+#ifdef TRIGGERBOOM
 
 //
 // Silent TELEPORTATION, by Lee Killough
@@ -320,6 +326,8 @@ int EV_SilentLineTeleport(line_t *line, int side, mobj_t *thing,
       }
   return 0;
 }
+
+#endif
 
 //----------------------------------------------------------------------------
 //

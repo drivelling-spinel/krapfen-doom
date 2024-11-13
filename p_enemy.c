@@ -1814,12 +1814,15 @@ void A_VileChase(mobj_t* actor)
                       corpsehit->height = info->height; // fix Ghost bug
                       corpsehit->radius = info->radius; // fix Ghost bug
                     }                                               // phares
+
+		  corpsehit->flags =
+		    (info->flags
 #ifdef FRIENDMOBJ
-		  // killough 7/18/98: 
-		  // friendliness is transferred from AV to raised corpse
-		  corpsehit->flags = 
-		    (info->flags & ~MF_FRIEND) | (actor->flags & MF_FRIEND);
-#endif                  
+                    // killough 7/18/98: 
+                    // friendliness is transferred from AV to raised corpse
+                    & ~MF_FRIEND) | (actor->flags & MF_FRIEND
+#endif
+                  );
                   corpsehit->health = info->spawnhealth;
 		  P_SetTarget(&corpsehit->target, NULL);  // killough 11/98
 

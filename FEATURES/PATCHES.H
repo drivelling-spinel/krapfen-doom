@@ -6,10 +6,10 @@
 
 // MAPCOORD     - Ability to switch off coordinates displayed on the automap
 //                also introduced into MBF by sakitoshi.
-//#define MAPCOORD
+#define MAPCOORD
 
 // CRVS         - Vodoo hires, memory allocation and some other fixes
-//#define CRVS
+#define CRVS
 
 // DGONDOS      - SIGIL II support
 //#define DGONDOS
@@ -20,7 +20,7 @@
 
 // SOULBOUNCE   - compatibility settings for Lost Souls bouncing off the
 //                off the floors backported from Eternity Engine
-//#define SOULBOUNCE
+#define SOULBOUNCE
 
 #if defined(DGONDOS) && !defined(SAKITOSHI)
 #define SAKITOSHI

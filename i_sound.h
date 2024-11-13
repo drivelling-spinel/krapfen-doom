@@ -41,6 +41,11 @@ extern char* sndserver_filename;
 // Init at program start...
 void I_InitSound();
 
+#ifdef PERIDOT
+// load the instruments for music playback using WAD data
+void I_LoadSoundBank(void *bank);
+#endif
+
 // ... update sound buffer and audio device at runtime...
 void I_UpdateSound(void);
 void I_SubmitSound(void);

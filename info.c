@@ -6057,6 +6057,7 @@ static const char digz[]=  // end of letters A-Z
   255,  2,  2,  0,  0,  0,  0,  6,  1,  0,  0,  0,255,
 };
 
+#ifdef TRADKEY
 static const char stkeys6[]=  // show both blue keys on stat bar
 {
     7,  0,  7,  0,  0,  0,  0,  0,
@@ -6089,7 +6090,7 @@ static const char stkeys8[]=  // show both red keys on stat bar
     0,255,  0,  7,  0,176,  0,183,177,176,246,179,  0,255,  2,  5,
     0,185,177,246,185,182,  0,255,  3,  3,  0,185,175,174,  0,255,
 };
-
+#endif
 // Background characters for the message review when enabled
 // Makes a general purpose background box, could be used for other
 // purposes as well
@@ -15555,9 +15556,11 @@ const lumpinfo_t predefined_lumps[]={
   { "DIG58",    sizeof dig58, dig58 },
   { "DIG91",    sizeof dig91, dig91 },
   { "DIG93",    sizeof dig93, dig93 },
+#ifdef TRADKEY
   { "STKEYS6",  sizeof stkeys6, stkeys6 }, //jff 2/24/98 double key graphics
   { "STKEYS7",  sizeof stkeys7, stkeys7 },
   { "STKEYS8",  sizeof stkeys8, stkeys8 },
+#endif
   { "BOXUL",    sizeof boxul, boxul }, //jff 2/26/98 background window graphics
   { "BOXUC",    sizeof boxuc, boxuc },
   { "BOXUR",    sizeof boxur, boxur },
