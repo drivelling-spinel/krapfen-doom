@@ -135,7 +135,7 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
 {
   int friction = ORIG_FRICTION;
   int movefactor = ORIG_FRICTION_FACTOR;
-#ifdef GENERALIZED
+#ifdef FRICTION
   const msecnode_t *m;
   const sector_t *sec;
 #endif
@@ -148,7 +148,7 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
   // floorheight that have different frictions, use the lowest
   // friction value (muddy has precedence over icy).
 
-#ifdef GENERALIZED
+#ifdef FRICTION
   if (!(mo->flags & (MF_NOCLIP|MF_NOGRAVITY)) 
       && (demo_version >= 203 || (mo->player && !compatibility)) &&
       variable_friction)
