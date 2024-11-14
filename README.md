@@ -26,16 +26,16 @@ something changes. Rather please examine header file contents under [FEATURES](F
 * John Romero
 * Dave Taylor
 
-
+   
 * Bernd Kreimeier
 
-
+   
 * Chi Hoang
   
-
+   
 * Phill Harvey-Smith
   
-
+   
 * Lee Killough
 * Jim Flynn
 * Rand Phares
@@ -47,24 +47,26 @@ something changes. Rather please examine header file contents under [FEATURES](F
 * Joel Murdoch
   
 
+   
 * Simon Howard
 * Colin Phipps
 * Andrey Budko
 * @gerwin
   
 
+   
 * @sakitoshi
 * @CRVS
 * @dgondos
 * @Ludicrous_peridot
   
 
-==Dependencies==
+## Dependencies
 
 Requires liballeg 3.
 With PERIDOT defined requires this [patched version](https://github.com/drivelling-spinel/alleg30b).
 
-==License==
+## License
 
 Not changing anything from MBF.
 See [COPYING](COPYING) included.
