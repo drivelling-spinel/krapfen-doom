@@ -1709,15 +1709,16 @@ static boolean PIT_RadiusAttack(mobj_t *thing)
   // Boss spider and cyborg
   // take no damage from concussion.
 
-#ifdef PHYSMBF
   // killough 8/10/98: allow grenades to hurt anyone, unless
   // fired by Cyberdemons, in which case it won't hurt Cybers.
 
-  if (bombspot->flags & MF_BOUNCES ?
+  if (
+#ifdef PHYSMBF
+      bombspot->flags & MF_BOUNCES ?
       thing->type == MT_CYBORG && bombsource->type == MT_CYBORG :
+#endif
       thing->type == MT_CYBORG || thing->type == MT_SPIDER)
     return true;
-#endif
 
   dx = abs(thing->x - bombspot->x);
   dy = abs(thing->y - bombspot->y);
