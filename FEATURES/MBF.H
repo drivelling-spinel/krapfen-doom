@@ -22,7 +22,6 @@
 // SSGD1       - enable super shotgun also in Doom 1
 #define SSGD1
 
-
 // MAXCORPSE   - when enabled allow configurable value for max_players_corpse
 //               (number of dead bodies in view supported)
 //               othwerwise set to 32 in g_game.c
@@ -67,6 +66,11 @@
 // WEAPONMBF   - inclusion of weapon UX tweaks, such if 1 and 3 toggle
 //               respectively fist/chainsaw and shotgun/SSG, and so on
 #define WEAPONMBF
+
+// REMOVESLIME - whether to tweak level geometry in order to remove slime
+//               trails; sadly, sometimes introduces artifacts, e.g.
+//               Plutonia MAP02
+#define REMOVESLIME
 
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)

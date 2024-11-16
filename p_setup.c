@@ -836,6 +836,7 @@ void P_GroupLines (void)
     }
 }
 
+#ifdef REMOVESLIME
 //
 // killough 10/98
 //
@@ -912,6 +913,7 @@ void P_RemoveSlimeTrails(void)                // killough 10/98
     }
   free(hit);
 }
+#endif
 
 //
 // P_SetupLevel
@@ -972,7 +974,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   rejectmatrix = W_CacheLumpNum(lumpnum+ML_REJECT,PU_LEVEL);
   P_GroupLines();
 
+#ifdef REMOVESLIME
   P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
+#endif
 
   // Note: you don't need to clear player queue slots --
   // a much simpler fix is in g_game.c -- killough 10/98
