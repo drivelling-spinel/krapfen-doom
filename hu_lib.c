@@ -371,14 +371,16 @@ void HUlib_initMText(hu_mtext_t *m, int x, int y, int w, int h, patch_t **font,
   m->y = y;
   m->w = w;
   m->h = h;
+#ifdef MESSAGEBG
   m->bg = bgfont;
+#endif
   m->on = on;
 
   // killough 11/98: simplify
-
+#ifdef MESSAGEBG
   if (hud_list_bgon)
     y += HU_REFRESHSPACING;
-
+#endif
   y += HU_REFRESHSPACING * hud_msg_lines;
   for (i=0; i<hud_msg_lines; i++, y -= HU_REFRESHSPACING)
     HUlib_initTextLine(&m->l[i], x, y, font, startchar, cr);
@@ -429,6 +431,7 @@ void HUlib_addMessageToMText(hu_mtext_t *m, char *prefix, char *msg)
     HUlib_addCharToTextLine(&m->l[m->cl], *msg++);
 }
 
+#ifdef MESSAGEBG
 //
 // HUlib_drawMBg()
 //
@@ -466,6 +469,7 @@ void HUlib_drawMBg(int x, int y, int w, int h, patch_t **bgp)
     V_DrawPatchDirect(j, i, FG, bgp[7]);
   V_DrawPatchDirect(j, i, FG, bgp[8]);    // lr
 }
+#endif
 
 //
 // HUlib_drawMText()
@@ -484,9 +488,11 @@ void HUlib_drawMText(hu_mtext_t* m)
   if (!*m->on)
     return; // if not on, don't draw
 
+#ifdef MESSAGEBG
   // draw everything
   if (hud_list_bgon)
     HUlib_drawMBg(m->x, m->y, m->w, m->h, m->bg);
+#endif
 
   for (i=0 ; i<m->nl ; i++)
     {
@@ -498,13 +504,16 @@ void HUlib_drawMText(hu_mtext_t* m)
       m->l[idx].x = m->x;       // killough 11/98: optional scroll up/down:
       m->l[idx].y = m->y+(hud_msg_scrollup ? m->nl-1-i : i)*HU_REFRESHSPACING;
 
+#ifdef MESSAGEBG
       if (hud_list_bgon)
 	m->l[idx].x += 4, m->l[idx].y += HU_REFRESHSPACING;
+#endif
 
       HUlib_drawTextLine(&m->l[idx], false); // no cursor, please
     }
 }
 
+#ifdef MESSAGEBG
 //
 // HUlib_eraseMBg()
 //
@@ -541,6 +550,7 @@ static void HUlib_eraseMBg(hu_mtext_t *m)
           }
     }
 }
+#endif
 
 //
 // HUlib_eraseMText()
@@ -555,8 +565,10 @@ void HUlib_eraseMText(hu_mtext_t *m)
 {
   int i;
 
+#ifdef MESSAGEBG
   if (hud_list_bgon)
     HUlib_eraseMBg(m);
+#endif
 
   for (i=0 ; i< m->nl ; i++)
     {

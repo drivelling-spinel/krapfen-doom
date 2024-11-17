@@ -52,6 +52,9 @@
 //                 light level from another sector
 #define LIGHTTRANSFER
 
+// MESSAGEBG   - support for showing multiline messages wiget
+//               with non-transparent background
+#define MESSAGEBG
 
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED

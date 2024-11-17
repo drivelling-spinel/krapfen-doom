@@ -1653,14 +1653,24 @@ default_t defaults[] = {
   { // gold range  //jff 2/26/98
     "hudcolor_list",
     &hudcolor_list, NULL,
-    5, {0,9}, number, ss_mess, wad_yes,
+#ifdef KRFNDFLT
+    6,
+#else
+    5,
+#endif
+       {0,9}, number, ss_mess, wad_yes,
     "color range used for message review"
   },
 
   { // 1 line scrolling window
     "hud_msg_lines",
     &hud_msg_lines, NULL,
-    1, {1,16}, number, ss_mess, wad_yes,
+#ifdef KRFNDFLT
+    3,
+#else
+    1,
+#endif
+       {1,16}, number, ss_mess, wad_yes,
     "number of lines in review display"
   },
 
@@ -1677,6 +1687,15 @@ default_t defaults[] = {
     1, {0,1}, 0, ss_mess, wad_yes,
     "1 enables temporary message review list"
   },
+
+#ifdef ONEOFFREVIEW
+  { 
+    "hud_msg_oneoff",
+    &hud_msg_oneoff, NULL,
+    1, {0,1}, 0, ss_mess, wad_yes,
+    "1 to go to Doom mode automatically if only temporary"
+  },
+#endif
 
   { // killough 11/98
     "hud_msg_timer",
@@ -1698,14 +1717,14 @@ default_t defaults[] = {
     4000, {0,UL}, 0, ss_mess, wad_yes,
     "Duration of normal Doom messages (ms)"
   },
-
+#ifdef MESSAGEBG 
   { // solid window bg ena //jff 2/26/98
     "hud_list_bgon",
     &hud_list_bgon, NULL,
     0, {0,1}, number, ss_mess, wad_yes,
     "1 enables background window behind message review"
   },
-
+#endif
   { // hud broken up into 3 displays //jff 3/4/98
     "hud_distributed",
     &hud_distributed, NULL,
