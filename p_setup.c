@@ -437,6 +437,7 @@ void P_LoadLineDefs2(int lump)
   register line_t *ld = lines;
   for (;i--;ld++)
     {
+#ifdef COMMONERROR
       // killough 11/98: fix common wad errors (missing sidedefs):
 
       if (ld->sidenum[0] == -1)
@@ -444,7 +445,7 @@ void P_LoadLineDefs2(int lump)
 
       if (ld->sidenum[1] == -1)
 	ld->flags &= ~ML_TWOSIDED;  // Clear 2s flag for missing left side
-
+#endif
       ld->frontsector = ld->sidenum[0]!=-1 ? sides[ld->sidenum[0]].sector : 0;
       ld->backsector  = ld->sidenum[1]!=-1 ? sides[ld->sidenum[1]].sector : 0;
       switch (ld->special)

@@ -515,12 +515,18 @@ default_t defaults[] = {
     "Powerup cheats are not infinite duration"
   },
 
+#ifdef COMPSTAIR
   {
     "comp_stairs",
     &default_comp[comp_stairs], &comp[comp_stairs],
     1, {0,1}, number, ss_comp, wad_yes,
+#ifdef STAIRVERSION
+    "Guess the best way to build stairs"
+#else
     "Build stairs exactly the same way that Doom does"
+#endif
   },
+#endif
 
   {
     "comp_telefrag",

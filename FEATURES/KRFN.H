@@ -1,18 +1,30 @@
 #ifndef __FEATURES_KRFN_
 #define __FEATURES_KRFN_
 
-// KRFNDFLT    - use defaults for options which are closer to vanilla
+// KRFNDFLT     - use defaults for options which are closer to vanilla
 //               except some which are not (e.g. prefer BMP screenshots)
 #define KRFNDFLT
 
-// KRFNSLIM    - remove some of the less frequently used bits an pieces
+// KRFNSLIM     - remove some of the less frequently used bits an pieces
 #define KRFNSLIM
 
-// AIRTELEPT   - whether to include compatibility with Final Doom
+// AIRTELEPT    - whether to include compatibility with Final Doom
 //               teleport bug, also adds comp_airteleport to toggle
 #define AIRTELEPT
 
-// USEVESA     - adds option to enable/disable search for VESA modes
+// USEVESA      - adds option to enable/disable search for VESA modes
 #define USEVESA
+
+// BOOM202      - BOOM 2.02 compatibility tweak for stairbuilding code
+//               
+#define BOOM202
+
+// STAIRVERSION - add more sophisticated stair building compatibility
+//                logic to help with Final Doom demos
+#define STAIRVERSION
+
+#if defined(STAIRVERSION) && !defined(COMPSTAIR)
+#define COMPSTAIR
+#endif
 
 #endif
