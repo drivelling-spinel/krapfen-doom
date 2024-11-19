@@ -27,6 +27,10 @@
 //                invoke one off message review mode any time with Enter
 //#define ONEOFFREVIEW
 
+// DEFAULTCFG   - if Allegro setup.cfg is absent, try using Doom's own
+//                default.cfg
+//#define DEFAULTCFG
+
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
 #endif

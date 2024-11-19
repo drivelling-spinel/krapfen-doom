@@ -30,6 +30,7 @@ static const char rcsid[] = "$Id: i_main.c,v 1.2 2000-08-12 21:29:28 fraggle Exp
 #include <allegro.h>
 #include <dpmi.h>      // Required!
 
+#include "features.h"
 #include "doomdef.h"
 #include "m_argv.h"
 #include "d_main.h"    
@@ -61,6 +62,10 @@ static void handler(int s)
 
 void I_Quit(void);
 
+#ifdef DEFAULTCFG
+  extern void I_GenerateAllegroCfg(char * fname);
+#endif
+
 int main(int argc, char **argv)
 {
   myargc = argc;
@@ -81,7 +86,12 @@ int main(int argc, char **argv)
      loud SFX noise because the sound card is
      left in an unstable state.
   */
+#ifdef DEFAULTCFG
+  I_GenerateAllegroCfg("SETUP.CFG");
+#else
   set_config_file("SETUP.CFG");
+#endif                
+
   allegro_init();
   Z_Init();                  // 1/18/98 killough: start up memory stuff first
   atexit(I_Quit);
