@@ -72,6 +72,13 @@
 //               Plutonia MAP02
 #define REMOVESLIME
 
+// COMMONERROR - fix common wad errors (missing sidedefs)
+#define COMMONERROR
+
+// COMPSTAIR   - Build stairs exactly the same way that Doom does
+//               causes demos go out of sync when they don't in BOOM
+#define COMPSTAIR
+
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)
 #define FRIENDMOBJ

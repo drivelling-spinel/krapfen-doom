@@ -720,12 +720,12 @@ int EV_BuildStairs
 
   secnum = -1;
   rtn = 0;
-
+  
   // start a stair at each sector tagged the same as the linedef
   while ((secnum = P_FindSectorFromLineTag(line,secnum)) >= 0)
   {
     sec = &sectors[secnum];
-              
+
     // don't start a stair if the first step's floor is already moving
     if (P_SectorActive(floor_special,sec)) //jff 2/22/98
       continue;
@@ -791,11 +791,21 @@ int EV_BuildStairs
         if (tsec->floorpic != texture)
           continue;
 
+#ifdef BOOM202
+        if (demo_version != 202) // jff 6/19/98 prevent double stepsize
+          height += stairsize; // jff 6/28/98 change demo compatibility
+#else
 	height += stairsize;  // killough 10/98: intentionally left this way
+#endif
 
         // if sector's floor already moving, look for another
         if (P_SectorActive(floor_special,tsec)) //jff 2/22/98
 	  continue;
+
+#ifdef BOOM202
+        if (demo_version == 202) // jff 6/19/98 increase height AFTER continue
+          height += stairsize; // jff 6/28/98 change demo compatibility
+#endif
 
         sec = tsec;
         secnum = newsecnum;
@@ -818,9 +828,31 @@ int EV_BuildStairs
         break;
       }
     } while(ok);      // continue until no next step is found
-
+#ifdef COMPSTAIR
+#ifdef STAIRVERSION
+    //FIXME: This options seems extremely unreliable with some demos
+    //       from the same pack desyncing with it while others - without;
+    //       e.g. WARHEROS from E3DEMOS desyncs if killough code works
+    //       while other demos from the same author (Stan Gula) 
+    //       desync if jff code _always_ works.
+    //       Since having the option seems to be overall benefitial
+    //       for old demos, providing a quick an likely incorrect way
+    //       of conditionally enabling it based on game version -- LP 2024
+    if (
+      (demo_version >= 203 && !comp[comp_stairs]) ||
+      (demo_version > 109 && demo_version < 203) ||
+      ((
+         demo_version <= 109 ||
+         (demo_version > 203 && comp[comp_stairs])
+       ) &&
+         (gamemission == pack_tnt || gamemission == pack_plut)
+      ) 
+    )
+#else
     if (!comp[comp_stairs])      // killough 10/98: compatibility option
+#endif
       secnum = osecnum;          //jff 3/4/98 restore loop index
+#endif
   }
   return rtn;
 }

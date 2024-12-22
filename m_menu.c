@@ -3403,7 +3403,9 @@ enum
   compat_infcheat,
   compat_zombie,
   compat_skymap,
+#ifdef COMPSTAIR
   compat_stairs,
+#endif
   compat_floors,
   compat_model,
   compat_zerotags,
@@ -3475,10 +3477,14 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
 
   {"Sky is unaffected by invulnerability", S_YESNO, m_null, C_X,
    C_Y + compat_skymap * COMP_SPC, {"comp_skymap"}},
-
+#ifdef COMPSTAIR
+#ifdef STAIRVERSION
+  {"Guess the best way to build stairs", S_YESNO, m_null, C_X,
+#else
   {"Use exactly Doom's stairbuilding method", S_YESNO, m_null, C_X,
+#endif
    C_Y + compat_stairs * COMP_SPC, {"comp_stairs"}},
-
+#endif
   {"Use exactly Doom's floor motion behavior", S_YESNO, m_null, C_X,
    C_Y + compat_floors * COMP_SPC, {"comp_floors"}},
 

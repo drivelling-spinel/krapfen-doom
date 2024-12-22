@@ -437,6 +437,7 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
   fixed_t blockdist;
   int damage;
 
+
   // killough 11/98: add touchy things
   if (!(thing->flags & (MF_SOLID|MF_SPECIAL|MF_SHOOTABLE
 #ifdef GRENADE
