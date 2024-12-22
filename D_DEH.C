@@ -1075,8 +1075,12 @@ struct {
   {"UNUSED2",      0x10000000}, // unused bit # 2 -- For Boom compatibility
   {"UNUSED3",      0x20000000}, // unused bit # 3 -- For Boom compatibility
   {"UNUSED4",      0x40000000}, // unused bit # 4 -- For Boom compatibility
+#ifdef GRENADE 
   {"TOUCHY",       0x10000000}, // dies on contact with solid objects (MBF)
+#endif 
+#ifdef PHYSMBF 
   {"BOUNCES",      0x20000000}, // bounces off floors, ceilings and maybe walls
+#endif
 #ifdef FRIENDMOBJ
   {"FRIEND",       0x40000000}, // a friend of the player(s) (MBF)
 #endif
@@ -1287,8 +1291,10 @@ extern void A_Detonate();        // killough 8/9/98
 #ifdef MUSHROOM
 extern void A_Mushroom();        // killough 10/98
 #endif
-#ifdef CPTRMBF
+#if defined(CPTRMBF) || defined(GRENADE)
 extern void A_Die();             // killough 11/98
+#endif
+#ifdef CPTRMBF
 extern void A_Spawn();           // killough 11/98
 extern void A_Turn();            // killough 11/98
 extern void A_Face();            // killough 11/98
@@ -1385,8 +1391,10 @@ deh_bexptr deh_bexptrs[] =
 #ifdef MUSHROOM
   {A_Mushroom,       "A_Mushroom"},       // killough 10/98
 #endif
-#ifdef CPTRMBF
+#if defined(CPTRMBF) || defined(GRENADE)
   {A_Die,            "A_Die"},            // killough 11/98
+#endif
+#ifdef CPTRMBF
   {A_Spawn,          "A_Spawn"},          // killough 11/98
   {A_Turn,           "A_Turn"},           // killough 11/98
   {A_Face,           "A_Face"},           // killough 11/98
