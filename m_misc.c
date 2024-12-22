@@ -75,7 +75,12 @@ extern int tran_filter_pct;            // killough 2/21/98
 extern int screenblocks;
 extern int showMessages;
 
-extern char *chat_macros[], *wad_files[], *deh_files[];  // killough 10/98
+
+extern char *chat_macros[]
+#ifdef PRELOAD
+, *wad_files[], *deh_files[]
+#endif
+;  // killough 10/98
 
 //jff 3/3/98 added min, max, and help string to all entries
 //jff 4/10/98 added isstr field to specify whether value is string or int
@@ -241,7 +246,7 @@ default_t defaults[] = {
     1, {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters remembering enemies after killing others"
   },
-
+#ifdef SMARTMOBJ
   { // killough 7/19/98
     "monster_infighting",
     &default_monster_infighting, &monster_infighting,
@@ -269,21 +274,21 @@ default_t defaults[] = {
     0, {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters to move up/down steep stairs"
   },
-
+#endif
   { //killough 9/9/98:
     "monster_friction",
     &default_monster_friction, &monster_friction,
     1, {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters to be affected by friction"
   },
-
+#ifdef SMARTMOBJ      
   { //killough 9/9/98:
     "help_friends",
     &default_help_friends, &help_friends,
     1, {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters to help dying friends"
   },
-
+#endif
 #ifdef DOGS
 
   { // killough 7/19/98
@@ -292,14 +297,16 @@ default_t defaults[] = {
     0, {0,3}, number, ss_enem, wad_yes,
     "number of single-player helpers"
   },
-
+#endif
+#ifdef FRIENDMOBJ
   { // killough 8/8/98
     "friend_distance",
     &default_distfriend, &distfriend,
     128, {0,999}, number, ss_enem, wad_yes,
     "distance friends stay away"
   },
-
+#endif
+#ifdef DOGS
   { // killough 10/98
     "dog_jumping",
     &default_dog_jumping, &dog_jumping,
@@ -398,7 +405,7 @@ default_t defaults[] = {
     0, {0,4}, number, ss_none, wad_no,
     "screen brightness (gamma correction)"
   },
-
+#ifdef PRELOAD
   { // killough 10/98: preloaded files
     "wadfile_1",
     (int *) &wad_files[0], NULL,
@@ -426,7 +433,7 @@ default_t defaults[] = {
     (int) "", {0}, string, ss_none, wad_no,
     "DEH/BEX file preloaded at program startup"
   },
-
+#endif
   // killough 10/98: compatibility vector:
 
   {
@@ -484,14 +491,14 @@ default_t defaults[] = {
     0, {0,1}, number, ss_comp, wad_yes,
     "Monsters get stuck on doortracks"
   },
-
+#ifdef SMARTMOBJ
   {
     "comp_pursuit",
     &default_comp[comp_pursuit], &comp[comp_pursuit],
     0, {0,1}, number, ss_comp, wad_yes,
     "Monsters don't give up pursuit of targets"
   },
-
+#endif
   {
     "comp_vile",
     &default_comp[comp_vile], &comp[comp_vile],
@@ -1341,14 +1348,14 @@ default_t defaults[] = {
     176, {0,255}, number, ss_auto, wad_yes,
     "color used for the red player arrow"
   },
-
+#ifdef FRIENDMOBJ
   {  // purple                     // killough 8/8/98
     "mapcolor_frnd",
     &mapcolor_frnd, NULL,
     252, {0,255}, number, ss_auto, wad_yes,
     "color used for friends"
   },
-
+#endif
   {
     "map_point_coord",
     &map_point_coordinates, NULL,

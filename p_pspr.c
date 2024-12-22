@@ -505,10 +505,12 @@ void A_Punch(player_t *player, pspdef_t *psp)
   t = P_Random(pr_punchangle);
   angle += (t - P_Random(pr_punchangle))<<18;
 
+#ifdef FIRENDMOBJ
   // killough 8/2/98: make autoaiming prefer enemies
   if (demo_version<203 ||
       (slope = P_AimLineAttack(player->mo, angle, MELEERANGE, MF_FRIEND),
        !linetarget))
+#endif
     slope = P_AimLineAttack(player->mo, angle, MELEERANGE, 0);
 
   P_LineAttack(player->mo, angle, MELEERANGE, slope, damage);
@@ -540,10 +542,12 @@ void A_Saw(player_t *player, pspdef_t *psp)
 
   // Use meleerange + 1 so that the puff doesn't skip the flash
 
+#ifdef FRIENDMOBJ
   // killough 8/2/98: make autoaiming prefer enemies
   if (demo_version<203 ||
       (slope = P_AimLineAttack(player->mo, angle, MELEERANGE+1, MF_FRIEND),
        !linetarget))
+#endif
     slope = P_AimLineAttack(player->mo, angle, MELEERANGE+1, 0);
 
   P_LineAttack(player->mo, angle, MELEERANGE+1, slope, damage);
@@ -626,8 +630,14 @@ void A_FireOldBFG(player_t *player, pspdef_t *psp)
 
       if (autoaim || !beta_emulation)
 	{
+	  int mask =
+#ifdef FRIENDMOBJ
 	  // killough 8/2/98: make autoaiming prefer enemies
-	  int mask = MF_FRIEND;
+          MF_FRIEND
+#else
+          0
+#endif
+          ;
 	  fixed_t slope;
 	  do
 	    {
@@ -688,8 +698,14 @@ static void P_BulletSlope(mobj_t *mo)
 {
   angle_t an = mo->angle;    // see which target is to be aimed at
 
+  int mask =
+#ifdef FRIENDMOBJ
   // killough 8/2/98: make autoaiming prefer enemies
-  int mask = demo_version < 203 ? 0 : MF_FRIEND;
+  demo_version < 203 ? 0 : MF_FRIEND
+#else
+  0
+#endif
+  ;
 
   do
     {
@@ -850,10 +866,12 @@ void A_BFGSpray(mobj_t *mo)
 
       // mo->target is the originator (player) of the missile
 
+#ifdef FRIENDMOBJ
       // killough 8/2/98: make autoaiming prefer enemies
       if (demo_version < 203 || 
 	  (P_AimLineAttack(mo->target, an, 16*64*FRACUNIT, MF_FRIEND), 
 	   !linetarget))
+#endif
 	P_AimLineAttack(mo->target, an, 16*64*FRACUNIT, 0);
 
       if (!linetarget)

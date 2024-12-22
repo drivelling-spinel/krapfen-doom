@@ -45,7 +45,9 @@ void P_SetTarget(mobj_t **mo, mobj_t *target);   // killough 11/98
 // killough 8/29/98: threads of thinkers, for more efficient searches
 typedef enum {
   th_misc,
+#ifdef FRIENDMOBJ 
   th_friends,
+#endif
   th_enemies,
   NUMTHCLASS
 } th_class;

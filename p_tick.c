@@ -79,8 +79,11 @@ void P_UpdateThinker(thinker_t *thinker)
     ((mobj_t *) thinker)->health > 0 && 
     (((mobj_t *) thinker)->flags & MF_COUNTKILL ||
      ((mobj_t *) thinker)->type == MT_SKULL) ?
+#ifdef FRIENDMOBJ
     ((mobj_t *) thinker)->flags & MF_FRIEND ?
-    th_friends : th_enemies : th_misc;
+    th_friends :
+#endif
+    th_enemies : th_misc;
 
   // Remove from current thread
   thinker_t *th = thinker->cnext;

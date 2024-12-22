@@ -198,7 +198,9 @@ typedef enum
 
     MF_TOUCHY = 0x10000000,        // killough 11/98: dies when solids touch it
     MF_BOUNCES = 0x20000000,       // killough 7/11/98: for beta BFG fireballs
+#ifdef FRIENDMOBJ
     MF_FRIEND = 0x40000000,        // killough 7/18/98: friendly monsters
+#endif
 
     // Translucent sprite?                                          // phares
     MF_TRANSLUCENT      = 0x80000000,                               // phares
@@ -259,8 +261,12 @@ typedef struct mobj_s
     fixed_t             floorz;
     fixed_t             ceilingz;
 
+#if defined(SMARTMOBJ) || defined (PHYSMBF)
     // killough 11/98: the lowest floor over all contacted Sectors.
     fixed_t             dropoffz;
+#else
+    fixed_t             dummydrop;
+#endif
 
     // For movement checking.
     fixed_t             radius;
@@ -276,7 +282,7 @@ typedef struct mobj_s
 
     mobjtype_t          type;
     mobjinfo_t*         info;   // &mobjinfo[mobj->type]
-    
+                                               
     int                 tics;   // state tic counter
     state_t*            state;
     int                 flags;
@@ -286,7 +292,11 @@ typedef struct mobj_s
     // Movement direction, movement generation (zig-zagging).
     short               movedir;        // 0-7
     short               movecount;      // when 0, select a new dir
+#ifdef SMARTMOBJ
     short               strafecount;    // killough 9/8/98: monster strafing
+#else
+    short               dummystrafe;
+#endif
 
     // Thing being chased/attacked (or NULL),
     // also the originator for missiles.
@@ -300,8 +310,12 @@ typedef struct mobj_s
     // matter what (even if shot by another object)
     short               threshold;
 
+#ifdef SMARTMOBJ
     // killough 9/9/98: How long a monster pursues a target.
     short               pursuecount;
+#else
+    short               dummypursue;
+#endif
 
     short               gear; // killough 11/98: used in torque simulation
 

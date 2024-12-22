@@ -26,4 +26,24 @@
 //             othwerwise set to 32 in g_game.c
 #define MAXCORPSE
 
+// FRIENDMOBJ- flags, features and code pointers related to friendly
+//             monster behavior
+#define FRIENDMOBJ
+
+// SMARTMOBJ - advanced monster behaviour introduced in MBF
+#define SMARTMOBJ
+
+// PRELOAD   - deh and wad preloading via config
+#define PRELOAD
+
+// PHYSMBF   - sticky, bouncy objects (inc. grenades), drop-offs, torque
+#define MBFPHYS
+
+// DOGS assumes that FRIENDMOBJ is enabled
+#if defined(DOGS) && !defined(FRIENDMOBJ)
+#define FRIENDMOBJ
+// FIXME: FRIENDMOBJ may assume that REMEMBER is enabled
+#endif
+
+
 #endif

@@ -89,10 +89,11 @@ static char *D_dehout(void)
 
 char **wadfiles;
 
+#ifdef PRELOAD
 // killough 10/98: preloaded files
 #define MAXLOADFILES 2
 char *wad_files[MAXLOADFILES], *deh_files[MAXLOADFILES];
-
+#endif
 
 // jff 1/24/98 add new versions of these variables to remember command line
 boolean clnomonsters;   // checkparm of -nomonsters
@@ -1085,6 +1086,7 @@ static void D_ProcessDehCommandLine(void)
   // ty 03/09/98 end of do dehacked stuff
 }
 
+#ifdef PRELOAD
 // killough 10/98: support preloaded wads
 
 static void D_ProcessWadPreincludes(void)
@@ -1142,6 +1144,7 @@ static void D_ProcessDehPreincludes(void)
           }
     }
 }
+#endif
 
 // killough 10/98: support .deh from wads
 //
@@ -1473,7 +1476,9 @@ void D_DoomMain(void)
   puts("V_Init: allocate screens.");    // killough 11/98: moved down to here
   V_Init();
 
+#ifdef PRELOAD
   D_ProcessWadPreincludes(); // killough 10/98: add preincluded wads at the end
+#endif
 
   D_AddFile(NULL);           // killough 11/98
 
@@ -1485,7 +1490,9 @@ void D_DoomMain(void)
   if (!M_CheckParm ("-noDehWad")) // GB 2015
     D_ProcessDehInWads();      // killough 10/98: now process all deh in wads
 
+#ifdef PRELOAD
   D_ProcessDehPreincludes(); // killough 10/98: process preincluded .deh files
+#endif
 
   // GB 2014:
   // Check for -file in shareware

@@ -89,10 +89,12 @@ extern int demo_version;           // killough 7/19/98: Version of demo
 
 #define demo_compatibility (demo_version < 200) /* killough 11/98: macroized */
 
+#ifdef SMARTMOBJ
 // killough 7/19/98: whether monsters should fight against each other
 extern int monster_infighting, default_monster_infighting;
 
 extern int monkeys, default_monkeys;
+#endif
 
 // v1.1-like pitched sounds
 extern int pitched_sounds;
@@ -351,20 +353,26 @@ extern int dogs, default_dogs;     // killough 7/19/98: Marine's best friend :)
 extern int dog_jumping, default_dog_jumping;   // killough 10/98
 #endif
 
+#ifdef FRIENDMOBJ
 // killough 8/8/98: distance friendly monsters tend to stay from player
 extern int distfriend, default_distfriend;
+#endif
 
+#ifdef SMARTMOBJ
 // killough 9/8/98: whether monsters are allowed to strafe or retreat
 extern int monster_backing, default_monster_backing;
 
 // killough 9/9/98: whether monsters intelligently avoid hazards
 extern int monster_avoid_hazards, default_monster_avoid_hazards;
+#endif
 
 // killough 10/98: whether monsters are affected by friction
 extern int monster_friction, default_monster_friction;
 
+#ifdef SMARTMOBJ
 // killough 9/9/98: whether monsters help friends
 extern int help_friends, default_help_friends;
+#endif
 
 extern int flashing_hom; // killough 10/98
 
