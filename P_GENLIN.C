@@ -28,6 +28,7 @@
 static const char
 rcsid[] = "$Id: p_genlin.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "r_main.h"
 #include "p_spec.h"
@@ -35,6 +36,8 @@ rcsid[] = "$Id: p_genlin.c,v 1.2 2000-08-12 21:29:28 fraggle Exp $";
 #include "m_random.h"
 #include "s_sound.h"
 #include "sounds.h"
+
+#ifdef GENERALIZED
 
 //////////////////////////////////////////////////////////
 //
@@ -1160,6 +1163,7 @@ manual_door:
   return rtn;
 }
 
+#endif
 
 //----------------------------------------------------------------------------
 //

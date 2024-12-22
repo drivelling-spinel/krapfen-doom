@@ -336,11 +336,15 @@ extern int monsters_remember;                          // killough 3/1/98
 extern int default_monsters_remember;
 #endif
 
+#ifdef RECOIL
 extern int weapon_recoil;          // weapon recoil    // phares
 extern int default_weapon_recoil;
+#endif
 
+#ifdef BOBBING
 extern int player_bobbing;  // whether player bobs or not   // phares 2/25/98
 extern int default_player_bobbing;  // killough 3/1/98: make local to each game
+#endif
 
 #ifdef BETA
 // killough 7/19/98: Classic Pre-Beta BFG

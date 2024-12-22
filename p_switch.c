@@ -224,6 +224,7 @@ P_UseSpecialLine
   if (side) //jff 6/1/98 fix inadvertent deletion of side test
     return false;
 
+#ifdef GENERALIZED
   //jff 02/04/98 add check here for generalized floor/ceil mover
   if (!demo_compatibility)
   {
@@ -326,7 +327,8 @@ P_UseSpecialLine
           return false;
       }
   }
-    
+#endif
+
   // Switches that other things can activate.
   if (!thing->player)
   {

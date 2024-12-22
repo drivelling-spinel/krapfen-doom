@@ -157,7 +157,9 @@ int     key_gamma;
 int     key_spy;
 int     key_pause;
 int     destination_keys[MAXPLAYERS];
+#ifdef WEAPONBOOM
 int     key_weapontoggle;
+#endif
 int     key_weapon1;
 int     key_weapon2;
 int     key_weapon3;
@@ -328,7 +330,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       // clear double clicks if hit use button
       dclicks = 0;
     }
-
+#ifdef WEAPONBOOM
   // Toggle between the top 2 favorite weapons.                   // phares
   // If not currently aiming one of these, switch to              // phares
   // the favorite. Only switch if you possess the weapon.         // phares
@@ -344,6 +346,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
        !P_CheckAmmo(&players[consoleplayer])) || gamekeydown[key_weapontoggle])
     newweapon = P_SwitchWeapon(&players[consoleplayer]);           // phares
   else
+#endif
     {                                 // phares 02/26/98: Added gamemode checks
       newweapon =
         gamekeydown[key_weapon1] ? wp_fist :    // killough 5/2/98: reformatted
@@ -351,16 +354,28 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         gamekeydown[key_weapon3] ? wp_shotgun :
         gamekeydown[key_weapon4] ? wp_chaingun :
         gamekeydown[key_weapon5] ? wp_missile :
-        gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
-        gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
+        gamekeydown[key_weapon6]
+#ifdef WEAPONBOOM
+                                 && gamemode != shareware
+#endif
+                                 ? wp_plasma :
+        gamekeydown[key_weapon7]
+#ifdef WEAPONBOOM
+                                 && gamemode != shareware
+#endif
+                                 ? wp_bfg :
         gamekeydown[key_weapon8] ? wp_chainsaw :
-        gamekeydown[key_weapon9] && ((gamemode == commercial)
+#ifdef WEAPONBOOM
+        gamekeydown[key_weapon9]
+                                 && ((gamemode == commercial)
 #ifdef SSGD1
         || ssgparm // GB 2013
 #endif
-        ) ? wp_supershotgun :
+        )
+                                  ? wp_supershotgun :
+#endif
         wp_nochange;    
-
+#ifdef WEAPONBOOM
       // killough 3/22/98: For network and demo consistency with the
       // new weapons preferences, we must do the weapons switches here
       // instead of in p_user.c. But for old demos we must do it in
@@ -371,10 +386,13 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       // Allow user to switch to fist even if they have chainsaw.
       // Switch to fist or chainsaw based on preferences.
       // Switch to shotgun or SSG based on preferences.
-      //
-      // killough 10/98: make SG/SSG and Fist/Chainsaw weapon toggles optional
       
-      if (!demo_compatibility && doom_weapon_toggles)
+      if (!demo_compatibility
+#ifdef WEAPONMBF
+      // killough 10/98: make SG/SSG and Fist/Chainsaw weapon toggles optional
+                              && doom_weapon_toggles
+#endif
+         )
         {
           const player_t *player = &players[consoleplayer];
 
@@ -408,6 +426,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
             newweapon = wp_supershotgun;
         }
       // killough 2/8/98, 3/22/98 -- end of weapon selection changes
+#endif
     }
 
   if (newweapon != wp_nochange)
@@ -984,8 +1003,9 @@ static void G_DoPlayDemo(void)
       // killough 3/2/98: force these variables to be 0 in demo_compatibility
 
       variable_friction = 0;
-
+#ifdef RECOIL
       weapon_recoil = 0;
+#endif
 
       allow_pushers = 0;
 #ifdef SMARTMOBJ
@@ -1889,10 +1909,13 @@ void G_ReloadDefaults(void)
   // killough 3/1/98: Initialize options based on config file
   // (allows functions above to load different values for demos
   // and savegames without messing up defaults).
-
+#ifdef RECOIL
   weapon_recoil = default_weapon_recoil;    // weapon recoil
+#endif 
 
+#ifdef BOBBING
   player_bobbing = default_player_bobbing;  // whether player bobs or not
+#endif
 
   variable_friction = allow_pushers = true;
 #ifdef REMEMBER
@@ -2123,13 +2146,21 @@ byte *G_WriteOptions(byte *demo_p)
 
   *demo_p++ = variable_friction;  // ice & mud
 
+#ifdef RECOIL
   *demo_p++ = weapon_recoil;      // weapon recoil
+#else
+  *demo_p++ = 0;
+#endif
 
   *demo_p++ = allow_pushers;      // MT_PUSH Things
 
   *demo_p++ = 0;
 
+#ifdef BOBBING
   *demo_p++ = player_bobbing;  // whether player bobs or not
+#else
+  *demo_p++ = 0;
+#endif
 
   // killough 3/6/98: add parameters to savegame, move around some in demos
   *demo_p++ = respawnparm;
@@ -2238,7 +2269,9 @@ byte *G_ReadOptions(byte *demo_p)
   variable_friction = *demo_p;  // ice & mud
   demo_p++;
 
+#ifdef RECOIL
   weapon_recoil = *demo_p;       // weapon recoil
+#endif
   demo_p++;
 
   allow_pushers = *demo_p;      // MT_PUSH Things
@@ -2246,7 +2279,9 @@ byte *G_ReadOptions(byte *demo_p)
 
   demo_p++;
 
+#ifdef BOBBING
   player_bobbing = *demo_p;     // whether player bobs or not
+#endif
   demo_p++;
 
   // killough 3/6/98: add parameters to savegame, move from demo

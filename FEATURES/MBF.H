@@ -72,7 +72,6 @@
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)
 #define FRIENDMOBJ
-// FIXME: FRIENDMOBJ may assume that REMEMBER is enabled
 #endif
 
 // BETA assumes that PHYSMBF is enabled
@@ -83,6 +82,12 @@
 // One may need those missing lumps for 1.1 and 1.2 
 #if defined(V12C) && !defined(V11V12LUMPS)
 #define V11V12LUMPS
+#endif
+
+// The way toggle check is made it is only reaonsable to offer
+// it to the player as an option when weapon preferencies are available
+#if defined(WEAPONMBF) && !defined(WEAPONBOOM)
+#define WEAPONBOOM
 #endif
 
 #endif

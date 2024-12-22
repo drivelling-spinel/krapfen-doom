@@ -1212,6 +1212,7 @@ void AM_drawGrid(int color)
 //
 int AM_DoorColor(int type)
 {
+#ifdef GENERALIZED
   if (GenLockedBase <= type && type< GenDoorBase)
   {
     type -= GenLockedBase;
@@ -1220,6 +1221,7 @@ int AM_DoorColor(int type)
       return 3;  //any or all keys
     else return (type-1)%3;
   }
+#endif
   switch (type)  // closed keyed door
   {
     case 26: case 32: case 99: case 133:
@@ -1335,8 +1337,12 @@ void AM_drawWalls(void)
           ((lines[i].special >=26 && lines[i].special <=28) ||
           (lines[i].special >=32 && lines[i].special <=34) ||
           (lines[i].special >=133 && lines[i].special <=137) ||
-          lines[i].special == 99 ||
-          (lines[i].special>=GenLockedBase && lines[i].special<GenDoorBase))
+          lines[i].special == 99
+#ifdef GENERALIZED
+                                 ||
+          (lines[i].special>=GenLockedBase && lines[i].special<GenDoorBase)
+#endif
+          )
         )
         {
           if ((lines[i].backsector->floorheight==lines[i].backsector->ceilingheight) ||

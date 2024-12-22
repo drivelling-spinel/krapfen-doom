@@ -62,11 +62,15 @@ int  default_allow_pushers;  // killough 3/1/98: make local to each game
 int  variable_friction = 1;      // ice & mud               // phares 3/10/98
 int  default_variable_friction;  // killough 3/1/98: make local to each game
 
+#ifdef RECOIL
 int  weapon_recoil;              // weapon recoil                   // phares
 int  default_weapon_recoil;      // killough 3/1/98: make local to each game
+#endif
 
+#ifdef BOBBING
 int player_bobbing;  // whether player bobs or not          // phares 2/25/98
 int default_player_bobbing;      // killough 3/1/98: make local to each game
+#endif
 
 #ifdef REMEMBER
 int monsters_remember=1;        // killough 3/1/98
@@ -78,8 +82,10 @@ int monster_infighting=1;       // killough 7/19/98: monster<=>monster attacks
 int default_monster_infighting=1;
 #endif
 
+#ifdef PHYSMBF
 int monster_friction=1;       // killough 10/98: monsters affected by friction 
 int default_monster_friction=1;
+#endif
 
 #ifdef BETA
 // killough 7/19/98: classic Doom BFG

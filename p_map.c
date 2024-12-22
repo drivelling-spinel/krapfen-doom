@@ -135,8 +135,10 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
 {
   int friction = ORIG_FRICTION;
   int movefactor = ORIG_FRICTION_FACTOR;
+#ifdef GENERALIZED
   const msecnode_t *m;
   const sector_t *sec;
+#endif
 
   // Assign the friction value to objects on the floor, non-floating,
   // and clipped. Normally the object's friction value is kept at
@@ -146,6 +148,7 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
   // floorheight that have different frictions, use the lowest
   // friction value (muddy has precedence over icy).
 
+#ifdef GENERALIZED
   if (!(mo->flags & (MF_NOCLIP|MF_NOGRAVITY)) 
       && (demo_version >= 203 || (mo->player && !compatibility)) &&
       variable_friction)
@@ -157,7 +160,8 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
 	    mo->z <= sectors[sec->heightsec].floorheight &&
 	    demo_version >= 203)))
 	friction = sec->friction, movefactor = sec->movefactor;
-  
+#endif
+
   if (frictionfactor)
     *frictionfactor = movefactor;
 
@@ -762,12 +766,14 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 
       if (!(thing->flags & (MF_DROPOFF|MF_FLOAT)))
 	{
+#if defined(PHYSMBF)
 	  if (comp[comp_dropoff])
+#endif
 	    {
 	      if (tmfloorz - tmdropoffz > 24*FRACUNIT)
 		return false;                      // don't stand over a dropoff
 	    }
-#if defined(SMARTMOBJ) || defined(PHYSMBF)
+#if defined(PHYSMBF)
 	  else
 	    if (!dropoff
 #if defined(SMARTMOBJ)
@@ -785,11 +791,9 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 #endif
 		  return false;
 	      }
-#ifdef PHYSMBF
 	    else  // dropoff allowed -- check for whether it fell more than 24
 	      felldown = !(thing->flags & MF_NOGRAVITY) &&
 		thing->z - tmfloorz > 24*FRACUNIT;
-#endif
 #endif
 	}
 #ifdef PHYSMBF

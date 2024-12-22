@@ -263,7 +263,9 @@ typedef enum {
 typedef enum {
   ss_none,
   ss_keys,
+#if defined(WEAPONBOOM) || defined(WEAPONMBF) || defined(RECOIL) || defined(BOBBING) || defined(BETA)
   ss_weap,
+#endif
   ss_stat,
   ss_auto,
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF) || defined(PHYSMBF) || defined(PHYSMBF)

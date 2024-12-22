@@ -49,7 +49,9 @@ rcsid[] = "$Id: p_pspr.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 #define BFGCELLS bfgcells        /* Ty 03/09/98 externalized in p_inter.c */
 
 extern void P_Thrust(player_t *, angle_t, fixed_t);
-int weapon_recoil;      // weapon recoil
+#ifdef RECOIL
+// FIXME: this is already defined in doomstat.c, was overlooked? -- LP 2024
+//int weapon_recoil;      // weapon recoil
 
 // The following array holds the recoil values         // phares
 
@@ -64,7 +66,7 @@ static const int recoil_values[] = {    // phares
   0,  // wp_chainsaw
   80  // wp_supershotgun
 };
-
+#endif
 //
 // P_SetPsprite
 //
@@ -147,9 +149,20 @@ static void P_BringUpWeapon(player_t *player)
 // in DOOM2 to bring up the weapon, i.e. 6 = plasma gun. These    //    |
 // are NOT the wp_* constants.                                    //    V
 
-int weapon_preferences[2][NUMWEAPONS+1] = {
+#ifndef WEAPONBOOM
+static
+#endif
+int weapon_preferences[
+#ifdef WEAPONBOOM
+2
+#else
+1
+#endif
+][NUMWEAPONS+1] = {
   {6, 9, 4, 3, 2, 8, 5, 7, 1, 0},  // !compatibility preferences
+#ifdef WEAPONBOOM
   {6, 9, 4, 3, 2, 8, 5, 7, 1, 0},  //  compatibility preferences
+#endif
 };
 
 // P_SwitchWeapon checks current ammo levels and gives you the
@@ -160,7 +173,13 @@ int weapon_preferences[2][NUMWEAPONS+1] = {
 
 int P_SwitchWeapon(player_t *player)
 {
-  int *prefer = weapon_preferences[demo_compatibility!=0]; // killough 3/22/98
+  int *prefer = weapon_preferences[
+#ifdef WEAPONBOOM 
+  demo_compatibility!=0   // killough 3/22/98
+#else
+  0
+#endif
+  ];
   int currentweapon = player->readyweapon;
   int newweapon = currentweapon;
   int i = NUMWEAPONS+1;   // killough 5/2/98
@@ -220,6 +239,7 @@ int P_SwitchWeapon(player_t *player)
   return newweapon;
 }
 
+#ifdef WEAPONBOOM
 // killough 5/2/98: whether consoleplayer prefers weapon w1 over weapon w2.
 int P_WeaponPreferred(int w1, int w2)
 {
@@ -234,6 +254,7 @@ int P_WeaponPreferred(int w1, int w2)
     (weapon_preferences[0][7] !=   w2 && (weapon_preferences[0][7] ==   w1
    ))))))))))))))));
 }
+#endif
 
 //
 // P_CheckAmmo
@@ -259,6 +280,7 @@ boolean P_CheckAmmo(player_t *player)
   if (ammo == am_noammo || player->ammo[ammo] >= count)
     return true;
 
+#ifdef WEAPONBOOM
   // Out of ammo, pick a weapon to change to.
   //
   // killough 3/22/98: for old demos we do the switch here and now;
@@ -267,6 +289,7 @@ boolean P_CheckAmmo(player_t *player)
   // G_BuildTiccmd() interface instead of making the switch here.
 
   if (demo_compatibility)
+#endif
     {
       player->pendingweapon = P_SwitchWeapon(player);      // phares
       // Now set appropriate weapon overlay.
@@ -464,12 +487,13 @@ static void A_FireSomething(player_t* player,int adder)
 {
   P_SetPsprite(player, ps_flash,
                weaponinfo[player->readyweapon].flashstate+adder);
-
+#ifdef RECOIL
   // killough 3/27/98: prevent recoil in no-clipping mode
   if (!(player->mo->flags & MF_NOCLIP))
     if (weapon_recoil && (demo_version >= 203 || !compatibility))
       P_Thrust(player, ANG180 + player->mo->angle,
                2048*recoil_values[player->readyweapon]);          // phares
+#endif
 }
 
 //
@@ -612,10 +636,11 @@ void A_FireOldBFG(player_t *player, pspdef_t *psp)
 {
   int type = MT_PLASMA1;
 
+#ifdef RECOIL
   if (weapon_recoil && !(player->mo->flags & MF_NOCLIP))
     P_Thrust(player, ANG180 + player->mo->angle,
 	     512*recoil_values[wp_plasma]);
-
+#endif
   player->ammo[weaponinfo[player->readyweapon].ammo]--;
 
   player->extralight = 2;
