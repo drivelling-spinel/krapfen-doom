@@ -45,6 +45,14 @@
 //               incl. for handling voodoo scripting belts
 #define SCROLLBOOM
 
+// DEEPWATER   - deep water and custom colormaps supported
+#define DEEPWATER
+
+// LIGHTTRANSFER - whether to support referencing floor and ceiling
+//                 light level from another sector
+#define LIGHTTRANSFER
+
+
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif

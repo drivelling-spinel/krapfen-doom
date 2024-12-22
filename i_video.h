@@ -65,6 +65,9 @@ extern int disk_icon;  // killough 10/98
 extern int hires;      // killough 11/98
 extern int in_graphics_mode; // GB 2014: share
 extern boolean nolfbparm; // checkparm of -noLFB GB 2014
+#ifdef USEVESA
+extern int usevesa;
+#endif
 
 #endif
 

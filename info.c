@@ -8938,6 +8938,7 @@ static const char switches[]=
     0,  0,  0,  0,
 };
 
+#ifdef DEEPWATER
 // colormap for underwater, original default greenish
 static const unsigned char watermap[] = {
   0,126,127,103,193,5,6,7,8,123,124,126,12,122,123,124,193,193,194,194,88,90,
@@ -9334,6 +9335,7 @@ static const unsigned char watermap[] = {
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
   0,0,0,0,0,0,0,0,0,0,0,
 };
+#endif
 
 //jff 2/18/98 palette color ranges for translation
 
@@ -15688,9 +15690,11 @@ const lumpinfo_t predefined_lumps[]={
   { "M_MESS"  , sizeof m_mess,   m_mess  },   // phares 4/08/98 menu item
   { "M_COLORS", sizeof m_colors, m_colors},   // phares 4/01/98 menu item
   { "M_PALNO",  sizeof m_palno,  m_palno},    // phares 4/01/98 menu item
+#ifdef DEEPWATER
   { "C_START" },  // killough 4/4/98: colormap markers
   { "WATERMAP", sizeof watermap, watermap},   // killough 3/21/98, 4/4/98
   { "C_END" },    // killough 4/4/98: end colormap markers
+#endif
   { "STCFN096", sizeof stcfn096, stcfn096},   // jff 4/5/98 missing char
   { "M_BUTT1",  sizeof m_butt1,  m_butt1},    // phares 4/16/98 reset button
   { "M_BUTT2",  sizeof m_butt2,  m_butt2},    // phares 4/16/98 reset button

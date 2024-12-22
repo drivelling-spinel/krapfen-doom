@@ -251,16 +251,21 @@ void P_LoadSectors (int lump)
       ss->floor_yoffs = 0;      // floor and ceiling flats offsets
       ss->ceiling_xoffs = 0;
       ss->ceiling_yoffs = 0;
+#ifdef DEEPWATER
       ss->heightsec = -1;       // sector used to get floor and ceiling height
+#endif
+
+#ifdef LIGHTTRANSFER
       ss->floorlightsec = -1;   // sector used to get floor lighting
       // killough 3/7/98: end changes
-
       // killough 4/11/98 sector used to get ceiling lighting:
       ss->ceilinglightsec = -1;
+#endif
 
+#ifdef DEEPWATER
       // killough 4/4/98: colormaps:
       ss->bottommap = ss->midmap = ss->topmap = 0;
-
+#endif
       // killough 10/98: sky textures coming from sidedefs:
       ss->sky = 0;
     }
@@ -496,6 +501,7 @@ void P_LoadSideDefs2(int lump)
       sd->sector = sec = &sectors[SHORT(msd->sector)];
       switch (sd->special)
         {
+#ifdef DEEPWATER
         case 242:                       // variable colormap via 242 linedef
           sd->bottomtexture =
             (sec->bottommap =   R_ColormapNumForName(msd->bottomtexture)) < 0 ?
@@ -507,7 +513,7 @@ void P_LoadSideDefs2(int lump)
             (sec->topmap =   R_ColormapNumForName(msd->toptexture)) < 0 ?
             sec->topmap = 0, R_TextureNumForName(msd->toptexture)  : 0 ;
           break;
-
+#endif
         case 260: // killough 4/11/98: apply translucency to 2s normal texture
           sd->midtexture = strncasecmp("TRANMAP", msd->midtexture, 8) ?
             (sd->special = W_CheckNumForName(msd->midtexture)) < 0 ||

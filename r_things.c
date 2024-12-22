@@ -441,7 +441,9 @@ void R_ProjectSprite (mobj_t* thing)
   boolean   flip;
   vissprite_t *vis;
   fixed_t   iscale;
+#ifdef DEEPWATER
   int heightsec;      // killough 3/27/98
+#endif
 
   // transform the origin point
   fixed_t tr_x = thing->x - viewx;
@@ -515,6 +517,7 @@ void R_ProjectSprite (mobj_t* thing)
       gzt      < viewz - FixedDiv(centeryfrac-viewheight, xscale))
     return;
 
+#ifdef DEEPWATER
   // killough 3/27/98: exclude things totally separated
   // from the viewer, by either water or fake ceilings
   // killough 4/11/98: improve sprite clipping for underwater/fake ceilings
@@ -534,12 +537,15 @@ void R_ProjectSprite (mobj_t* thing)
           thing->z >= sectors[heightsec].ceilingheight)
         return;
     }
+#endif
 
   // store information in a vissprite
   vis = R_NewVisSprite ();
 
+#ifdef DEEPWATER
   // killough 3/27/98: save sector for special clipping later
   vis->heightsec = heightsec;
+#endif
 
   vis->mobjflags = thing->flags;
   vis->scale = xscale;
@@ -924,6 +930,7 @@ void R_DrawSprite (vissprite_t* spr)
             cliptop[x] = ds->sprtopclip[x];
     }
 
+#ifdef DEEPWATER
   // killough 3/27/98:
   // Clip the sprite against deep water and/or fake ceilings.
   // killough 4/9/98: optimize by adding mh
@@ -967,6 +974,7 @@ void R_DrawSprite (vissprite_t* spr)
 	}
     }
   // killough 3/27/98: end special clipping for deep water / fake ceilings
+#endif
 
   // all clipping has been performed, so draw the sprite
   // check for unclipped columns

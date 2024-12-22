@@ -219,6 +219,9 @@ int  modeswitched=0;
 int disk_icon;
 static BITMAP *diskflash, *old_data;
 #endif
+#ifdef USEVESA
+int usevesa;
+#endif
 
 //-----------------------------------------------------------------------------
 void I_UpdateNoBlit (void){}
@@ -495,12 +498,19 @@ static void I_InitGraphicsMode(void)
   if (!in_graphics_mode) 
   {
 	 in_hires=0;
+#ifdef USEVESA
+         if (!usevesa)
+         {
+            vesa_version=0;
+         }
+         else
+#endif
 	 if (vesa_version=-1) // We have not checked it yet
 	 {
 	    vesa_get_info();  // Get vesa availability and vesa_version; 
         // Look for VESA 320x200; at an unpredictable number, but only with VBE 2.0 services is it worthwhile
 		// Also see if 640x400 is there, and 640x480, better do this properly...
-	    if (vesa_version>=1) if (vesa_find_modes(safeparm || nolfbparm || vesa_version<2)==0) 
+            if (vesa_version>=1) if (vesa_find_modes(safeparm || nolfbparm || vesa_version<2)==0) 
 			{vesa_mode_640x400=0x100; vesa_mode_640x480=0x101;} // zero found = bad BIOS?
 		// Note: it will set (mode_number | 0x4000) for LFB, when supported. 
         if ((vesa_version>=2) && (!nopmparm)) get_vesa_pm_functions(0);

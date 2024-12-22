@@ -12,4 +12,7 @@
 //               teleport bug, also adds comp_airteleport to toggle
 #define AIRTELEPT
 
+// USEVESA     - adds option to enable/disable search for VESA modes
+#define USEVESA
+
 #endif

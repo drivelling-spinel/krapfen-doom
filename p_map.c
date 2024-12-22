@@ -155,10 +155,14 @@ int P_GetFriction(const mobj_t *mo, int *frictionfactor)
     for (m = mo->touching_sectorlist; m; m = m->m_tnext)
       if ((sec = m->m_sector)->special & FRICTION_MASK &&
 	  (sec->friction < friction || friction == ORIG_FRICTION) &&
-	  (mo->z <= sec->floorheight ||
-	   (sec->heightsec != -1 &&
+	  (mo->z <= sec->floorheight
+                                    
+#ifdef DEEPWATER
+           || (sec->heightsec != -1 &&
 	    mo->z <= sectors[sec->heightsec].floorheight &&
-	    demo_version >= 203)))
+	    demo_version >= 203)
+#endif
+                                ))
 	friction = sec->friction, movefactor = sec->movefactor;
 #endif
 

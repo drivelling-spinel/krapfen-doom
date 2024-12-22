@@ -457,6 +457,7 @@ void R_SetupFrame (player_t *player)
   viewsin = finesine[viewangle>>ANGLETOFINESHIFT];
   viewcos = finecosine[viewangle>>ANGLETOFINESHIFT];
 
+#ifdef DEEPWATER
   // killough 3/20/98, 4/4/98: select colormap based on player status
 
   if (player->mo->subsector->sector->heightsec != -1)
@@ -468,6 +469,7 @@ void R_SetupFrame (player_t *player)
         cm = 0;
     }
   else
+#endif
     cm = 0;
 
   fullcolormap = colormaps[cm];
