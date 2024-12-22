@@ -31,8 +31,25 @@
 //                default.cfg
 //#define DEFAULTCFG
 
+// SLIMEPARM    - make MBF fix for slime trails only apply when command
+//                line arguments -fixslime or -fixslime1 are specified
+#define SLIMEPARM
+
+// FIRELINEPARM - make BOOM fix for slime trails / firelines only apply
+//                when command line argument -fixslime2 is specified
+#define FIRELINEPARM
+
+
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
+#endif
+
+#if defined(SLIMEPARM) && !defined(REMOVESLIME)
+#define REMOVESLIME
+#endif
+
+#if defined(FIRELINEPARM) && !defined(FIRELINEFIX)
+#define FIRELINEFIX
 #endif
 
 #endif

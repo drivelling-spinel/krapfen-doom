@@ -1283,6 +1283,13 @@ void D_DoomMain(void)
 #ifdef LOWDET
   lowdetparm                  = M_CheckParm ("-lowdet"); // GB 2015
 #endif
+#ifdef SLIMEPARM
+  slimeparm                   = M_CheckParm ("-fixslime") ||
+                                M_CheckParm ("-fixslime1");
+#endif
+#ifdef FIRELINEPARM
+  firelineparm                = M_CheckParm ("-fixslime2");
+#endif
 
   // jff 1/24/98 end of set to both working and command line value
        if (M_CheckParm ("-altdeath"))   deathmatch = 2;

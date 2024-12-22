@@ -66,6 +66,12 @@ extern  boolean bestvidparm;  // checkparm of -bestvid  GB 2014
 extern  boolean lowdetparm;   // checkparm of -lowdet   GB 2015
 extern  int lowdet;
 #endif
+#ifdef FIRELINEPARM
+extern  boolean firelineparm;
+#endif
+#ifdef SLIMEPARM
+extern  boolean slimeparm;
+#endif
 #ifdef V12C
 extern  boolean v12_compat;   // GB 2014
 #endif
