@@ -2462,11 +2462,9 @@ void P_SpawnSpecials (void)
   for (i=0; i<numlines; i++)
     switch (lines[i].special)
       {
-        int s
 #if defined(DEEPWATER) || defined(LIGHTTRANSFER)
-        , sec
+        int s, sec;
 #endif
-        ;
 #ifdef DEEPWATER
         // killough 3/7/98:
         // support for drawn heights coming from different sector
