@@ -377,8 +377,11 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
         {
 
 	  	  #ifdef CALT
+#ifdef LOWDET
           if      (lowdetparm) colfunc = R_DrawTLColumn_C_LowDet; 
-          else if (noasmparm)  colfunc = R_DrawTLColumn_C; else 
+          else
+#endif
+               if (noasmparm)  colfunc = R_DrawTLColumn_C; else
 		  #endif // CALT
 	      colfunc = R_DrawTLColumn;
 
@@ -387,8 +390,11 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
       else
 		{
 		  #ifdef CALT
+#ifdef LOWDET
           if      (lowdetparm) colfunc = R_DrawColumn_C_LowDet; 
-          else if (noasmparm)  colfunc = R_DrawColumn_C; else 
+          else
+#endif
+               if (noasmparm)  colfunc = R_DrawColumn_C; else
 		  #endif // CALT
 	      colfunc = R_DrawColumn;
 		}
@@ -415,8 +421,11 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
     }
 
   #ifdef CALT
-  if      (lowdetparm) colfunc = R_DrawColumn_C_LowDet; 
-  else if (noasmparm)  colfunc = R_DrawColumn_C; else 
+#ifdef LOWDET
+  if      (lowdetparm) colfunc = R_DrawColumn_C_LowDet;
+  else
+#endif
+       if (noasmparm)  colfunc = R_DrawColumn_C; else
   #endif // CALT
   colfunc = R_DrawColumn;
 

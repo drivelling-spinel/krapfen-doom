@@ -6982,6 +6982,7 @@ static const char m_enem[]=  // "Enemies"
 };
 #endif
 
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
 static const char m_stat[]=  // "Status Bar / HUD"
 {
   202,  0, 15,  0,  0,  0,  0,  0,
@@ -7226,6 +7227,7 @@ static const char m_stat[]=  // "Status Bar / HUD"
   185,188,187,187,189,191,191,  0,255,  4,  7,  0,191,191,191,191,
   191,191,191,  0,255,
 };
+#endif
 
 
 #if defined(WEAPONBOOM) || defined(WEAPONMBF) || defined(RECOIL) || defined(BOBBING) || defined(BETA)
@@ -15690,7 +15692,9 @@ const lumpinfo_t predefined_lumps[]={
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
   { "M_ENEM",   sizeof m_enem,   m_enem  },   // phares 4/08/98 menu item
 #endif
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
   { "M_STAT",   sizeof m_stat,   m_stat  },   // phares 3/29/98 menu item
+#endif
 #if defined(WEAPONBOOM) || defined(WEAPONMBF) || defined(RECOIL) || defined(BOBBING) || defined(BETA)
   { "M_WEAP",   sizeof m_weap,   m_weap  },   // phares 3/28/98 menu item
 #endif

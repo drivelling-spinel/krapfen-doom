@@ -58,6 +58,9 @@ int  viewwindowy;
 byte *ylookup[MAXHEIGHT]; 
 int  columnofs[MAXWIDTH]; 
 int  linesize = SCREENWIDTH;  // killough 11/98
+#ifdef LOWDET
+int lowdet;
+#endif
 
 // Color tables for different players,
 //  translate a limited part to another
@@ -169,7 +172,7 @@ void R_DrawColumn_C (void)
   }
 } 
 
-
+#ifdef LOWDET
 // GB 2015
 void R_DrawColumn_C_LowDet (void) 
 { 
@@ -267,7 +270,7 @@ void R_DrawColumn_C_LowDet (void)
     }
   }
 } 
-
+#endif
 #endif // CALT
 
 
@@ -373,7 +376,7 @@ void R_DrawTLColumn_C (void)
 } 
 
 
-
+#ifdef LOWDET
 // GB 2015
 void R_DrawTLColumn_C_LowDet (void)                                           
 { 
@@ -476,7 +479,7 @@ void R_DrawTLColumn_C_LowDet (void)
       }
   }
 } 
-
+#endif
 #endif // CALT // killough 2/21/98: converted to x86 asm
 
 //
@@ -744,7 +747,7 @@ void R_DrawSpan_C (void)
 	}
 } 
 
-
+#ifdef LOWDET
 // GB 2015
 void R_DrawSpan_C_LowDet (void) 
 { 
@@ -783,7 +786,7 @@ void R_DrawSpan_C_LowDet (void)
      count -= 2;
   } 
 } 
-
+#endif
 #endif // CALT
 
 // R_InitBuffer 

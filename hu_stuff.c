@@ -254,6 +254,7 @@ static char hud_gkeysstr[80]; //jff 3/7/98 add support for graphic key display
 static char hud_monsecstr[80];
 #endif
 
+#if defined(COLORSTBAR)
 //jff 2/16/98 declaration of color switch points
 extern int ammo_red;
 extern int ammo_yellow;
@@ -263,6 +264,7 @@ extern int health_green;
 extern int armor_red;
 extern int armor_yellow;
 extern int armor_green;
+#endif
 
 //
 // Builtin map names.
@@ -415,15 +417,15 @@ void HU_Init(void)
                         //jff 2/23/98 make all font chars defined, useful or not
                       }
                     else
+#ifdef HUDBOOM
                       if (j>122)
                         {
                           sprintf(buffer, "STBR%.3d",j);
-#ifdef HUDBOOM
-                          hu_font2[i] =
-#endif                                  hu_font[i] =
+                          hu_font2[i] = hu_font[i] =
                             (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
                         }
                       else
+#endif                                  
                         hu_font[i] = hu_font[0]; //jff 2/16/98 account for gap
     }
 
@@ -861,6 +863,7 @@ void HU_Drawer(void)
           hud_ammostr[i] = '\0';
           strcat(hud_ammostr,ammostr);
 
+#if defined(COLORSTBAR) 
           // set the display color from the percentage of total ammo held
           if (ammopct<ammo_red)
             w_ammo.cr = colrngs[CR_RED];
@@ -868,6 +871,7 @@ void HU_Drawer(void)
             if (ammopct<ammo_yellow)
               w_ammo.cr = colrngs[CR_GOLD];
             else
+#endif
               w_ammo.cr = colrngs[CR_GREEN];
         }
       // transfer the init string to the widget
@@ -912,6 +916,7 @@ void HU_Drawer(void)
         hud_healthstr[i] = '\0';
         strcat(hud_healthstr,healthstr);
 
+#if defined(COLORSTBAR) 
         // set the display color from the amount of health posessed
         if (health<health_red)
           w_health.cr = colrngs[CR_RED];
@@ -920,9 +925,12 @@ void HU_Drawer(void)
             w_health.cr = colrngs[CR_GOLD];
           else
             if (health<=health_green)
+#endif
               w_health.cr = colrngs[CR_GREEN];
+#if defined(COLORSTBAR) 
             else
               w_health.cr = colrngs[CR_BLUE];
+#endif
 
         // transfer the init string to the widget
         s = hud_healthstr;
@@ -967,10 +975,17 @@ void HU_Drawer(void)
         strcat(hud_armorstr,armorstr);
 
         // set the display color from the amount of armor posessed
-	w_armor.cr = 
+	w_armor.cr =
+#if defined(COLORSTBAR) 
 	  armor<armor_red ? colrngs[CR_RED] :
 	  armor<armor_yellow ? colrngs[CR_GOLD] :
-	  armor<=armor_green ? colrngs[CR_GREEN] : colrngs[CR_BLUE];
+	  armor<=armor_green ?
+#endif
+                               colrngs[CR_GREEN]
+#if defined(COLORSTBAR) 
+                                                 : colrngs[CR_BLUE]
+#endif
+                                                                   ;
 
         // transfer the init string to the widget
         s = hud_armorstr;
@@ -1024,6 +1039,7 @@ void HU_Drawer(void)
             hud_weapstr[i++] = '\x1b'; //jff 3/26/98 use ESC not '\' for paths
             if (weaponinfo[w].ammo==am_noammo) //jff 3/14/98 show berserk on HUD
               hud_weapstr[i++] = plr->powers[pw_strength]? '0'+CR_GREEN : '0'+CR_GRAY;
+#ifdef COLORSTBAR
             else
               if (ammopct<ammo_red)
                 hud_weapstr[i++] = '0'+CR_RED;
@@ -1031,6 +1047,7 @@ void HU_Drawer(void)
                 if (ammopct<ammo_yellow)
                   hud_weapstr[i++] = '0'+CR_GOLD;
                 else
+#endif
                   hud_weapstr[i++] = '0'+CR_GREEN;
             hud_weapstr[i++] = '0'+w+1;
             hud_weapstr[i++] = ' ';

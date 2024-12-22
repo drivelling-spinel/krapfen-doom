@@ -48,11 +48,17 @@ extern byte     *dc_source;
 
 #ifdef CALT
 void R_DrawSpan_C(void);
+#ifdef LOWDET
 void R_DrawSpan_C_LowDet(void);
+#endif
 void R_DrawColumn_C(void);
+#ifdef LOWDET
 void R_DrawColumn_C_LowDet(void);
+#endif
 void R_DrawTLColumn_C(void);      // drawing translucent textures // phares
-void R_DrawTLColumn_C_LowDet(void);   
+#ifdef LOWDET
+void R_DrawTLColumn_C_LowDet(void);
+#endif
 #endif // CALT
 
 void R_DrawColumn(void);

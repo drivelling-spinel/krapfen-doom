@@ -29,6 +29,7 @@
 #ifndef __STSTUFF_H__
 #define __STSTUFF_H__
 
+#include "features.h"
 #include "doomtype.h"
 #include "d_event.h"
 
@@ -75,6 +76,7 @@ typedef enum
 
 boolean ST_Responder(event_t* ev);
 
+#if defined(COLORSTBAR) 
 // killough 5/2/98: moved from m_misc.c:
 
 extern int health_red;    // health amount less than which status is red
@@ -87,6 +89,7 @@ extern int ammo_red;      // ammo percent less than which status is red
 extern int ammo_yellow;   // ammo percent less is yellow more green
 extern int sts_always_red;// status numbers do not change colors
 extern int sts_pct_always_gray;// status percents do not change colors
+#endif
 #ifdef TRADKEY
 extern int sts_traditional_keys;  // display keys the traditional way
 #endif

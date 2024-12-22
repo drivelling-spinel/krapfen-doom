@@ -174,6 +174,9 @@ int     key_weapon9;                                                // phares
 
 int     key_screenshot;             // killough 2/22/98: screenshot key
 int     key_setup;                  // killough 10/98: shortcut to setup menu
+#ifdef LOWDET
+int     key_lowdet;
+#endif
 
 int     mousebfire;
 int     mousebstrafe;

@@ -128,7 +128,13 @@ default_t defaults[] = {
     "Obsolete - use setup.exe to configure sound hardware"
   },
 */
-
+#ifdef LOWDET
+  {
+    "lowdet", &lowdet, NULL,
+    0, {0,1}, number, ss_gen, wad_no,
+    "1 to enable low detail drawing routines"
+  },
+#endif
   { // killough 11/98: hires
     "hires", &hires, NULL,
     0, {0,1}, number, ss_gen, wad_no,
@@ -365,6 +371,7 @@ default_t defaults[] = {
   },
 #endif
 
+#ifdef COLORSTBAR
   { // no color changes on status bar
     "sts_always_red",
     &sts_always_red, NULL,
@@ -378,6 +385,7 @@ default_t defaults[] = {
     0, {0,1}, number, ss_stat, wad_yes,
     "1 to make percent signs on status bar always gray"
   },
+#endif
 #ifdef TRADKEY
   { // killough 2/28/98
     "sts_traditional_keys",
@@ -910,6 +918,23 @@ default_t defaults[] = {
     "key to adjust heads up display mode"
   },
 #endif
+#ifdef LOWDET
+  {
+    "key_lowdet",
+    &key_lowdet, NULL,
+#ifdef HUDBOOM
+#ifdef KRFNDFLT
+    KEYD_F12,
+#else
+    -1,
+#endif
+#else
+    KEYD_F5,
+#endif
+              {0,255}, number, ss_keys, wad_no,
+    "key to toggle low detail mode"
+  },
+#endif
   {
     "key_quicksave",
     &key_quicksave, NULL,
@@ -955,7 +980,12 @@ default_t defaults[] = {
   {
     "key_spy",
     &key_spy, NULL,
-    KEYD_F12, {0,255}, number, ss_keys, wad_no,
+#if defined(KRFNDFLT) && defined(LOWDET) && defined(HUDBOOM)
+    -1,
+#else
+    KEYD_F12,
+#endif
+             {0,255}, number, ss_keys, wad_no,
     "key to view from another player's vantage"
   },
 
@@ -1733,6 +1763,7 @@ default_t defaults[] = {
     "1 splits HUD into three 2 line displays"
   },
 #endif
+#ifdef COLORSTBAR
   { // below is red
     "health_red",
     &health_red, NULL,
@@ -1788,6 +1819,7 @@ default_t defaults[] = {
     50, {0,100}, number, ss_stat, wad_yes,
     "percent of ammo for yellow to green transition"
   },
+#endif
 #ifdef HUDBOOM
   { // 0=off, 1=small, 2=full //jff 2/16/98 HUD and status feature controls
     "hud_active",
@@ -2261,6 +2293,10 @@ void M_LoadDefaults (void)
 	  screenblocks=10;
 	  show_fps=false;
   }
+#ifdef LOWDET
+  if (!lowdetparm)
+    lowdetparm = lowdet;
+#endif
   //jff 3/4/98 redundant range checks for hud deleted here
 }
 

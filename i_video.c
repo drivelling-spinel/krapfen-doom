@@ -304,11 +304,11 @@ void show_info_proc()
 			fps_counter=0; // flush old data
 		  }
 	   }
-       V_DrawRect(0, 309-c, 0, 319, 6, 0x00);
 #ifdef HUDBOOM
+       V_DrawRect(0, 309-c, 0, 319, 6, 0x00);
        if (fps>-1) M_DrawText2(295-i,0,cr,true,fps_string);
 #else
-       if (fps>-1) M_DrawText(295-i,0,true,fps_string);
+       if (fps>-1) M_DrawText(285-i,0,true,fps_string);
 #endif
 	}
 }

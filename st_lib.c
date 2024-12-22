@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: st_lib.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $";
 
+#include "features.h"
 #include "doomdef.h"
 #include "doomstat.h"
 #include "v_video.h"
@@ -37,8 +38,10 @@ rcsid[] = "$Id: st_lib.c,v 1.3 2000-08-12 21:29:30 fraggle Exp $";
 
 int statusbar_dirty=2;
 
+#if defined(COLORSTBAR) 
 int sts_always_red;      //jff 2/18/98 control to disable status color changes
 int sts_pct_always_gray; // killough 2/21/98: always gray %'s? bug or feature?
+#endif
 
 patch_t*    sttminus;
 
@@ -141,9 +144,11 @@ void STlib_drawNum
   // in the special case of 0, you draw 0
   if (!num)
     {
+#if defined(COLORSTBAR) 
       if (outrng && !sts_always_red)
 	V_DrawPatchTranslated(x - w, n->y, FG, n->p[ 0 ],outrng,0);
       else //jff 2/18/98 allow use of faster draw routine from config
+#endif
 	V_DrawPatch(x - w, n->y, FG, n->p[ 0 ]);
     }
   
@@ -152,9 +157,11 @@ void STlib_drawNum
   while (num && numdigits--)
   {
     x -= w;
+#if defined(COLORSTBAR) 
     if (outrng && !sts_always_red)
       V_DrawPatchTranslated(x, n->y, FG, n->p[ num % 10 ],outrng,0);
     else //jff 2/18/98 allow use of faster draw routine from config
+#endif
       V_DrawPatch(x, n->y, FG, n->p[ num % 10 ]);
     num /= 10;
   }
@@ -163,9 +170,11 @@ void STlib_drawNum
   //jff 2/16/98 add color translation to digit output
   if (neg)
     {
+#if defined(COLORSTBAR) 
       if (outrng && !sts_always_red)
-	V_DrawPatchTranslated(x - 8, n->y, FG, sttminus,outrng,0);
+        V_DrawPatchTranslated(x - 8, n->y, FG, sttminus,outrng,0);
       else //jff 2/18/98 allow use of faster draw routine from config
+#endif
 	V_DrawPatch(x - 8, n->y, FG, sttminus);
     }
 }
@@ -224,6 +233,7 @@ void STlib_updatePercent
 {
    if (refresh || *per->n.on) // killough 2/21/98: fix percents not updated;
    {
+#if defined(COLORSTBAR) 
 	  if (!sts_always_red)     // also support gray-only percents
 	V_DrawPatchTranslated
 	  (
@@ -235,6 +245,7 @@ void STlib_updatePercent
 	   0
 	   );
       else   //jff 2/18/98 allow use of faster draw routine from config
+#endif
 	V_DrawPatch(per->n.x, per->n.y, FG, per->p);
     }
   

@@ -56,7 +56,7 @@ extern patch_t* hu_font[HU_FONTSIZE];
 extern boolean  message_dontfuckwithme;
           
 extern boolean chat_on;          // in heads-up code
-#ifdef BOOMHUD
+#ifdef HUDBOOM
 extern int     hud_active;       // in heads-up code
 extern int     hud_displayed;    // in heads-up code
 extern int     hud_distributed;  // in heads-up code
@@ -203,6 +203,9 @@ extern int key_endgame;
 extern int key_messages;
 extern int key_quickload;
 extern int key_quit;
+#ifdef LOWDET
+extern int key_lowdet;
+#endif
 extern int key_gamma;
 extern int key_spy;
 extern int key_pause;
@@ -259,6 +262,7 @@ extern int player_bobbing;          // whether player bobs or not
 #ifdef WEAPONBOOM
 extern int weapon_preferences[2][NUMWEAPONS+1];
 #endif
+#ifdef COLORSTBAR
 extern int health_red;    // health amount less than which status is red
 extern int health_yellow; // health amount less than which status is yellow
 extern int health_green;  // health amount above is blue, below is green
@@ -269,6 +273,7 @@ extern int ammo_red;      // ammo percent less than which status is red
 extern int ammo_yellow;   // ammo percent less is yellow more green
 extern int sts_always_red;// status numbers do not change colors
 extern int sts_pct_always_gray;// status percents do not change colors
+#endif
 #ifdef HUDBOOM
 extern int hud_nosecrets; // status does not list secrets/items/kills
 #endif
@@ -400,7 +405,9 @@ void M_KeyBindings(int choice);
 #if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 void M_Weapons(int);
 #endif
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
 void M_StatusBar(int);
+#endif
 void M_Automap(int);
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 void M_Enemy(int);
@@ -416,7 +423,9 @@ void M_DrawKeybnd(void);
 void M_DrawWeapons(void);
 #endif
 void M_DrawMenuString(int,int,int);                    
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
 void M_DrawStatusHUD(void);
+#endif
 void M_DrawExtHelp(void);
 void M_DrawAutoMap(void);
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
@@ -1611,7 +1620,9 @@ boolean set_keybnd_active = false; // in key binding setup screens
 #if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 boolean set_weapon_active = false; // in weapons setup screen
 #endif
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
 boolean set_status_active = false; // in status bar/hud setup screen
+#endif
 boolean set_auto_active   = false; // in automap setup screen
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 boolean set_enemy_active  = false; // in enemies setup screen
@@ -1680,7 +1691,9 @@ menuitem_t SetupMenu[]=
 #if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
   {1,"M_WEAP"  ,M_Weapons,    'w'},
 #endif
-  {1,"M_STAT"  ,M_StatusBar,  's'},               
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
+  {1,"M_STAT"  ,M_StatusBar,  's'},
+#endif
   {1,"M_AUTO"  ,M_Automap,    'a'},                    
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
   {1,"M_ENEM"  ,M_Enemy,      'e'},
@@ -1764,6 +1777,7 @@ menu_t WeaponDef =
 };
 #endif
 
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
 menu_t StatusHUDDef =
 {
   generic_setup_end,
@@ -1773,6 +1787,7 @@ menu_t StatusHUDDef =
   34,5,      // skull drawn here
   0
 };
+#endif
 
 menu_t AutoMapDef =
 {
@@ -2492,6 +2507,9 @@ setup_menu_t keys_settings2[] =  // Key Binding screen strings
 #ifdef HUDBOOM
   {"HUD"         ,S_KEY       ,m_scrn,KB_X,KB_Y+ 5*8,{&key_hud}},
 #endif
+#if defined(LOWDET) && !defined(HUDBOOM)
+  {"LOW DETAIL"  ,S_KEY       ,m_scrn,KB_X,KB_Y+ 5*8,{&key_lowdet}},
+#endif
   {"MESSAGES"    ,S_KEY       ,m_scrn,KB_X,KB_Y+ 6*8,{&key_messages}},
   {"GAMMA FIX"   ,S_KEY       ,m_scrn,KB_X,KB_Y+ 7*8,{&key_gamma}},
   {"SPY"         ,S_KEY       ,m_scrn,KB_X,KB_Y+ 8*8,{&key_spy}},
@@ -2505,6 +2523,9 @@ setup_menu_t keys_settings2[] =  // Key Binding screen strings
   {"QUICKLOAD"   ,S_KEY       ,m_scrn,KB_X,KB_Y+16*8,{&key_quickload}},
   {"END GAME"    ,S_KEY       ,m_scrn,KB_X,KB_Y+17*8,{&key_endgame}},
   {"QUIT"        ,S_KEY       ,m_scrn,KB_X,KB_Y+18*8,{&key_quit}},
+#if defined(LOWDET) && defined(HUDBOOM)
+  {"LOW DETAIL"  ,S_KEY       ,m_scrn,KB_X,KB_Y+19*8,{&key_lowdet}},
+#endif
   {"<- PREV", S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings1}},
   {"NEXT ->", S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings3}},
 
@@ -2747,6 +2768,7 @@ void M_DrawWeapons(void)
 }
 #endif
 
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
 /////////////////////////////
 //
 // The Status Bar / HUD tables.
@@ -2766,18 +2788,22 @@ setup_menu_t* stat_settings[] =
 
 setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen       
 {
+#if defined(TRADKEY) || defined(COLORSTBAR)
   {"STATUS BAR"        ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+ 1*8 },
-
+#ifdef COLORSTBAR
   {"USE RED NUMBERS"   ,S_YESNO, m_null,ST_X,ST_Y+ 2*8, {"sts_always_red"}},
   {"GRAY %"            ,S_YESNO, m_null,ST_X,ST_Y+ 3*8, {"sts_pct_always_gray"}},
+#endif
 #ifdef TRADKEY
   {"SINGLE KEY DISPLAY",S_YESNO, m_null,ST_X,ST_Y+ 4*8, {"sts_traditional_keys"}},
+#endif
 #endif
 #ifdef HUDBOOM
   {"HEADS-UP DISPLAY"  ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+ 6*8},
 
   {"HIDE SECRETS"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 7*8, {"hud_nosecrets"}},
 #endif
+#ifdef COLORSTBAR
   {"HEALTH LOW/OK"     ,S_NUM       ,m_null,ST_X,ST_Y+ 8*8, {"health_red"}},
   {"HEALTH OK/GOOD"    ,S_NUM       ,m_null,ST_X,ST_Y+ 9*8, {"health_yellow"}},
   {"HEALTH GOOD/EXTRA" ,S_NUM       ,m_null,ST_X,ST_Y+10*8, {"health_green"}},
@@ -2786,6 +2812,7 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
   {"ARMOR GOOD/EXTRA"  ,S_NUM       ,m_null,ST_X,ST_Y+13*8, {"armor_green"}},
   {"AMMO LOW/OK"       ,S_NUM       ,m_null,ST_X,ST_Y+14*8, {"ammo_red"}},
   {"AMMO OK/GOOD"      ,S_NUM       ,m_null,ST_X,ST_Y+15*8, {"ammo_yellow"}},
+#endif
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -2804,7 +2831,9 @@ void M_StatusBar(int choice)
 
   setup_active = true;
   setup_screen = ss_stat;
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
   set_status_active = true;
+#endif
   setup_select = false;
   default_verify = false;
   setup_gather = false;
@@ -2835,6 +2864,7 @@ void M_DrawStatusHUD(void)
   if (default_verify)
     M_DrawDefVerify();
 }
+#endif
 
 
 /////////////////////////////
@@ -3789,7 +3819,9 @@ static setup_menu_t **setup_screens[] =
 #if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
   weap_settings,
 #endif
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
   stat_settings,
+#endif
   auto_settings,
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
   enem_settings,
@@ -4158,7 +4190,7 @@ int M_GetKeyString(int c,int offset)
 #define KT_X3  87
 
 #define KT_Y1   2
-#define KT_Y2 118
+#define KT_Y2 126
 #define KT_Y3 102
 
 setup_menu_t helpstrings[] =  // HELP screen strings       
@@ -4173,12 +4205,18 @@ setup_menu_t helpstrings[] =  // HELP screen strings
 #ifdef HUDBOOM
   {"HUD"         ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 7*8,{&key_hud}},
 #endif
+#if defined(LOWDET) && !defined(HUDBOOM)
+  {"LOW DETAIL"  ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 7*8,{&key_lowdet}},
+#endif
   {"MESSAGES"    ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 8*8,{&key_messages}},
   {"GAMMA FIX"   ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 9*8,{&key_gamma}},
   {"SPY"         ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+10*8,{&key_spy}},
   {"LARGER VIEW" ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+11*8,{&key_zoomin}},
   {"SMALLER VIEW",S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+12*8,{&key_zoomout}},
   {"SCREENSHOT"  ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+13*8,{&key_screenshot}},
+#if defined(LOWDET) && defined(HUDBOOM)
+  {"LOW DETAIL"  ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+14*8,{&key_lowdet}},
+#endif
 
   {"AUTOMAP"     ,S_SKIP|S_TITLE,m_null,KT_X1,KT_Y2},
   {"FOLLOW MODE" ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y2+ 1*8,{&key_map_follow}},
@@ -4713,6 +4751,13 @@ boolean M_Responder (event_t* ev)
 	  S_StartSound(NULL,sfx_stnmov);                                //  |
 	  return true;                                            // phares
 	}
+#ifdef LOWDET
+      if (ch == key_lowdet)               
+        {                                 
+          lowdetparm = !lowdet;
+          return true;                                            
+	}
+#endif
 #ifdef HUDBOOM                                  
       if (ch == key_hud)   // heads-up mode       
 	{                    
@@ -5124,7 +5169,12 @@ boolean M_Responder (event_t* ev)
 	  set_enemy_active |
 #endif
           set_general_active | set_chat_active |
-	  set_mess_active | set_status_active | set_compat_active)
+	  set_mess_active |
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
+                            set_status_active |
+#endif
+
+                                              set_compat_active)
 	{
 	  if (ptr1->m_flags & S_STRING) // creating/editing a string?
 	    {
@@ -5295,7 +5345,9 @@ boolean M_Responder (event_t* ev)
 #if defined(RECOIL) || defined(BOBBING) || defined(WEAPONMBF) || defined(WEAPONBOOM) || defined(BETA)
 	  set_weapon_active = false;
 #endif
+#if defined(COLORSTBAR) || defined(TRADKEY) || defined(HUDBOOM)
 	  set_status_active = false;
+#endif
 	  set_auto_active = false;
 #if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF)
 	  set_enemy_active = false;
@@ -5842,7 +5894,7 @@ void M_Init(void)
   messageToPrint = 0;
   messageString = NULL;
   messageLastMenuActive = menuactive;
-  quickSaveSlot = -1;
+  quickSaveSlot = -1; 
 
   // Here we could catch other version dependencies,
   //  like HELP1/2, and four episodes.

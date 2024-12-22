@@ -166,8 +166,11 @@ static void R_MapPlane(int y, int x1, int x2)
   ds_x2 = x2;
 
   #ifdef CALT
+#ifdef LOWDET
   if      (lowdetparm) R_DrawSpan_C_LowDet(); 
-  else if (noasmparm)  R_DrawSpan_C(); 
+  else
+#endif
+       if (noasmparm)  R_DrawSpan_C();
   else
   #endif // CALT
   R_DrawSpan();

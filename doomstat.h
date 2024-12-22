@@ -62,7 +62,10 @@ extern  boolean asmp6parm;    // checkparm of -asmp6    GB 2014
 extern  boolean safeparm;     // checkparm of -safe     GB 2014
 extern  boolean stdvidparm;   // checkparm of -stdvid   GB 2014
 extern  boolean bestvidparm;  // checkparm of -bestvid  GB 2014
+#ifdef LOWDET
 extern  boolean lowdetparm;   // checkparm of -lowdet   GB 2015
+extern  int lowdet;
+#endif
 #ifdef V12C
 extern  boolean v12_compat;   // GB 2014
 #endif

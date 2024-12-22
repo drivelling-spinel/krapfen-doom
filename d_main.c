@@ -118,7 +118,9 @@ boolean asmp6parm;      // working -asmp6  GB 2014
 boolean safeparm;       // working -safe   GB 2014
 boolean stdvidparm;     // working -stdvid GB 2014
 boolean bestvidparm;    // working -stdvid GB 2014
+#ifdef LOWDET
 boolean lowdetparm;     // working -lowdet GB 2015
+#endif
 boolean nosfxparm;      // jff 1/22/98 parms for disabling music and sound, -nosfx
 boolean nomusicparm;    // jff 1/22/98 parms for disabling music and sound, -nomusic
 #ifdef V12C 
@@ -1277,13 +1279,10 @@ void D_DoomMain(void)
   asmp6parm                   = M_CheckParm ("-asmp6");  // GB 2014  
   unlockparm                  = M_CheckParm ("-unlock"); // GB 2014  
   stdvidparm                  = M_CheckParm ("-stdvid"); // GB 2014  
-  bestvidparm                 = M_CheckParm ("-bestvid");// GB 2014  
+  bestvidparm                 = M_CheckParm ("-bestvid");// GB 2014
+#ifdef LOWDET
   lowdetparm                  = M_CheckParm ("-lowdet"); // GB 2015
-
-  #ifdef CALT // GB 2015: required for first frame
-  if      (lowdetparm) colfunc = R_DrawColumn_C_LowDet; 
-  else if (noasmparm)  colfunc = R_DrawColumn_C; 
-  #endif // CALT
+#endif
 
   // jff 1/24/98 end of set to both working and command line value
        if (M_CheckParm ("-altdeath"))   deathmatch = 2;
@@ -1576,6 +1575,14 @@ void D_DoomMain(void)
   puts("M_Init: Init miscellaneous info.");
   M_Init();
 
+  #ifdef CALT // GB 2015: required for first frame
+#ifdef LOWDET
+  if      (lowdet||lowdetparm) colfunc = R_DrawColumn_C_LowDet;
+  else
+#endif
+       if (noasmparm)  colfunc = R_DrawColumn_C;
+  #endif // CALT
+
   printf("R_Init: Init DOOM refresh daemon - ");
   R_Init();
 
@@ -1693,6 +1700,9 @@ void D_DoomMain(void)
 
   for (;;)
     {
+#ifdef LOWDET
+      lowdet = lowdetparm;
+#endif
       // frame syncronous IO operations
       I_StartFrame ();
 

@@ -262,6 +262,7 @@ static patch_t *arms[6][2];
 // ready-weapon widget
 static st_number_t w_ready;
 
+#if defined(COLORSTBAR) 
 //jff 2/16/98 status color change levels
 int ammo_red;      // ammo percent less than which status is red
 int ammo_yellow;   // ammo percent less is yellow more green
@@ -271,6 +272,7 @@ int health_green;  // health amount above is blue, below is green
 int armor_red;     // armor amount less than which status is red
 int armor_yellow;  // armor amount less than which status is yellow
 int armor_green;   // armor amount above is blue, below is green
+#endif
 
  // in deathmatch only, summary of frags stats
 static st_number_t w_frags;
@@ -711,41 +713,52 @@ void ST_drawWidgets(boolean refresh)
   // used by w_frags widget
   st_fragson = deathmatch && st_statusbaron;
 
+#if defined(COLORSTBAR) 
   //jff 2/16/98 make color of ammo depend on amount
   if (*w_ready.num*100 < ammo_red*plyr->maxammo[weaponinfo[w_ready.data].ammo])
+#endif
     STlib_updateNum(&w_ready, cr_red, refresh);
+#if defined(COLORSTBAR) 
   else
     if (*w_ready.num*100 <
         ammo_yellow*plyr->maxammo[weaponinfo[w_ready.data].ammo])
       STlib_updateNum(&w_ready, cr_gold, refresh);
     else
       STlib_updateNum(&w_ready, cr_green, refresh);
-
+#endif
   for (i=0;i<4;i++)
     {
       STlib_updateNum(&w_ammo[i], NULL, refresh);   //jff 2/16/98 no xlation
       STlib_updateNum(&w_maxammo[i], NULL, refresh);
     }
 
+#if defined(COLORSTBAR) 
   //jff 2/16/98 make color of health depend on amount
   if (*w_health.n.num<health_red)
+#endif
     STlib_updatePercent(&w_health, cr_red, refresh);
+#if defined(COLORSTBAR) 
   else if (*w_health.n.num<health_yellow)
     STlib_updatePercent(&w_health, cr_gold, refresh);
   else if (*w_health.n.num<=health_green)
     STlib_updatePercent(&w_health, cr_green, refresh);
   else
     STlib_updatePercent(&w_health, cr_blue_status, refresh); //killough 2/28/98
+#endif
 
+#if defined(COLORSTBAR) 
   //jff 2/16/98 make color of armor depend on amount
   if (*w_armor.n.num<armor_red)
+#endif
     STlib_updatePercent(&w_armor, cr_red, refresh);
+#if defined(COLORSTBAR) 
   else if (*w_armor.n.num<armor_yellow)
     STlib_updatePercent(&w_armor, cr_gold, refresh);
   else if (*w_armor.n.num<=armor_green)
     STlib_updatePercent(&w_armor, cr_green, refresh);
   else
     STlib_updatePercent(&w_armor, cr_blue_status, refresh); //killough 2/28/98
+#endif
 
   STlib_updateBinIcon(&w_armsbg, refresh);
 
