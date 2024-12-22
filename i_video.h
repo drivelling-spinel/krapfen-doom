@@ -29,6 +29,7 @@
 
 #include <allegro.h>
 
+#include "features.h"
 #include "doomtype.h"
 #include "m_misc.h" // GB 2014: for M_DrawText
 
@@ -58,7 +59,9 @@ void I_ResetScreen(void);   // killough 10/98
 extern int show_fps;   // GB 2014
 extern int use_vsync;  // killough 2/8/98: controls whether vsync is called
 extern int page_flip;  // killough 8/15/98: enables page flipping (320x200)
+#ifdef DISKICON
 extern int disk_icon;  // killough 10/98
+#endif
 extern int hires;      // killough 11/98
 extern int in_graphics_mode; // GB 2014: share
 extern boolean nolfbparm; // checkparm of -noLFB GB 2014

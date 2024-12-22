@@ -825,6 +825,7 @@ void R_InitTranMap(int progress)
                 if (!(i & 31) && progress)
 		  putchar('.');
 
+#ifdef DISKICON
 		if (!(~i & 15))
 		  {
 		    if (i & 32)       // killough 10/98: display flashing disk
@@ -832,6 +833,7 @@ void R_InitTranMap(int progress)
 		    else
 		      I_BeginRead();
 		  }
+#endif
 		
                 for (j=0;j<256;j++,tp++)
                   {

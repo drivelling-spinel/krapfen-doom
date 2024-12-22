@@ -29,8 +29,10 @@
 
 #include "r_data.h"
 
+#ifdef SKYTRANSFER
 // killough 10/98: special mask indicates sky flat comes from sidedef
 #define PL_SKYFLAT (0x80000000)
+#endif
 
 // Visplane related.
 extern  short *lastopening;

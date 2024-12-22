@@ -214,10 +214,11 @@ int blackband; // GB 2014: for 640x480 fallback mode
 char fps_string[12];
 char mode_string[128];
 int  modeswitched=0;
+#ifdef DISKICON
 // Disk icon:
 int disk_icon;
-//static BITMAP *diskflash, *old_data;
-
+static BITMAP *diskflash, *old_data;
+#endif
 
 //-----------------------------------------------------------------------------
 void I_UpdateNoBlit (void){}
@@ -388,13 +389,14 @@ void I_ReadScreen(byte *scr)
   else    memcpy(scr,*screens,size);             // Others
 }
 
+#ifdef DISKICON
 //-----------------------------------------------------------------------------
 // killough 10/98: init disk icon
 // GB had to disable for now, since allegro drawing routines are no longer used.
 // and the new libraries lack a universal read-from and blit-to screen procedure.
 static void I_InitDiskFlash(void)
 {
-/*
+
   byte temp[32*32];
 
   if (diskflash)
@@ -411,13 +413,13 @@ static void I_InitDiskFlash(void)
                                              "STCDROM" : "STDISK", PU_CACHE));
   V_GetBlock(0, 0, 0, 16, 16, diskflash->line[0]);
   V_DrawBlock(0, 0, 0, 16, 16, temp);
-*/
+
 }
 
 //-----------------------------------------------------------------------------
 // killough 10/98: draw disk icon
 void I_BeginRead(void)
-{/*
+{
   if (!disk_icon || !in_graphics_mode || noblit || safeparm) // GB 2014: added noblit
     return;
 
@@ -428,20 +430,21 @@ void I_BeginRead(void)
 
   blit(diskflash, screen, 0, 0, (SCREENWIDTH-16) << hires,
        scroll_offset + ((SCREENHEIGHT-16)<<hires), 16 << hires, 16 << hires);
-*/
+
 }
 
 //-----------------------------------------------------------------------------
 // killough 10/98: erase disk icon
 void I_EndRead(void)
-{/*
+{
   if (!disk_icon || !in_graphics_mode || noblit || safeparm) // GB 2014: added noblit
     return;
 
   blit(old_data, screen, 0, 0, (SCREENWIDTH-16) << hires,
        scroll_offset + ((SCREENHEIGHT-16)<<hires), 16 << hires, 16 << hires);
-*/
+
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void I_SetPalette(byte *palette)
@@ -612,7 +615,9 @@ static void I_InitGraphicsMode(void)
   in_page_flip = page_flip;
   in_hires = hires;
   setsizeneeded = true;
-  //if (!safeparm) I_InitDiskFlash(); // Initialize disk icon
+#ifdef DISKICON
+  if (!safeparm) I_InitDiskFlash(); // Initialize disk icon
+#endif
   I_SetPalette(W_CacheLumpName("PLAYPAL",PU_CACHE));
   modeswitched=1; 
   if (current_mode==0x12) sprintf(mode_string,"%sMODE:X SIZE:%dx%d LFB:%s CPU:%d VBE:%d",  safestring,               screen_w, screen_h, linear ? "true" : "false", cpu_family, vesa_version);  

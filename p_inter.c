@@ -759,7 +759,11 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
   boolean justhit;          // killough 11/98
 
   // killough 8/31/98: allow bouncers to take damage
-  if (!(target->flags & (MF_SHOOTABLE | MF_BOUNCES)))
+  if (!(target->flags & (MF_SHOOTABLE
+#ifdef PHYSMBF 
+  | MF_BOUNCES
+#endif
+  )))
     return; // shouldn't happen...
 
   if (target->health <= 0)
@@ -797,10 +801,11 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
       ang >>= ANGLETOFINESHIFT;
       target->momx += FixedMul (thrust, finecosine[ang]);
       target->momy += FixedMul (thrust, finesine[ang]);
-
+#ifdef PHYSMBF
       // killough 11/98: thrust objects hanging off ledges
       if (target->intflags & MIF_FALLING && target->gear >= MAXGEAR)
 	target->gear = 0;
+#endif
     }
 
   // player specific

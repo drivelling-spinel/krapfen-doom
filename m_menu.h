@@ -70,7 +70,9 @@ void M_ResetMenu(void);      // killough 11/98: reset main menu ordering
 
 void M_DrawBackground(char *patch, byte *screen);  // killough 11/98
 
+#ifdef CREDITS
 void M_DrawCredits(void);    // killough 11/98
+#endif
 
 // killough 8/15/98: warn about changes not being committed until next game
 #define warn_about_changes(x) (warning_about_changes=(x), \

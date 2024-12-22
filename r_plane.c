@@ -229,7 +229,11 @@ visplane_t *R_FindPlane(fixed_t height, int picnum, int lightlevel,
   visplane_t *check;
   unsigned hash;                      // killough
 
-  if (picnum == skyflatnum || picnum & PL_SKYFLAT)  // killough 10/98
+  if (picnum == skyflatnum
+#ifdef SKYTRANSFER
+    || picnum & PL_SKYFLAT   // killough 10/98
+#endif
+    )
     lightlevel = height = 0;   // killough 7/19/98: most skies map together
 
   // New visplane algorithm uses hash table -- killough
@@ -322,7 +326,11 @@ static void do_draw_plane(visplane_t *pl)
   register int x;
   if (pl->minx <= pl->maxx)
     {
-      if (pl->picnum == skyflatnum || pl->picnum & PL_SKYFLAT)  // sky flat
+      if (pl->picnum == skyflatnum
+#ifdef SKYTRANSFER
+      || pl->picnum & PL_SKYFLAT
+#endif
+      )  // sky flat
 	{
 	  int texture;
 	  angle_t an, flip;
@@ -333,7 +341,8 @@ static void do_draw_plane(visplane_t *pl)
 	  // to use info lumps.
 	  
 	  an = viewangle;
-	  
+
+#ifdef SKYTRANSFER
 	  if (pl->picnum & PL_SKYFLAT)
 	    { 
 	      // Sky Linedef
@@ -365,6 +374,7 @@ static void do_draw_plane(visplane_t *pl)
 	      flip = l->special==272 ? 0u : ~0u;
 	    }
 	  else 	 // Normal Doom sky, only one allowed per level
+#endif
 	    {
 	      dc_texturemid = skytexturemid;    // Default y-offset
 	      texture = skytexture;             // Default texture
