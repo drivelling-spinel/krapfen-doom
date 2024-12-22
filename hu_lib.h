@@ -221,6 +221,7 @@ void HUlib_addMessageToMText
   char*   prefix,
   char*   msg );
 
+#ifdef MESSAGEBG
 //jff 2/26/98 new routine to display a background on which
 // the list of last hud_msg_lines are displayed
 void HUlib_drawMBg
@@ -230,6 +231,7 @@ void HUlib_drawMBg
   int h,
   patch_t** bgp
 );
+#endif
 
 //jff 2/26/98 message refresh widget
 // draws mtext

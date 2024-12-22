@@ -43,6 +43,7 @@ rcsid[] = "$Id: hu_stuff.c,v 1.3 2000-08-12 21:29:25 fraggle Exp $";
 #include "am_map.h"
 #endif
 
+#ifdef HUDBOOM
 // global heads up display controls
 
 int hud_active;       //jff 2/17/98 controls heads-up display mode 
@@ -50,6 +51,7 @@ int hud_displayed;    //jff 2/23/98 turns heads-up display on/off
 int hud_nosecrets;    //jff 2/18/98 allows secrets line to be disabled in HUD
 int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
 int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
+#endif
 
 //
 // Locally used constants, shortcuts.
@@ -68,13 +70,19 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 //jff 2/16/98 change 167 to ST_Y-1
 #define HU_TITLEY (ST_Y - 1 - SHORT(hu_font[0]->height)) 
 
+#ifdef HUDBOOM
 //jff 2/16/98 add coord text widget coordinates
 #define HU_COORDX (SCREENWIDTH - 13*SHORT(hu_font2['A'-HU_FONTSTART]->width))
+#else
+#define HU_COORDX (SCREENWIDTH - 13*SHORT(hu_font['A'-HU_FONTSTART]->width))
+#endif
+
 //jff 3/3/98 split coord widget into three lines in upper right of screen
 #define HU_COORDX_Y (1 + 0*SHORT(hu_font['A'-HU_FONTSTART]->height))
 #define HU_COORDY_Y (2 + 1*SHORT(hu_font['A'-HU_FONTSTART]->height))
 #define HU_COORDZ_Y (3 + 2*SHORT(hu_font['A'-HU_FONTSTART]->height))
 
+#ifdef HUDBOOM
 //jff 2/16/98 add ammo, health, armor widgets, 2/22/98 less gap
 #define HU_GAPY 8
 #define HU_HUDHEIGHT (6*HU_GAPY)
@@ -115,6 +123,8 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #define HU_HEALTHY_D (HU_HUDY_UR+0*HU_GAPY)
 #define HU_ARMORX_D  (HU_HUDX_UR)
 #define HU_ARMORY_D  (HU_HUDY_UR+1*HU_GAPY)
+
+#endif
 
 //#define HU_INPUTTOGGLE  't' // not used                           // phares
 #define HU_INPUTX HU_MSGX
@@ -161,8 +171,10 @@ static player_t*  plr;
 
 // font sets
 patch_t* hu_font[HU_FONTSIZE];
+#ifdef HUDBOOM
 patch_t* hu_font2[HU_FONTSIZE];
 patch_t* hu_fontk[HU_FONTSIZE];//jff 3/7/98 added for graphic key indicators
+#endif
 #ifdef MESSAGEBG
 patch_t* hu_msgbg[9];          //jff 2/26/98 add patches for message background
 #endif
@@ -175,6 +187,7 @@ static hu_itext_t     w_inputbuffer[MAXPLAYERS];
 static hu_textline_t  w_coordx; //jff 2/16/98 new coord widget for automap
 static hu_textline_t  w_coordy; //jff 3/3/98 split coord widgets automap
 static hu_textline_t  w_coordz; //jff 3/3/98 split coord widgets automap
+#ifdef HUDBOOM
 static hu_textline_t  w_ammo;   //jff 2/16/98 new ammo widget for hud
 static hu_textline_t  w_health; //jff 2/16/98 new health widget for hud
 static hu_textline_t  w_armor;  //jff 2/16/98 new armor widget for hud
@@ -182,6 +195,7 @@ static hu_textline_t  w_weapon; //jff 2/16/98 new weapon widget for hud
 static hu_textline_t  w_keys;   //jff 2/16/98 new keys widget for hud
 static hu_textline_t  w_gkeys;  //jff 3/7/98 graphic keys widget for hud
 static hu_textline_t  w_monsec; //jff 2/16/98 new kill/secret widget for hud
+#endif
 static hu_mtext_t     w_rtext;  //jff 2/26/98 text message refresh widget
 
 static boolean    always_off = false;
@@ -230,6 +244,7 @@ int chat_msg_timer = HU_MSGTIMEOUT * (1000/TICRATE);     // killough 11/98
 static char hud_coordstrx[32];
 static char hud_coordstry[32];
 static char hud_coordstrz[32];
+#ifdef HUDBOOM
 static char hud_ammostr[80];
 static char hud_healthstr[80];
 static char hud_armorstr[80];
@@ -237,6 +252,7 @@ static char hud_weapstr[80];
 static char hud_keysstr[80];
 static char hud_gkeysstr[80]; //jff 3/7/98 add support for graphic key display
 static char hud_monsecstr[80];
+#endif
 
 //jff 2/16/98 declaration of color switch points
 extern int ammo_red;
@@ -330,61 +346,81 @@ void HU_Init(void)
     {
       if ('0'<=j && j<='9')
         {
+#ifdef HUDBOOM
           sprintf(buffer, "DIG%.1d",j-48);
           hu_font2[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+#endif
           sprintf(buffer, "STCFN%.3d",j);
           hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
         }
       else
         if ('A'<=j && j<='Z')
           {
+#ifdef HUDBOOM
             sprintf(buffer, "DIG%c",j);
             hu_font2[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+#endif
             sprintf(buffer, "STCFN%.3d",j);
             hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
           }
         else
           if (j=='-')
             {
+#ifdef HUDBOOM
               hu_font2[i] = (patch_t *) W_CacheLumpName("DIG45", PU_STATIC);
+#endif
               hu_font[i] = (patch_t *) W_CacheLumpName("STCFN045", PU_STATIC);
             }
           else
             if (j=='/')
               {
+#ifdef HUDBOOM
                 hu_font2[i] = (patch_t *) W_CacheLumpName("DIG47", PU_STATIC);
+#endif
                 hu_font[i] = (patch_t *) W_CacheLumpName("STCFN047", PU_STATIC);
               }
             else
               if (j==':')
                 {
+#ifdef HUDBOOM
                   hu_font2[i] = (patch_t *) W_CacheLumpName("DIG58", PU_STATIC);
+#endif
                   hu_font[i] = (patch_t *) W_CacheLumpName("STCFN058", PU_STATIC);
                 }
               else
                 if (j=='[')
                   {
+#ifdef HUDBOOM
                     hu_font2[i] = (patch_t *) W_CacheLumpName("DIG91", PU_STATIC);
+#endif
                     hu_font[i] = (patch_t *) W_CacheLumpName("STCFN091", PU_STATIC);
                   }
                 else
                   if (j==']')
                     {
+#ifdef HUDBOOM
                       hu_font2[i] = (patch_t *) W_CacheLumpName("DIG93", PU_STATIC);
+#endif
                       hu_font[i] = (patch_t *) W_CacheLumpName("STCFN093", PU_STATIC);
                     }
                   else
                     if (j<97)
                       {
                         sprintf(buffer, "STCFN%.3d",j);
-                        hu_font2[i] = hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+#ifdef HUDBOOM
+                        hu_font2[i] =
+#endif
+                                      hu_font[i] = (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
+
                         //jff 2/23/98 make all font chars defined, useful or not
                       }
                     else
                       if (j>122)
                         {
                           sprintf(buffer, "STBR%.3d",j);
-                          hu_font2[i] = hu_font[i] =
+#ifdef HUDBOOM
+                          hu_font2[i] =
+#endif                                  hu_font[i] =
                             (patch_t *) W_CacheLumpName(buffer, PU_STATIC);
                         }
                       else
@@ -403,6 +439,7 @@ void HU_Init(void)
   hu_msgbg[7] = (patch_t *) W_CacheLumpName("BOXLC", PU_STATIC);
   hu_msgbg[8] = (patch_t *) W_CacheLumpName("BOXLR", PU_STATIC);
 #endif
+#ifdef HUDBOOM
   //jff 2/26/98 load patches for keys and double keys
   hu_fontk[0] = (patch_t *) W_CacheLumpName("STKEYS0", PU_STATIC);
   hu_fontk[1] = (patch_t *) W_CacheLumpName("STKEYS1", PU_STATIC);
@@ -410,7 +447,7 @@ void HU_Init(void)
   hu_fontk[3] = (patch_t *) W_CacheLumpName("STKEYS3", PU_STATIC);
   hu_fontk[4] = (patch_t *) W_CacheLumpName("STKEYS4", PU_STATIC);
   hu_fontk[5] = (patch_t *) W_CacheLumpName("STKEYS5", PU_STATIC);
-
+#endif
 #ifdef ONEOFFREVIEW
   if(hud_msg_oneoff)
     message_list = 0;
@@ -471,6 +508,7 @@ void HU_Start(void)
   HUlib_initTextLine(&w_title, HU_TITLEX, HU_TITLEY, hu_font,
 		     HU_FONTSTART, colrngs[hudcolor_titl]);
 
+#ifdef HUDBOOM
   // create the hud health widget
   // bargraph and number for amount of health, 
   // lower left or upper right of screen
@@ -519,7 +557,7 @@ void HU_Start(void)
   HUlib_initTextLine(&w_monsec, hud_distributed ? HU_MONSECX_D : HU_MONSECX,
 		     hud_distributed? HU_MONSECY_D : HU_MONSECY, hu_font2,
 		     HU_FONTSTART, colrngs[CR_GRAY]);
-
+#endif
   // create the hud text refresh widget
   // scrolling display of last hud_msg_lines messages received
 
@@ -573,6 +611,7 @@ void HU_Start(void)
   while (*s)
     HUlib_addCharToTextLine(&w_coordz, *s++);
 
+#ifdef HUDBOOM
   //jff 2/16/98 initialize ammo widget
   sprintf(hud_ammostr,"AMM ");
   s = hud_ammostr;
@@ -617,6 +656,7 @@ void HU_Start(void)
   s = hud_monsecstr;
   while (*s)
     HUlib_addCharToTextLine(&w_monsec, *s++);
+#endif
 
   // create the chat widget
   HUlib_initIText
@@ -639,6 +679,7 @@ void HU_Start(void)
   headsupactive = true;
 }
 
+#ifdef HUDBOOM
 //
 // HU_MoveHud()
 //
@@ -691,6 +732,7 @@ static int HU_top(int i, int idx1, int top1)
     }
   return i;
 }
+#endif
 
 //
 // HU_Drawer()
@@ -703,10 +745,12 @@ void HU_Drawer(void)
 {
   char *s;
   player_t *plr;
+#ifdef HUDBOOM
   char ammostr[80];  //jff 3/8/98 allow plenty room for dehacked mods
   char healthstr[80];//jff
   char armorstr[80]; //jff
   int i;
+#endif
 
   plr = &players[displayplayer];         // killough 3/7/98
   // draw the automap widgets if automap is displayed
@@ -760,6 +804,7 @@ void HU_Drawer(void)
 #endif
     }
 
+#ifdef HUDBOOM
   // draw the weapon/health/ammo/armor/kills/keys displays if optioned
   //jff 2/17/98 allow new hud stuff to be turned off
   // killough 2/21/98: really allow new hud stuff to be turned off COMPLETELY  
@@ -1200,6 +1245,7 @@ void HU_Drawer(void)
             HUlib_drawTextLine(&w_monsec, false);
         }
     }
+#endif
 
   //jff 3/4/98 display last to give priority
   // jff 4/24/98 Erase current lines before drawing current

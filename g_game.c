@@ -147,7 +147,9 @@ int     key_map_clear;
 int     key_map_grid;
 int     key_help = KEYD_F1;                                 // phares 4/13/98
 int     key_soundvolume;
+#ifdef HUDBOOM
 int     key_hud;
+#endif
 int     key_quicksave;
 int     key_endgame;
 int     key_messages;

@@ -136,6 +136,8 @@ OBJS=	\
  	$(O)/emu8kmid.o	    
 
 doom all: $(O)/krfn.exe
+	exe2coff $(O)\krfn.exe
+	copy /y /b $(O)\cwsdstub.exe + $(O)\krfn $(O)\krfn.exe
 	upx -9 $(O)\krfn.exe
 
 debug:

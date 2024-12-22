@@ -56,10 +56,12 @@ extern patch_t* hu_font[HU_FONTSIZE];
 extern boolean  message_dontfuckwithme;
           
 extern boolean chat_on;          // in heads-up code
+#ifdef BOOMHUD
 extern int     hud_active;       // in heads-up code
 extern int     hud_displayed;    // in heads-up code
 extern int     hud_distributed;  // in heads-up code
 extern int     HU_MoveHud(void); // jff 3/9/98 avoid glitch in HUD display
+#endif
 
 //
 // defaulted values
@@ -193,7 +195,9 @@ extern int key_backspace;
 extern int key_enter;
 extern int key_help;
 extern int key_soundvolume;
+#ifdef HUDBOOM
 extern int key_hud;
+#endif
 extern int key_quicksave;
 extern int key_endgame;
 extern int key_messages;
@@ -265,7 +269,9 @@ extern int ammo_red;      // ammo percent less than which status is red
 extern int ammo_yellow;   // ammo percent less is yellow more green
 extern int sts_always_red;// status numbers do not change colors
 extern int sts_pct_always_gray;// status percents do not change colors
+#ifdef HUDBOOM
 extern int hud_nosecrets; // status does not list secrets/items/kills
+#endif
 #ifdef TRADKEY
 extern int sts_traditional_keys;  // display keys the traditional way
 #endif
@@ -1550,7 +1556,9 @@ void M_SizeDisplay(int choice)
 	{
 	  screenblocks--;
 	  screenSize--;
+#ifdef HUDBOOM
 	  hud_displayed = 0;
+#endif
 	}
       break;
     case 1:
@@ -1559,8 +1567,10 @@ void M_SizeDisplay(int choice)
 	  screenblocks++;
 	  screenSize++;
 	}
+#ifdef HUDBOOM
       else
 	hud_displayed = !hud_displayed;
+#endif
       break;
     }
   R_SetViewSize (screenblocks /*, detailLevel obsolete -- killough */);
@@ -2479,7 +2489,9 @@ setup_menu_t keys_settings2[] =  // Key Binding screen strings
   {"PAUSE"       ,S_KEY       ,m_scrn,KB_X,KB_Y+ 2*8,{&key_pause}},
   {"AUTOMAP"     ,S_KEY       ,m_scrn,KB_X,KB_Y+ 3*8,{&key_map}},
   {"VOLUME"      ,S_KEY       ,m_scrn,KB_X,KB_Y+ 4*8,{&key_soundvolume}},
+#ifdef HUDBOOM
   {"HUD"         ,S_KEY       ,m_scrn,KB_X,KB_Y+ 5*8,{&key_hud}},
+#endif
   {"MESSAGES"    ,S_KEY       ,m_scrn,KB_X,KB_Y+ 6*8,{&key_messages}},
   {"GAMMA FIX"   ,S_KEY       ,m_scrn,KB_X,KB_Y+ 7*8,{&key_gamma}},
   {"SPY"         ,S_KEY       ,m_scrn,KB_X,KB_Y+ 8*8,{&key_spy}},
@@ -2761,10 +2773,11 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
 #ifdef TRADKEY
   {"SINGLE KEY DISPLAY",S_YESNO, m_null,ST_X,ST_Y+ 4*8, {"sts_traditional_keys"}},
 #endif
-
+#ifdef HUDBOOM
   {"HEADS-UP DISPLAY"  ,S_SKIP|S_TITLE,m_null,ST_X,ST_Y+ 6*8},
 
   {"HIDE SECRETS"      ,S_YESNO     ,m_null,ST_X,ST_Y+ 7*8, {"hud_nosecrets"}},
+#endif
   {"HEALTH LOW/OK"     ,S_NUM       ,m_null,ST_X,ST_Y+ 8*8, {"health_red"}},
   {"HEALTH OK/GOOD"    ,S_NUM       ,m_null,ST_X,ST_Y+ 9*8, {"health_yellow"}},
   {"HEALTH GOOD/EXTRA" ,S_NUM       ,m_null,ST_X,ST_Y+10*8, {"health_green"}},
@@ -4157,7 +4170,9 @@ setup_menu_t helpstrings[] =  // HELP screen strings
   {"PAUSE"       ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 4*8,{&key_pause}},
   {"AUTOMAP"     ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 5*8,{&key_map}},
   {"SOUND VOLUME",S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 6*8,{&key_soundvolume}},
+#ifdef HUDBOOM
   {"HUD"         ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 7*8,{&key_hud}},
+#endif
   {"MESSAGES"    ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 8*8,{&key_messages}},
   {"GAMMA FIX"   ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+ 9*8,{&key_gamma}},
   {"SPY"         ,S_SKIP|S_KEY,m_null,KT_X1,KT_Y1+10*8,{&key_spy}},
@@ -4698,13 +4713,13 @@ boolean M_Responder (event_t* ev)
 	  S_StartSound(NULL,sfx_stnmov);                                //  |
 	  return true;                                            // phares
 	}
-                                  
+#ifdef HUDBOOM                                  
       if (ch == key_hud)   // heads-up mode       
 	{                    
 	  if (automapactive || chat_on)    // jff 2/22/98
 	    return false;                  // HUD mode control
 	  if (screenSize<8)                // function on default F5
-	    while (screenSize<8 || !hud_displayed) // make hud visible
+            while (screenSize<8 || !hud_displayed) // make hud visible
 	      M_SizeDisplay(1);            // when configuring it
 	  else
 	    {
@@ -4718,7 +4733,7 @@ boolean M_Responder (event_t* ev)
 	    }
 	  return true;
 	}
-
+#endif
       // killough 10/98: allow key shortcut into Setup menu
       if (ch == key_setup)
 	{

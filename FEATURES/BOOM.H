@@ -56,6 +56,10 @@
 //               with non-transparent background
 #define MESSAGEBG
 
+// HUDBOOM     - BOOM fullscreen HUD features
+#define HUDBOOM
+
+
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif

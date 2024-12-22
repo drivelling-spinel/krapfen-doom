@@ -5603,6 +5603,7 @@ static const char m_compat[] = {
   191,191,191,191,191,255,
 };
 
+#ifdef HUDBOOM
 //jff 02/16/98 HUD bargraph patches
 // The HUD uses vertical stripe characters to make up the bars in
 // view during play, and those are made up here at various stages
@@ -6056,6 +6057,7 @@ static const char digz[]=  // end of letters A-Z
   176,  0,176,  0,  0,255,  1,  6,  0,176,176,  0,  0,176,  0,  0,
   255,  2,  2,  0,  0,  0,  0,  6,  1,  0,  0,  0,255,
 };
+#endif
 
 #ifdef TRADKEY
 static const char stkeys6[]=  // show both blue keys on stat bar
@@ -15513,7 +15515,7 @@ const lumpinfo_t predefined_lumps[]={
   { "M_VERSEN", sizeof m_versen, m_versen },
   { "M_COMPAT", sizeof m_compat, m_compat },   // killough 10/98
   { "M_GENERL", sizeof m_generl, m_generl },   // killough 10/98
-
+#ifdef HUDBOOM
   { "STBR123",  sizeof stbr123, stbr123 }, //jff 02/16/98 bargraph patches
   { "STBR124",  sizeof stbr124, stbr124 },
   { "STBR125",  sizeof stbr125, stbr125 },
@@ -15560,6 +15562,7 @@ const lumpinfo_t predefined_lumps[]={
   { "DIG58",    sizeof dig58, dig58 },
   { "DIG91",    sizeof dig91, dig91 },
   { "DIG93",    sizeof dig93, dig93 },
+#endif
 #ifdef TRADKEY
   { "STKEYS6",  sizeof stkeys6, stkeys6 }, //jff 2/24/98 double key graphics
   { "STKEYS7",  sizeof stkeys7, stkeys7 },

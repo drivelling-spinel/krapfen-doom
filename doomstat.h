@@ -201,7 +201,9 @@ extern  boolean inhelpscreens; // GB 2014 In fullscreen menu?
 extern  boolean automapactive; // In AutoMap mode?
 extern  boolean menuactive;    // Menu overlayed?
 extern  boolean paused;        // Game Pause?
+#ifdef HUDBOOM
 extern  int     hud_active;    //jff 2/17/98 toggles heads-up status display
+#endif
 extern  boolean viewactive;
 extern  boolean nodrawers;
 extern  boolean noblit;

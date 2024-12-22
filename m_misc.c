@@ -902,14 +902,14 @@ default_t defaults[] = {
     KEYD_F4, {0,255}, number, ss_keys, wad_no,
     "key to bring up sound control panel"
   },
-
+#ifdef HUDBOOM
   {
     "key_hud",
     &key_hud, NULL,
     KEYD_F5, {0,255}, number, ss_keys, wad_no,
     "key to adjust heads up display mode"
   },
-
+#endif
   {
     "key_quicksave",
     &key_quicksave, NULL,
@@ -1725,13 +1725,14 @@ default_t defaults[] = {
     "1 enables background window behind message review"
   },
 #endif
+#ifdef HUDBOOM
   { // hud broken up into 3 displays //jff 3/4/98
     "hud_distributed",
     &hud_distributed, NULL,
     0, {0,1}, number, ss_none, wad_yes,
     "1 splits HUD into three 2 line displays"
   },
-
+#endif
   { // below is red
     "health_red",
     &health_red, NULL,
@@ -1787,7 +1788,7 @@ default_t defaults[] = {
     50, {0,100}, number, ss_stat, wad_yes,
     "percent of ammo for yellow to green transition"
   },
-
+#ifdef HUDBOOM
   { // 0=off, 1=small, 2=full //jff 2/16/98 HUD and status feature controls
     "hud_active",
     &hud_active, NULL,
@@ -1808,6 +1809,7 @@ default_t defaults[] = {
     1, {0,1}, number, ss_stat, wad_yes,
     "1 to disable display of kills/items/secrets on HUD"
   },
+#endif
 #ifdef WEAPONBOOM
   {  // killough 2/8/98: weapon preferences set by user:
     "weapon_choice_1",
@@ -2236,7 +2238,9 @@ void M_LoadDefaults (void)
 #ifdef DISKICON
 	  disk_icon=true;
 #endif
+#ifdef HUDBOOM
 	  hud_active=0;
+#endif
 	  screenblocks=9;
 	  show_fps=false;
   }
@@ -2251,7 +2255,9 @@ void M_LoadDefaults (void)
 #ifdef DISKICON
 	  disk_icon=true;
 #endif
+#ifdef HUDBOOM
 	  hud_active=0;
+#endif
 	  screenblocks=10;
 	  show_fps=false;
   }
@@ -2295,6 +2301,7 @@ int M_DrawText(int x,int y,boolean direct,char* string)
   return x;
 }
 
+#ifdef HUDBOOM
 // GB 2014: for DEBUG text and FPS counter, Smaller font from HUD.
 extern patch_t* hu_font2[HU_FONTSIZE];
 int M_DrawText2(int x,int y, int colorrange, boolean direct,char* string)
@@ -2322,6 +2329,7 @@ int M_DrawText2(int x,int y, int colorrange, boolean direct,char* string)
     }
   return x;
 }
+#endif
 
 //
 // M_WriteFile

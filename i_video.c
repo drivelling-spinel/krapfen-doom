@@ -257,7 +257,12 @@ void show_info_proc()
 
  	if (modeswitched>0) // display video driver after switch
     {
-       M_DrawText2(1,0,CR_BLUE,true,mode_string); 
+#ifdef HUDBOOM
+       M_DrawText2(1,0,CR_BLUE,true,mode_string);
+#else
+       M_DrawText(1,0,true,mode_string);
+#endif
+
 	   if (modeswitched==1)
 	   {
 	     fps_timeout=I_GetTime()+200; // I_GetTime_RealTime(); same result
@@ -299,8 +304,12 @@ void show_info_proc()
 			fps_counter=0; // flush old data
 		  }
 	   }
-       V_DrawRect(0, 309-c, 0, 319, 6, 0x00); 
+       V_DrawRect(0, 309-c, 0, 319, 6, 0x00);
+#ifdef HUDBOOM
        if (fps>-1) M_DrawText2(295-i,0,cr,true,fps_string);
+#else
+       if (fps>-1) M_DrawText(295-i,0,true,fps_string);
+#endif
 	}
 }
 
