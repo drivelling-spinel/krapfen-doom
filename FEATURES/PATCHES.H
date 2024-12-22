@@ -22,11 +22,6 @@
 //                off the floors backported from Eternity Engine
 #define SOULBOUNCE
 
-// FIRELINEFIX  - BOOM way of dealing with slime trails, as implemented
-//                by Rand Phares for BOOM 2.02
-//#define FIRELINEFIX
-
-
 #if defined(DGONDOS) && !defined(SAKITOSHI)
 #define SAKITOSHI
 #endif

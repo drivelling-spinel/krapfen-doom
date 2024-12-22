@@ -110,14 +110,8 @@ size_t     num_deathmatchstarts;   // killough
 mapthing_t *deathmatch_p;
 mapthing_t playerstarts[MAXPLAYERS];
 
-#ifdef FIRELINEPARM
-boolean firelineparm;
-#endif
-#ifdef SLIMEPARM
-boolean slimeparm;
-#endif
-#ifdef RECALCANGLE
-boolean recalcangle;
+#ifdef SLIMEOPT
+int slimeopt;
 #endif
 
 //
@@ -161,35 +155,11 @@ void P_LoadSegs (int lump)
 {
   int  i;
   byte *data;
-#ifdef FIRELINEFIX
-  byte *vertchanged = Z_Malloc(numvertexes,PU_LEVEL,0); // phares 10/4/98
-  line_t* line;     // phares 10/4/98
-  int ptp_angle;    // phares 10/4/98
-  int delta_angle;  // phares 10/4/98
-  int dis;          // phares 10/4/98
-  int dx,dy;        // phares 10/4/98
-  int vnum1,vnum2;  // phares 10/4/98
-
-  memset(vertchanged,0,numvertexes); // phares 10/4/98
-#endif
 
   numsegs = W_LumpLength(lump) / sizeof(mapseg_t);
   segs = Z_Malloc(numsegs*sizeof(seg_t),PU_LEVEL,0);
   memset(segs, 0, numsegs*sizeof(seg_t));
   data = W_CacheLumpNum(lump,PU_STATIC);
-
-#ifdef FIRELINEFIX
-  // phares: 10/4/98: Vertchanged is an array that represents the vertices.
-  // Mark those used by linedefs. A marked vertex is one that is not a
-  // candidate for movement further down.
-
-  line = lines;
-  for (i = 0; i < numlines ; i++,line++)
-    {
-    vertchanged[line->v1 - vertexes] = 1;
-    vertchanged[line->v2 - vertexes] = 1;
-    }
-#endif
 
   for (i=0; i<numsegs; i++)
     {
@@ -201,76 +171,7 @@ void P_LoadSegs (int lump)
 
       li->v1 = &vertexes[SHORT(ml->v1)];
       li->v2 = &vertexes[SHORT(ml->v2)];
-#ifdef RECALCANGLE      
-      if(recalcangle)
-        li->angle = R_PointToAngle2(li->v1->x, li->v1->y, li->v2->x, li->v2->y);
-      else
-#endif
       li->angle = (SHORT(ml->angle))<<16;
-#ifdef FIRELINEFIX
-// phares 10/4/98: In the case of a lineseg that was created by splitting
-// another line, it appears that the line angle is inherited from the
-// father line. Due to roundoff, the new vertex may have been placed 'off
-// the line'. When you get close to such a line, and it is very short,
-// it's possible that the roundoff error causes 'firelines', the thin
-// lines that can draw from screen top to screen bottom occasionally. This
-// is due to all the angle calculations that are done based on the line
-// angle, the angles from the viewer to the vertices, and the viewer's
-// angle in the world. In the case of firelines, the rounded-off position
-// of one of the vertices determines one of these angles, and introduces
-// an error in the scaling factor for mapping textures and determining
-// where on the screen the ceiling and floor spans should be shown. For a
-// fireline, the engine thinks the ceiling bottom and floor top are at the
-// midpoint of the screen. So you get ceilings drawn all the way down to the
-// screen midpoint, and floors drawn all the way up. Thus 'firelines'. The
-// name comes from the original sighting, which involved a fire texture.
-//
-// To correct this, reset the vertex that was added so that it sits ON the
-// split line.
-//
-// To know which of the two vertices was added, its number is greater than
-// that of the last of the author-created vertices. If both vertices of the
-// line were added by splitting, pick the higher-numbered one. Once you've
-// changed a vertex, don't change it again if it shows up in another seg.
-//
-// To determine if there's an error in the first place, find the
-// angle of the line between the two seg vertices. If it's one degree or more
-// off, then move one vertex. This may seem insignificant, but one degree
-// errors _can_ cause firelines.
-#ifdef FIRELINEPARM
-      if(firelineparm) {
-#endif
-      ptp_angle = R_PointToAngle2(li->v1->x,li->v1->y,li->v2->x,li->v2->y);
-      dis = 0;
-      delta_angle = (abs(ptp_angle-li->angle)>>ANGLETOFINESHIFT)*360/8192;
-
-      if (delta_angle != 0)
-        {
-        dx = (li->v1->x - li->v2->x)>>FRACBITS;
-        dy = (li->v1->y - li->v2->y)>>FRACBITS;
-        dis = ((int) sqrt(dx*dx + dy*dy))<<FRACBITS;
-        dx = finecosine[li->angle>>ANGLETOFINESHIFT];
-        dy = finesine[li->angle>>ANGLETOFINESHIFT];
-        vnum1 = li->v1 - vertexes; 
-        vnum2 = li->v2 - vertexes; 
-        if ((vnum2 > vnum1) && (vertchanged[vnum2] == 0))
-          {
-          li->v2->x = li->v1->x + FixedMul(dis,dx);
-          li->v2->y = li->v1->y + FixedMul(dis,dy);
-          vertchanged[vnum2] = 1; // this was changed
-          }
-        else if (vertchanged[vnum1] == 0)
-          {
-          li->v1->x = li->v2->x - FixedMul(dis,dx);
-          li->v1->y = li->v2->y - FixedMul(dis,dy);
-          vertchanged[vnum1] = 1; // this was changed
-          }
-        }
-#ifdef FIRELINEPARM
-      }
-#endif
-#endif
-
       li->offset = (SHORT(ml->offset))<<16;
       linedef = SHORT(ml->linedef);
       ldef = &lines[linedef];
@@ -279,17 +180,18 @@ void P_LoadSegs (int lump)
       li->sidedef = &sides[ldef->sidenum[side]];
       li->frontsector = sides[ldef->sidenum[side]].sector;
 
+      if (ldef->flags & ML_TWOSIDED
+#ifdef BOOMERROR
       // killough 5/3/98: ignore 2s flag if second sidedef missing:
-      if (ldef->flags & ML_TWOSIDED && ldef->sidenum[side^1]!=-1)
+                                    && ldef->sidenum[side^1]!=-1
+#endif
+                                                                )
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
 	li->backsector = 0;
     }
 
   Z_Free (data);
-#ifdef FIRELINEFIX
-  Z_Free(vertchanged); // phares 10/4/98
-#endif
 }
 
 //
@@ -996,7 +898,11 @@ void P_RemoveSlimeTrails(void)                // killough 10/98
   for (i=0; i<numsegs; i++)                   // Go through each seg
     {
       const line_t *l = segs[i].linedef;      // The parent linedef
+#ifdef SLIMEOPT
+      if (l->dx || l->dy)                     
+#else
       if (l->dx && l->dy)                     // We can ignore orthogonal lines
+#endif
 	{
 	  vertex_t *v = segs[i].v1;
 	  do
@@ -1081,8 +987,8 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   P_GroupLines();
 
 #ifdef REMOVESLIME
-#ifdef SLIMEPARM
-  if(slimeparm)
+#ifdef SLIMEOPT
+  if(slimeopt)
 #endif
   P_RemoveSlimeTrails();    // killough 10/98: remove slime trails from wad
 #endif
@@ -1102,9 +1008,10 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
           players[i].mo = NULL;
           G_DeathMatchSpawnPlayer(i);
         }
-
   // killough 3/26/98: Spawn icon landings:
+#ifndef D1BRAIN
   if (gamemode==commercial)
+#endif
     P_SpawnBrainTargets();
 
   // clear special respawning que

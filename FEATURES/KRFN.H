@@ -31,27 +31,19 @@
 //                default.cfg
 //#define DEFAULTCFG
 
-// SLIMEPARM    - make MBF fix for slime trails only apply when command
-//                line arguments -fixslime or -fixslime1 are specified
-#define SLIMEPARM
+// SLIMEOPT     - make slime trails removal optional
+//#define SLIMEOPT
 
-// FIRELINEPARM - make BOOM fix for slime trails / firelines only apply
-//                when command line argument -fixslime2 is specified
-//#define FIRELINEPARM
-
-// RECALCANGLE - do not trust angles found in seg definitions of maps
-#define RECALCANGLE
+// D1BRAN       - allow spawning "brain targets" in Doom 1
+//                like vanilla did
+//#define D1BRAIN
 
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
 #endif
 
-#if defined(SLIMEPARM) && !defined(REMOVESLIME)
+#if defined(SLIMEOPT) && !defined(REMOVESLIME)
 #define REMOVESLIME
-#endif
-
-#if defined(FIRELINEPARM) && !defined(FIRELINEFIX)
-#define FIRELINEFIX
 #endif
 
 #endif

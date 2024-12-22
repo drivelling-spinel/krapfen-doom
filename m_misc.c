@@ -77,8 +77,8 @@ extern int tran_filter_pct;            // killough 2/21/98
 extern int screenblocks;
 extern int showMessages;
 
-#ifdef RECALCANGLE
-extern boolean recalcangle;
+#ifdef SLIMEOPT
+extern int slimeopt;
 #endif
 
 extern char *chat_macros[]
@@ -231,17 +231,17 @@ default_t defaults[] = {
     "1 to enable flashing HOM indicator"
   },
 #endif
-#ifdef RECALCANGLE
+#ifdef SLIMEOPT
   {
-    "recalcangle",
-    &recalcangle, NULL,
+    "slimeopt",
+    &slimeopt, NULL,
 #ifdef KRFNDFLT
-    1,
-#else
     0,
+#else
+    1,
 #endif
        {0,1}, number, ss_gen, wad_yes,
-    "1 to recalculate line segment angles in maps"
+    "1 to remove slime trails from maps"
   },
 #endif
 

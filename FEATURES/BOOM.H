@@ -67,6 +67,9 @@
 //               mirrors" is detected
 #define INDICATEHOM
 
+// BOOMERROR - fix map errors on loading (missing sidedefs)
+#define BOOMERROR
+
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif

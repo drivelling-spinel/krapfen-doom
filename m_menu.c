@@ -3319,8 +3319,8 @@ enum {
   general_corpse,
 #endif
   general_realtic,
-#ifdef RECALCANGLE
-  general_angle,
+#ifdef SLIMEOPT
+  general_slime,
 #endif
   general_end
 };
@@ -3357,9 +3357,9 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 #endif
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
    G_Y4 + general_realtic*8, {"realtic_clock_rate"}},
-#ifdef RECALCANGLE
-  {"Recalculate line angles in maps", S_YESNO|S_LEVWARN, m_null, G_X,
-   G_Y4 + general_angle*8, {"recalcangle"}},
+#ifdef SLIMEOPT
+  {"Remove slime trails from maps", S_YESNO|S_LEVWARN, m_null, G_X,
+   G_Y4 + general_slime*8, {"slimeopt"}},
 #endif
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
