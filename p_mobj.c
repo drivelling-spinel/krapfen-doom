@@ -279,17 +279,22 @@ void P_XYMovement (mobj_t* mo)
   if (mo->flags & (MF_MISSILE | MF_SKULLFLY) || mo->z > mo->floorz)
     return;
 
+  if (
 #ifdef PHYSMBF
-  // killough 8/11/98: add bouncers
-  // killough 9/15/98: add objects falling off ledges
-  // killough 11/98: only include bouncers hanging off ledges
-  if (((mo->flags & MF_BOUNCES && mo->z > mo->dropoffz) ||
-       mo->flags & MF_CORPSE || mo->intflags & MIF_FALLING) &&
+      // killough 8/11/98: add bouncers
+      // killough 9/15/98: add objects falling off ledges
+      // killough 11/98: only include bouncers hanging off ledges
+      ((mo->flags & MF_BOUNCES && mo->z > mo->dropoffz) ||
+#endif
+       mo->flags & MF_CORPSE
+#ifdef PHYSMBF
+                             || mo->intflags & MIF_FALLING)
+#endif
+                                                            &&
       (mo->momx > FRACUNIT/4 || mo->momx < -FRACUNIT/4 ||
        mo->momy > FRACUNIT/4 || mo->momy < -FRACUNIT/4) &&
       mo->floorz != mo->subsector->sector->floorheight)
     return;  // do not stop sliding if halfway off a step with some momentum
-#endif
 
   // killough 11/98:
   // Stop voodoo dolls that have come to rest, despite any

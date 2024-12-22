@@ -2392,8 +2392,10 @@ void P_SpawnSpecials (void)
         case 4:
           // strobe fast/death slime
           P_SpawnStrobeFlash(sector,FASTDARK,0);
-#ifdef GENERAZLIED
+#ifdef GENERALIZED
           sector->special |= 3<<DAMAGE_SHIFT; //jff 3/14/98 put damage bits in
+#else
+          sector->special = 4;
 #endif
           break;
 
@@ -2462,8 +2464,12 @@ void P_SpawnSpecials (void)
   for (i=0; i<numlines; i++)
     switch (lines[i].special)
       {
+#if defined(DEEPWATER) || defined(LIGHTTRANSFER) || defined(SKYTRANSFER)
+        int s
 #if defined(DEEPWATER) || defined(LIGHTTRANSFER)
-        int s, sec;
+             , sec
+#endif
+        ;
 #endif
 #ifdef DEEPWATER
         // killough 3/7/98:
