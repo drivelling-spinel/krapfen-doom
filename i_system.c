@@ -37,6 +37,7 @@ extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 // fraggle 29/7/2000: keyboard.h: avoid name conflicts with allegro functions
 #include "keyboard.h"
 
+#include "features.h"
 #include "i_system.h"
 #include "i_sound.h"
 #include "doomstat.h"
@@ -48,6 +49,10 @@ extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 
 #ifdef PERIDOT
 #include <dos.h>
+#endif
+
+#ifdef DEFAULTCFG
+#include <sys/stat.h>
 #endif
 
 ticcmd_t *I_BaseTiccmd(void)
@@ -141,6 +146,159 @@ void I_ResetLEDs(void)
 
   set_leds(leds_always_off ? 0 : -1);
 }
+
+#ifdef DEFAULTCFG
+
+static int snd_DesiredMusicDevice, snd_DesiredSfxDevice;
+static int snd_Channels;
+static int snd_SBport, snd_SBirq, snd_SBdma;       // sound blaster variables
+static int snd_Mport;                              // midi variables
+
+static void M_HLoadDefaults(char *fileName)
+{
+  int i;
+  FILE *f;
+  char def[80];
+  char strparm[100];
+  int parm;
+  boolean isstring;
+
+  typedef struct
+  {
+    char    *name;
+    int     *location;
+    int     defaultvalue;
+  } hdefault_t;
+
+
+  static hdefault_t hdefaults[] =
+  {
+    { "snd_channels", &snd_Channels, 3 },
+    { "snd_musicdevice", &snd_DesiredMusicDevice, 0 },
+    { "snd_sfxdevice", &snd_DesiredSfxDevice, 0 },
+    { "snd_sbport", &snd_SBport, 544 },
+    { "snd_sbirq", &snd_SBirq, -1 },
+    { "snd_sbdma", &snd_SBdma, -1 },
+    { "snd_mport", &snd_Mport, -1 },
+  };
+
+  static int numdefaults;
+
+  // Set everything to base values
+  numdefaults = sizeof(hdefaults)/sizeof(hdefaults[0]);
+  for(i = 0; i < numdefaults; i++)
+  {
+     *hdefaults[i].location = hdefaults[i].defaultvalue;
+  }
+
+  // Scan the config file
+  f = fopen(fileName, "r");
+  if(f)
+  {
+    while(!feof(f))
+    {
+      isstring = false;
+      if(fscanf(f, "%79s %[^\n]\n", def, strparm) == 2)
+      {
+	if(strparm[0] == '"')
+	{
+	  continue;
+	}
+	else if(strparm[0] == '0' && strparm[1] == 'x')
+	{
+	  sscanf(strparm+2, "%x", &parm);
+	}
+	else
+	{
+	  sscanf(strparm, "%i", &parm);
+	}
+	for(i = 0; i < numdefaults; i++)
+	{                 
+	  if(!strcmp(def, hdefaults[i].name))
+	  {
+	    *hdefaults[i].location = parm;
+	    break;
+	  }
+	}
+      }
+    }
+
+    fclose (f);
+  }
+
+}
+
+void I_GenerateAllegroCfg(char * fname)
+{
+  static char template[] = 
+"[sound]\n"
+"digi_card = %d\n"
+"midi_card = %d\n"
+"digi_volume = -1\n"
+"midi_volume = -1\n"
+"digi_voices = %d\n"
+"midi_voices = -1\n"
+"flip_pan = -1\n"
+"sb_port = %x\n"
+"sb_dma = %d\n"
+"sb_irq = %d\n"
+"sb_freq = -1\n"
+"fm_port = %x\n"
+"mpu_port = %x\n"
+"ibk_file =  \n"
+"ibk_drum_file = \n"  
+"patches = \n\n";
+  static char asetup[sizeof(template) * 2];
+  
+  struct stat sbuf;
+
+  static char digi_lookup[] = {DIGI_NONE,
+			       DIGI_NONE,
+			       DIGI_NONE,
+			       DIGI_SB,
+			       DIGI_AUTODETECT,
+			       DIGI_GUSPNP,
+			       DIGI_NONE,
+			       DIGI_NONE,
+			       DIGI_NONE,
+			       DIGI_SB},
+	      midi_lookup[] = {MIDI_NONE,
+			       MIDI_NONE,
+			       MIDI_ADLIB,
+			       MIDI_ADLIB,
+			       MIDI_ADLIB,
+			       MIDI_GUS,
+			       MIDI_MPU,
+			       MIDI_MPU,
+			       MIDI_MPU,
+			       MIDI_AWE32};
+
+  if(!stat(fname, &sbuf) || stat("DEFAULT.CFG", &sbuf))
+  {
+    set_config_file(fname);
+    return;
+  }
+
+  M_HLoadDefaults("DEFAULT.CFG");
+  memset(asetup, 0, sizeof(asetup));
+  sprintf(asetup, template,
+    (snd_DesiredSfxDevice >= 0
+      && snd_DesiredSfxDevice < sizeof(digi_lookup) / sizeof(digi_lookup[0])) ?
+	digi_lookup[snd_DesiredSfxDevice] : DIGI_AUTODETECT,
+    (snd_DesiredMusicDevice >= 0
+      && snd_DesiredMusicDevice < sizeof(midi_lookup) / sizeof(midi_lookup[0])) ?
+	midi_lookup[snd_DesiredMusicDevice] : MIDI_AUTODETECT,
+    snd_Channels,
+    snd_SBport,
+    snd_SBdma,
+    snd_SBirq,
+    snd_Mport,
+    snd_Mport
+  );
+
+  set_config_data(asetup, strlen(asetup) + 1);
+}
+#endif
 
 void I_Init(void)
 {
