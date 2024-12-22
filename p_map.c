@@ -178,11 +178,18 @@ int P_GetMoveFactor(const mobj_t *mo, int *frictionp)
 {
   int movefactor, friction;
 
+#ifdef FRICTION
   // If the floor is icy or muddy, it's harder to get moving. This is where
   // the different friction factors are applied to 'trying to move'. In
   // p_mobj.c, the friction factors are applied as you coast and slow down.
 
-  if ((friction = P_GetFriction(mo, &movefactor)) < ORIG_FRICTION)
+  if ((
+#endif
+    friction = P_GetFriction(mo, &movefactor)
+#ifndef FRICTION
+    ;
+#else
+                                             ) < ORIG_FRICTION)
     {
       // phares 3/11/98: you start off slowly, then increase as
       // you get better footing
@@ -196,6 +203,7 @@ int P_GetMoveFactor(const mobj_t *mo, int *frictionp)
      else if (momentum > MORE_FRICTION_MOMENTUM)
        movefactor <<= 1;
     }
+#endif
 
   if (frictionp)
     *frictionp = friction;
@@ -1043,6 +1051,7 @@ static void P_HitSlideLine(line_t *ld)
   angle_t deltaangle;
   fixed_t movelen;
   fixed_t newlen;
+#ifdef FRICTION
   boolean icyfloor;  // is floor icy?
 
   // phares:
@@ -1060,9 +1069,11 @@ static void P_HitSlideLine(line_t *ld)
     variable_friction &&  // killough 8/28/98: calc friction on demand
     slidemo->z <= slidemo->floorz &&
     P_GetFriction(slidemo, NULL) > ORIG_FRICTION;
+#endif
 
   if (ld->slopetype == ST_HORIZONTAL)
     {
+#ifdef FRICTION
       if (icyfloor && abs(tmymove) > abs(tmxmove))
 	{
 	  S_StartSound(slidemo,sfx_oof); // oooff!
@@ -1070,12 +1081,14 @@ static void P_HitSlideLine(line_t *ld)
 	  tmymove = -tmymove/2;
 	}
       else
+#endif
 	tmymove = 0; // no more movement in the Y direction
       return;
     }
 
   if (ld->slopetype == ST_VERTICAL)
     {
+#ifdef FRICTION
       if (icyfloor && abs(tmxmove) > abs(tmymove))
 	{
 	  S_StartSound(slidemo,sfx_oof); // oooff!
@@ -1083,6 +1096,7 @@ static void P_HitSlideLine(line_t *ld)
 	  tmymove /= 2;
 	}
       else                                                        // phares
+#endif
 	tmxmove = 0; // no more movement in the X direction
       return;
     }
@@ -1108,6 +1122,7 @@ static void P_HitSlideLine(line_t *ld)
   deltaangle = moveangle-lineangle;
   movelen = P_AproxDistance (tmxmove, tmymove);
 
+#ifdef FRICTION
   if (icyfloor && deltaangle > ANG45 && deltaangle < ANG90+ANG45)
     {
       S_StartSound(slidemo,sfx_oof); // oooff!
@@ -1118,6 +1133,7 @@ static void P_HitSlideLine(line_t *ld)
       tmymove = FixedMul (movelen, finesine[moveangle]);
     }
   else
+#endif
     {
       if (deltaangle > ANG180)
 	deltaangle += ANG180;

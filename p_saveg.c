@@ -558,7 +558,9 @@ void P_ArchiveSpecials (void)
         th->function==T_Glow         ? 4+sizeof(glow_t)    :
         th->function==T_MoveElevator ? 4+sizeof(elevator_t):
         th->function==T_Scroll       ? 4+sizeof(scroll_t)  :
+#ifdef PUSHER
         th->function==T_Pusher       ? 4+sizeof(pusher_t)  :
+#endif
         th->function==T_FireFlicker? 4+sizeof(fireflicker_t) :
       0;
 
@@ -711,6 +713,7 @@ void P_ArchiveSpecials (void)
           continue;
         }
 
+#ifdef PUSHER
       // phares 3/22/98: Push/Pull effect thinkers
 
       if (th->function == T_Pusher)
@@ -720,6 +723,7 @@ void P_ArchiveSpecials (void)
           save_p += sizeof(pusher_t);
           continue;
         }
+#endif
     }
 
   // add a terminating marker
@@ -875,6 +879,7 @@ void P_UnArchiveSpecials (void)
           break;
         }
 
+#ifdef PUSHER
       case tc_pusher:   // phares 3/22/98: new Push/Pull effect thinkers
         {
           pusher_t *pusher = Z_Malloc (sizeof(pusher_t), PU_LEVEL, NULL);
@@ -885,7 +890,7 @@ void P_UnArchiveSpecials (void)
           P_AddThinker(&pusher->thinker);
           break;
         }
-
+#endif
       default:
         I_Error ("P_UnarchiveSpecials:Unknown tclass %i "
                  "in savegame",tclass);

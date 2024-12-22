@@ -192,8 +192,10 @@ void D_PostEvent(event_t *ev)
 
 void D_ProcessEvents (void)
 {
+#ifndef KRFNSLIM
   // IF STORE DEMO, DO NOT ACCEPT INPUT
   if (gamemode != commercial || W_CheckNumForName("map01") >= 0)
+#endif
     for (; eventtail != eventhead; eventtail = (eventtail+1) & (MAXEVENTS-1))
       if (!M_Responder(events+eventtail))
         G_Responder(events+eventtail);
@@ -419,6 +421,15 @@ static void D_DrawTitle1(char *name)
   S_StartMusic(mus_intro);
   pagetic = (TICRATE*170)/35;
   D_SetPageName(name);
+#ifdef SAKITOSHI
+  if (W_CheckNumForName("SIGILINT") != -1 // Sakitoshi 2019: if Sigil detected, wait for the title theme to end.
+#ifdef DGONDOS
+   || W_CheckNumForName("SIGILIN2") != -1
+#endif
+  )
+    pagetic = (TICRATE*404)/35;
+#endif
+
 }
 
 static void D_DrawTitle2(char *name)
@@ -559,6 +570,22 @@ void D_AddFile(char *file)
     wadfiles = realloc(wadfiles, (numwadfiles_alloc = numwadfiles_alloc ?
                                   numwadfiles_alloc * 2 : 8)*sizeof*wadfiles);
   wadfiles[numwadfiles++] = !file ? NULL : strdup(file);
+
+#ifdef SAKITOSHI
+  // FIXME: Not part of the actual sakitoshi code, but rather a quick and
+  //        dirty way to integrate NRfTL support into MBF without changing
+  //        much  -- LP 2024
+  if (file)
+    {
+      const int len = strlen(file);
+      if((len >= 9 && !strnicmp(&file[len - 9], "nerve.wad", 9)
+           && (len == 9 || file[len - 10] == '\\' || file[len - 10] == '/')) ||
+         (len >= 5 && !strnicmp(&file[len - 5], "nerve", 5)
+           && (len == 5 || file[len - 6] == '\\' || file[len - 6] == '/')) 
+      ) 
+        gamemission = (gamemode == commercial ? pack_nerve : gamemission);
+    }
+#endif
 }
 
 // Return the path where the executable lies -- Lee Killough
@@ -1467,9 +1494,11 @@ void D_DoomMain(void)
   nodrawers = M_CheckParm ("-nodraw");
   noblit    = M_CheckParm ("-noblit");
 
+#ifndef KRFNSLIM
   // jff 4/21/98 allow writing predefined lumps out as a wad
   if ((p = M_CheckParm("-dumplumps")) && p < myargc-1)
     WritePredefinedLumpWad(myargv[p+1]);
+#endif
 
   puts("M_LoadDefaults: Load system defaults.");
   M_LoadDefaults();              // load before initing other systems

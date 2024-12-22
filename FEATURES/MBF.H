@@ -79,6 +79,12 @@
 #define PHYSMBF
 #endif
 
+// Support for variable friction from BOOM is a prerequisite
+#if defined(PHYSMBF) && !defined(FRICTION)
+#define FRICTION
+#define GENERALIZED
+#endif
+
 // One may need those missing lumps for 1.1 and 1.2 
 #if defined(V12C) && !defined(V11V12LUMPS)
 #define V11V12LUMPS

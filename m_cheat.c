@@ -60,8 +60,12 @@ static void cheat_clev();
 static void cheat_mypos();
 #ifdef CHEATBOOM
 static void cheat_comp();
+#ifdef FRICTION
 static void cheat_friction();
+#endif
+#ifdef PUSHER
 static void cheat_pushers();
+#endif
 static void cheat_tran();
 static void cheat_massacre();
 #endif
@@ -235,12 +239,14 @@ struct cheat_s cheat[] = {
 
   {"fast",    NULL,                   not_net | not_demo,
    cheat_fast       },   // killough 3/6/98: -fast toggle
-
+#ifdef FRICTION
   {"ice",     NULL,                   not_net | not_demo,
    cheat_friction   },   // phares 3/10/98: toggle variable friction effects
-
+#endif
+#ifdef PUSHER
   {"push",    NULL,                   not_net | not_demo, 
    cheat_pushers    },   // phares 3/10/98: toggle pushers
+#endif
 #endif
 #ifdef CHEATMBF
   {"nuke",    NULL,                   not_net | not_demo,
@@ -462,9 +468,19 @@ char buf[3];
 
   // Catch invalid maps.
   if (epsd < 1 || map < 1 ||   // Ohmygod - this is not going to work.
+#ifdef DGONDOS
+      (gamemode == retail     && (epsd > 6 || map > 9  )) ||
+#else
+#ifdef SAKITOSHI
+      (gamemode == retail     && (epsd > 5 || map > 9  )) ||
+#else
       (gamemode == retail     && (epsd > 4 || map > 9  )) ||
+#endif
+#endif
       (gamemode == registered && (epsd > 3 || map > 9  )) ||
       (gamemode == shareware  && (epsd > 1 || map > 9  )) ||
+      //FIXME: No reason to check if with NRfTL loaded
+      //       an arbitrary supported map is warped to, right? -- LP 2024
       (gamemode == commercial && (epsd > 1 || map > 32 )) )
     return;
 
@@ -502,6 +518,7 @@ static void cheat_comp()
     comp[i] = compatibility;
 }
 
+#ifdef FRICTION
 // variable friction cheat
 static void cheat_friction()
 {
@@ -509,8 +526,9 @@ static void cheat_friction()
     (variable_friction = !variable_friction) ? "Variable Friction enabled" : 
                                                "Variable Friction disabled";
 }
+#endif
 
-
+#ifdef PUSHER
 // Pusher cheat
 // phares 3/10/98
 static void cheat_pushers()
@@ -518,6 +536,7 @@ static void cheat_pushers()
   plyr->message =                      // Ty 03/27/98 - *not* externalized
     (allow_pushers = !allow_pushers) ? "Pushers enabled" : "Pushers disabled";
 }
+#endif
 
 // translucency cheat
 static void cheat_tran()

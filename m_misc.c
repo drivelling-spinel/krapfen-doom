@@ -58,7 +58,9 @@ rcsid[] = "$Id: m_misc.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 static int config_help;         //jff 3/3/98
 int usemouse;
 int usejoystick;
+#ifdef PCXSSHOT
 int screenshot_pcx; //jff 3/30/98 // option to output screenshot as pcx or bmp
+#endif
 extern int mousebfire;
 extern int mousebstrafe;
 extern int mousebforward;
@@ -136,7 +138,12 @@ default_t defaults[] = {
   { // killough 8/15/98: page flipping option
     "page_flip",
     &page_flip, NULL,
-    1, {0,1}, number, ss_gen, wad_no,
+#ifdef KRFNDFLT
+    0,
+#else
+    1,
+#endif
+       {0,1}, number, ss_gen, wad_no,
     "1 to enable page flipping to avoid display tearing"
   },
 
@@ -171,7 +178,12 @@ default_t defaults[] = {
   { // phares
     "translucency",
     &general_translucency, NULL,
-    1, {0,1}, number, ss_gen, wad_yes,
+#ifdef KRFNDFLT
+    0,
+#else
+    1,
+#endif
+       {0,1}, number, ss_gen, wad_yes,
     "1 to enable translucency for some things"
   },
 
@@ -192,7 +204,12 @@ default_t defaults[] = {
   { // killough 10/98
     "flashing_hom",
     &flashing_hom, NULL,
-    1, {0,1}, number, ss_gen, wad_yes,
+#ifdef KRFNDFLT
+    0,
+#else
+    1,
+#endif
+       {0,1}, number, ss_gen, wad_yes,
     "1 to enable flashing HOM indicator"
   },
 
@@ -245,7 +262,12 @@ default_t defaults[] = {
   { // killough 3/1/98
     "monsters_remember",
     &default_monsters_remember, &monsters_remember,
-    1, {0,1}, number, ss_enem, wad_yes,
+#ifdef KRFNDFLT
+    0,
+#else
+    1,
+#endif
+       {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters remembering enemies after killing others"
   },
 #endif
@@ -267,7 +289,12 @@ default_t defaults[] = {
   { //killough 9/9/98:
     "monster_avoid_hazards",
     &default_monster_avoid_hazards, &monster_avoid_hazards,
-    1, {0,1}, number, ss_enem, wad_yes,
+#ifdef KRFNDFLT
+    0,
+#else
+    1,
+#endif
+       {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters to intelligently avoid hazards"
   },
 
@@ -282,7 +309,12 @@ default_t defaults[] = {
   { //killough 9/9/98:
     "monster_friction",
     &default_monster_friction, &monster_friction,
-    1, {0,1}, number, ss_enem, wad_yes,
+#ifdef KRFNDFLT
+    0,
+#else
+    1, 
+#endif
+       {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters to be affected by friction"
   },
 #endif
@@ -290,7 +322,12 @@ default_t defaults[] = {
   { //killough 9/9/98:
     "help_friends",
     &default_help_friends, &help_friends,
-    1, {0,1}, number, ss_enem, wad_yes,
+#ifdef KRFNDFLT
+    0,
+#else
+    1,
+#endif
+       {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters to help dying friends"
   },
 #endif
@@ -407,7 +444,12 @@ default_t defaults[] = {
   { //jff 3/6/98 fix erroneous upper limit in range
     "usegamma",
     &usegamma, NULL,
-    0, {0,4}, number, ss_none, wad_no,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,4}, number, ss_none, wad_no,
     "screen brightness (gamma correction)"
   },
 #ifdef PRELOAD
@@ -444,14 +486,24 @@ default_t defaults[] = {
   {
     "comp_zombie",
     &default_comp[comp_zombie], &comp[comp_zombie],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Zombie players can exit levels"
   },
 
   {
     "comp_infcheat",
     &default_comp[comp_infcheat], &comp[comp_infcheat],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Powerup cheats are not infinite duration"
   },
 
@@ -465,122 +517,220 @@ default_t defaults[] = {
   {
     "comp_telefrag",
     &default_comp[comp_telefrag], &comp[comp_telefrag],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Monsters can telefrag on MAP30"
   },
 #ifdef PHYSMBF
   {
     "comp_dropoff",
     &default_comp[comp_dropoff], &comp[comp_dropoff],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Some objects never move over tall ledges"
   },
 #endif
   {
     "comp_falloff",
     &default_comp[comp_falloff], &comp[comp_falloff],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Objects don't fall off ledges under their own weight"
   },
 
   {
     "comp_staylift",
     &default_comp[comp_staylift], &comp[comp_staylift],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Monsters randomly walk off of moving lifts"
   },
 
   {
     "comp_doorstuck",
     &default_comp[comp_doorstuck], &comp[comp_doorstuck],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Monsters get stuck on doortracks"
   },
 #ifdef SMARTMOBJ
   {
     "comp_pursuit",
     &default_comp[comp_pursuit], &comp[comp_pursuit],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Monsters don't give up pursuit of targets"
   },
 #endif
   {
     "comp_vile",
     &default_comp[comp_vile], &comp[comp_vile],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Arch-Vile resurrects invincible ghosts"
   },
 
   {
     "comp_pain",
     &default_comp[comp_pain], &comp[comp_pain],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Pain Elemental limited to 20 lost souls"
   },
 
   {
     "comp_skull",
     &default_comp[comp_skull], &comp[comp_skull],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Lost souls get stuck behind walls"
   },
 
   {
     "comp_blazing",
     &default_comp[comp_blazing], &comp[comp_blazing],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Blazing doors make double closing sounds"
   },
 
   {
     "comp_doorlight",
     &default_comp[comp_doorlight], &comp[comp_doorlight],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Tagged doors don't trigger special lighting"
   },
 
   {
     "comp_god",
     &default_comp[comp_god], &comp[comp_god],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "God mode isn't absolute"
   },
 
   {
     "comp_skymap",
     &default_comp[comp_skymap], &comp[comp_skymap],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Sky is unaffected by invulnerability"
   },
 
   {
     "comp_floors",
     &default_comp[comp_floors], &comp[comp_floors],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Use exactly Doom's floor motion behavior"
   },
 
   {
     "comp_model",
     &default_comp[comp_model], &comp[comp_model],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Use exactly Doom's linedef trigger model"
   },
 
   {
     "comp_zerotags",
     &default_comp[comp_zerotags], &comp[comp_zerotags],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Linedef effects work with sector tag = 0"
   },
 
   {
     "comp_respawnfix",
     &default_comp[comp_respawnfix], &comp[comp_respawnfix],
-    0, {0,1}, number, ss_comp, wad_yes,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
     "Creatures with no spawnpoint respawn at (0,0)"
   },
 
+#ifdef SOULBOUNCE
+  {
+    "comp_soulbounce",
+    &default_comp[comp_soulbounce], &comp[comp_soulbounce],
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_comp, wad_yes,
+    "Lost Souls don't bounce off floor or ceiling"
+  },
+#endif
 
   // For key bindings, the values stored in the key_* variables       // phares
   // are the internal Doom Codes. The values stored in the default.cfg
@@ -1036,14 +1186,19 @@ default_t defaults[] = {
     199, {0,255}, number, ss_keys, wad_no,
     "shortcut key to enter setup menu"
   },
-
+#ifdef PCXSSHOT
   { // jff 3/30/98 add ability to take screenshots in BMP format
     "screenshot_pcx",
     &screenshot_pcx, NULL,
-    1, {0,1}, number, ss_gen, wad_no,
+#ifdef KRFNDFLT
+    0,
+#else
+    1,
+#endif
+       {0,1}, number, ss_gen, wad_no,
     "1 to take a screenshot in PCX format, 0 for BMP"
   },
-
+#endif
   {
     "use_mouse",
     &usemouse, NULL,
@@ -1361,6 +1516,21 @@ default_t defaults[] = {
     "color used for friends"
   },
 #endif
+
+#ifdef MAPCOORD
+  {  // have a way to disable automap coordinates // Sakitoshi 2019
+    "map_show_coord",
+    &map_show_coordinates, NULL,
+#ifdef KRFNDFLT
+    0,
+#else
+    1,
+#endif
+       {0,1}, number, ss_auto, wad_yes,
+    "1 to show player coordinates in the automap"
+  },
+#endif
+
   {
     "map_point_coord",
     &map_point_coordinates, NULL,
@@ -2138,6 +2308,7 @@ int M_ReadFile(char const *name, byte **buffer)
   return 0;
 }
 
+#ifdef PCXSSHOT
 //
 // SCREEN SHOTS
 //
@@ -2228,7 +2399,7 @@ boolean WritePCXfile(char *filename, byte *data, int width,
 
   return success;    // killough 10/98
 }
-
+#endif
 
 // jff 3/30/98 types and data structures for BMP output of screenshots
 //
@@ -2388,8 +2559,12 @@ void M_ScreenShot (void)
       int tries = 10000;
 
       do
-        sprintf(lbmname,                         //jff 3/30/98 pcx or bmp?
-                screenshot_pcx ? "doom%02d.pcx" : "doom%02d.bmp", shot++);
+        sprintf(lbmname,
+#ifdef PCXSSHOT
+                                                  //jff 3/30/98 pcx or bmp?
+                screenshot_pcx ? "doom%02d.pcx" :
+#endif
+                                                  "doom%02d.bmp", shot++);
       while (!access(lbmname,0) && --tries);
 
       if (tries)
@@ -2402,12 +2577,16 @@ void M_ScreenShot (void)
 
           I_ReadScreen(linear);
 
-          // save the pcx file
-          //jff 3/30/98 write pcx or bmp depending on mode
 
           // killough 10/98: detect failure and remove file if error
 	  // killough 11/98: add hires support
-          if (!(success = (screenshot_pcx ? WritePCXfile : WriteBMPfile)
+          if (!(success = (
+#ifdef PCXSSHOT
+                // save the pcx file
+                //jff 3/30/98 write pcx or bmp depending on mode
+                screenshot_pcx ? WritePCXfile :
+#endif
+                                                WriteBMPfile)
                 (lbmname,linear, SCREENWIDTH<<hires, SCREENHEIGHT<<hires,pal)))
 	    {
 	      int t = errno;

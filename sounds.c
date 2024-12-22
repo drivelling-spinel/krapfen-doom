@@ -67,6 +67,37 @@ musicinfo_t S_music[] = {
   { "e3m7", 0 },
   { "e3m8", 0 },
   { "e3m9", 0 },
+#ifdef SAKITOSHI
+  { "e3m4", 0 }, // American     e4m1
+  { "e3m2", 0 }, // Romero       e4m2
+  { "e3m3", 0 }, // Shawn        e4m3
+  { "e1m5", 0 }, // American     e4m4
+  { "e2m7", 0 }, // Tim          e4m5
+  { "e2m4", 0 }, // Romero       e4m6
+  { "e2m6", 0 }, // J.Anderson   e4m7 CHIRON.WAD
+  { "e2m5", 0 }, // Shawn        e4m8
+  { "e1m9", 0 }, // Tim          e4m9
+  { "e5m1", 0 },
+  { "e5m2", 0 },
+  { "e5m3", 0 },
+  { "e5m4", 0 },
+  { "e5m5", 0 },
+  { "e5m6", 0 },
+  { "e5m7", 0 },
+  { "e5m8", 0 },
+  { "e5m9", 0 },
+#endif
+#ifdef DGONDOS
+  { "e6m1", 0 },
+  { "e6m2", 0 },
+  { "e6m3", 0 },
+  { "e6m4", 0 },
+  { "e6m5", 0 },
+  { "e6m6", 0 },
+  { "e6m7", 0 },
+  { "e6m8", 0 },
+  { "e6m9", 0 },
+#endif
   { "inter", 0 },
   { "intro", 0 },
   { "bunny", 0 },

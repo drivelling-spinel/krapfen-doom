@@ -646,6 +646,12 @@ enum
   ep2,
   ep3,
   ep4,
+#ifdef SAKITOSHI
+  ep5,
+#endif
+#ifdef DGONDOS
+  ep6,
+#endif
   ep_end
 } episodes_e;
 
@@ -657,6 +663,12 @@ menuitem_t EpisodeMenu[]=
   {1,"M_EPI2", M_Episode,'t'},
   {1,"M_EPI3", M_Episode,'i'},
   {1,"M_EPI4", M_Episode,'t'}
+#ifdef SAKITOSHI
+  , {1,"M_EPI5", M_Episode,'s'}
+#endif
+#ifdef DGONDOS
+  , {1,"M_EPI6", M_Episode,'s'}
+#endif
 };
 
 menu_t EpiDef =
@@ -2844,8 +2856,10 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
   {"AUTOMAP COORDINATES COLOR"      ,S_CRITEM,m_null,AU_X,AU_Y+14*8, {"hudcolor_xyco"}},
 
   {"Show Secrets only after entering",S_YESNO,m_null,AU_X,AU_Y+15*8, {"map_secret_after"}},
-
   {"Show coordinates of automap pointer",S_YESNO,m_null,AU_X,AU_Y+16*8, {"map_point_coord"}},  // killough 10/98
+#ifdef MAPCOORD
+  {"Show coordinates in automap"        ,S_YESNO,m_null,AU_X,AU_Y+17*8, {"map_show_coord"}},  // Sakitoshi 2019
+#endif
 
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
@@ -3132,7 +3146,9 @@ enum {
   general_trans,
   general_fps, // GB 2014
   general_transpct,
+#ifdef PCXSSHOT
   general_pcx,
+#endif
 #ifdef DISKICON
   general_diskicon,
 #endif
@@ -3180,9 +3196,10 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Translucency filter percentage", S_NUM, m_null, G_X, // GB 2014, need room, who cares.., if so edit the cfg
    G_Y + general_transpct*8, {"tran_filter_pct"}, 0, 0, M_Trans},
-
+#ifdef PCXSSHOT
   {"PCX instead of BMP for screenshots", S_YESNO, m_null, G_X,
    G_Y + general_pcx*8, {"screenshot_pcx"}},
+#endif
 #ifdef DISKICON
   {"Flash Icon During Disk IO", S_YESNO, m_null, G_X,
    G_Y + general_diskicon*8, {"disk_icon"}},
@@ -3366,6 +3383,9 @@ enum
   compat_pain,
   compat_skull,
   compat_blazing,
+#ifdef SOULBOUNCE
+  compat_soulbounce,
+#endif
   compat_doorlight = 0,
   compat_god,
   compat_infcheat,
@@ -3411,7 +3431,10 @@ setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
 
   {"Blazing doors make double closing sounds", S_YESNO, m_null, C_X,
    C_Y + compat_blazing * COMP_SPC, {"comp_blazing"}},
-
+#ifdef SOULBOUNCE    
+  {"Lost Souls don't bounce off floor or ceiling", S_YESNO, m_null, C_X,
+   C_Y + compat_soulbounce * COMP_SPC, {"comp_soulbounce"}},
+#endif
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 
@@ -5505,18 +5528,41 @@ void M_Drawer (void)
 	
 	for (i=0;i<max;i++)
 	  {
+#ifdef DGONDOS
+            int lineh = LINEHEIGHT;
+ 
+            if (itemOn == i)
+              {
+                 V_DrawPatchDirect(x + SKULLXOFF,y - 5,0,
+                                   W_CacheLumpName(skullName[whichSkull],PU_CACHE));
+              }
+
+            if (currentMenu->menuitems[i].name[0])
+              {
+                 patch_t* itemPatch = W_CacheLumpName(currentMenu->menuitems[i].name,
+                                      PU_CACHE);
+                 V_DrawPatchDirect(x,y,0,itemPatch);
+                 // accomodate non-standard height episode items
+                 lineh = currentMenu == &EpiDef ? itemPatch->height + 2 : LINEHEIGHT;
+              }
+
+            y += lineh;
+#else
 	    if (currentMenu->menuitems[i].name[0])
 	      V_DrawPatchDirect(x,y,0,
 				W_CacheLumpName(currentMenu->menuitems[i].name,
 						PU_CACHE));
 	    y += LINEHEIGHT;
+#endif
 	  }
 	
+#ifndef DGONDOS
 	// DRAW SKULL
 
 	V_DrawPatchDirect(x + SKULLXOFF,
 			  currentMenu->y - 5 + itemOn*LINEHEIGHT,0,
 			  W_CacheLumpName(skullName[whichSkull],PU_CACHE));
+#endif
       }
 }
 
@@ -5774,13 +5820,52 @@ void M_Init(void)
       // killough 2/21/98: Fix registered Doom help screen
       // killough 10/98: moved to second screen, moved up to the top
       ReadDef2.y = 15;
+#ifdef SAKITOSHI
+    //FIXME: Again not original code from sakitoshi MBF,
+    //       but would rather validate and show explicit error
+    //       to the player -- LP 2024
+      // fall through
+    case retail:
+      {
+      // Check until which episode are there maps available
+      int c1 = 0, c2 = 0, i;
+      EpiDef.numitems = 0;
+#ifdef DGONDOS
+      for(i = 5; i >= 0; i--) {
+#else
+      for(i = 4; i >= 0; i--) {
+#endif
+        char mapname[9];
+        sprintf(mapname, "E%uM1", i + 1);
+        if (W_CheckNumForName(mapname) != -1) {
+           c2 += i + 1;
+           EpiDef.numitems += 1;
+        }
+        if (c2 > 0) {
+           c1 += i + 1;
+        }        
+      }
 
+      if(c1 != c2) {
+        I_Error("M_Init: PWAD-s loaded with non-contiguous episodes.\n"
+                "        If loading Sigil II prepend Sigil to -file args list");
+      }
+      }
+      break;
+#endif
     case shareware:
       // We need to remove the fourth episode.
+#ifdef SAKITOSHI
+      EpiDef.numitems=3;
+#else
+      // Shareware should only have three episodes.
       EpiDef.numitems--;
+#endif
       break;
+#ifndef SAKITOSHI
     case retail:
       // We are fine.
+#endif
     default:
       break;
     }

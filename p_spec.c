@@ -85,11 +85,20 @@ static size_t maxanims;
 
 // killough 3/7/98: Initialize generalized scrolling
 static void P_SpawnScrollers(void);
+
+#ifdef FRICTION
 static void P_SpawnFriction(void);    // phares 3/16/98
+#endif
+
+#ifdef PUSHER
 static void P_SpawnPushers(void);     // phares 3/20/98
 
 extern int allow_pushers;
+#endif
+
+#ifdef FRICTION
 extern int variable_friction;         // phares 3/20/98
+#endif
 
 //
 // P_InitPicAnims
@@ -2434,9 +2443,13 @@ void P_SpawnSpecials (void)
 
   P_SpawnScrollers(); // killough 3/7/98: Add generalized scrollers
 
+#ifdef FRICTION
   P_SpawnFriction();  // phares 3/12/98: New friction model using linedefs
+#endif
 
+#ifdef PUSHER
   P_SpawnPushers();   // phares 3/20/98: New pusher model using linedefs
+#endif
 
   for (i=0; i<numlines; i++)
     switch (lines[i].special)
@@ -2732,6 +2745,7 @@ static void P_SpawnScrollers(void)
 
 // killough 3/7/98 -- end generalized scroll effects
 
+#ifdef FRICTION
 ////////////////////////////////////////////////////////////////////////////
 //
 // FRICTION EFFECTS
@@ -2841,7 +2855,9 @@ static void P_SpawnFriction(void)
 // phares 3/12/98: End of friction effects
 //
 ////////////////////////////////////////////////////////////////////////////
+#endif
 
+#ifdef PUSHER
 ////////////////////////////////////////////////////////////////////////////
 //
 // PUSH/PULL EFFECT
@@ -3165,7 +3181,7 @@ static void P_SpawnPushers(void)
 // phares 3/20/98: End of Pusher effects
 //
 ////////////////////////////////////////////////////////////////////////////
-
+#endif
 
 //----------------------------------------------------------------------------
 //

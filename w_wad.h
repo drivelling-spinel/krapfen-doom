@@ -27,6 +27,8 @@
 #ifndef __W_WAD__
 #define __W_WAD__
 
+#include "features.h"
+
 //
 // TYPES
 //
@@ -101,8 +103,10 @@ unsigned W_LumpNameHash(const char *s);           // killough 1/31/98
 
 void I_BeginRead(void), I_EndRead(void); // killough 10/98
 
+#ifndef KRFNSLIM
 // Function to write all predefined lumps to a PWAD if requested
 extern void WritePredefinedLumpWad(const char *filename); // jff 5/6/98
+#endif
 
 #endif
 

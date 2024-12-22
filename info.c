@@ -4888,7 +4888,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     MF_NOBLOCKMAP,    // flags
     S_NULL    // raisestate
   },
-
+#if defined(PUSHER) || defined(DOGS)
   // For use with wind and current effects
   {   // MT_PUSH                       // phares
     5001,           // doomednum       //   |      //jff 5/11/98 deconflict
@@ -4942,7 +4942,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] = {
     MF_NOBLOCKMAP,  // flags
     S_NULL          // raisestate                                   
   },
-
+#endif
 #ifdef DOGS
   // Marine's best friend :)      // killough 7/19/98
   {   // MT_DOGS
