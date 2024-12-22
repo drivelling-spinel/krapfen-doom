@@ -1,7 +1,7 @@
 #ifndef __FEATURES_BOOM_
 #define __FEATURES_BOOM_
 
-// REMEMEBR    - whether monsters remember last enemy
+// REMEMEBER   - whether monsters remember last enemy
 #define REMEMBER
 
 // CHEATBOM    - controls if cheat codes introduced by BOOM are available
@@ -59,6 +59,9 @@
 // HUDBOOM     - BOOM fullscreen HUD features
 #define HUDBOOM
 
+// COLORSTBAR  - whether to include showing colored numbers in
+//               Doom clasic status bar
+#define COLORSTBAR
 
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED

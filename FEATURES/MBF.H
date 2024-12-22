@@ -9,7 +9,7 @@
 //               TODO: remove the assets from source as this likely are
 //               based on commercially licensed Wolfenstein assets -- LP 2024
 #define DOGS
-
+ 
 // BETA        - Doom beta version emulation
 #define BETA
 
@@ -80,6 +80,10 @@
 //               when not defined always attempt the "exatly the same" way
 #define COMPSTAIR
 
+// LOWDET      - Support for dynamic switching of low detail
+//               with keypress as in original Doom
+#define LOWDET
+
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)
 #define FRIENDMOBJ
@@ -105,6 +109,10 @@
 // it to the player as an option when weapon preferencies are available
 #if defined(WEAPONMBF) && !defined(WEAPONBOOM)
 #define WEAPONBOOM
+#endif
+
+#if defined(LOWDET) && !defined(CALT)
+#define CALT
 #endif
 
 #endif
