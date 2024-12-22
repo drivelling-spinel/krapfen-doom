@@ -1007,7 +1007,9 @@ static void G_DoPlayDemo(void)
       
       monster_avoid_hazards = 0;        // killough 9/9/98
 #endif
+#ifdef PHYSMBF
       monster_friction = 0;             // killough 10/98
+#endif
 #ifdef SMARTMOBJ
       help_friends = 0;                 // killough 9/9/98
       monkeys = 0;
@@ -1893,9 +1895,9 @@ void G_ReloadDefaults(void)
   player_bobbing = default_player_bobbing;  // whether player bobs or not
 
   variable_friction = allow_pushers = true;
-
+#ifdef REMEMBER
   monsters_remember = default_monsters_remember;   // remember former enemies
-
+#endif
 #ifdef SMARTMOBJ
   monster_infighting = default_monster_infighting; // killough 7/19/98
 #endif
@@ -1913,8 +1915,9 @@ void G_ReloadDefaults(void)
 
   monster_avoid_hazards = default_monster_avoid_hazards; // killough 9/9/98
 #endif
-
+#ifdef PHYSMBF
   monster_friction = default_monster_friction;     // killough 10/98
+#endif
 #ifdef SMARTMOBJ
   help_friends = default_help_friends;             // killough 9/9/98
 
@@ -2112,7 +2115,11 @@ byte *G_WriteOptions(byte *demo_p)
 {
   byte *target = demo_p + GAME_OPTION_SIZE;
 
+#ifdef REMEMBER
   *demo_p++ = monsters_remember;  // part of monster AI
+#else
+  *demo_p++ = 0;
+#endif
 
   *demo_p++ = variable_friction;  // ice & mud
 
@@ -2174,8 +2181,11 @@ byte *G_WriteOptions(byte *demo_p)
   *demo_p++ = 0;
   *demo_p++ = 0;
 #endif
-
+#ifdef PHYSMBF
   *demo_p++ = monster_friction;         // killough 10/98
+#else
+  *demo_p++ = 0;
+#endif
 
 #ifdef SMARTMOBJ
   *demo_p++ = help_friends;             // killough 9/9/98
@@ -2219,8 +2229,11 @@ byte *G_WriteOptions(byte *demo_p)
 byte *G_ReadOptions(byte *demo_p)
 {
   byte *target = demo_p + GAME_OPTION_SIZE;
-
+#ifdef REMEMBER
   monsters_remember = *demo_p++;
+#else
+  demo_p++;
+#endif
 
   variable_friction = *demo_p;  // ice & mud
   demo_p++;
@@ -2294,8 +2307,11 @@ byte *G_ReadOptions(byte *demo_p)
       demo_p += 2;
 #endif
 
-
+#ifdef PHYSMBF
       monster_friction = *demo_p++;      // killough 10/98
+#else
+      demo_p++;
+#endif;
 
 #ifdef SMARTMOBJ
       help_friends = *demo_p++;          // killough 9/9/98
@@ -2339,7 +2355,9 @@ byte *G_ReadOptions(byte *demo_p)
       monster_avoid_hazards = 0;        // killough 9/9/98
 #endif
 
+#ifdef PHYSMBF
       monster_friction = 0;             // killough 10/98
+#endif
 
 #ifdef SMARTMOBJ
       help_friends = 0;                 // killough 9/9/98

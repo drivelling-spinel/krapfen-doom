@@ -56,8 +56,10 @@ static int ls_y; // Lost Soul position for Lost Soul checks      // phares
 
 boolean   floatok;
 
+#ifdef PHYSMBF
 // killough 11/98: if "felldown" true, object was pushed down ledge
 boolean   felldown;
+#endif
 
 // The tm* items are used to hold information globally, usually for
 // line or object intersection checking
@@ -728,8 +730,10 @@ boolean P_CheckPosition(mobj_t *thing, fixed_t x, fixed_t y)
 boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 {
   fixed_t oldx, oldy;
-
-  felldown = floatok = false;               // killough 11/98
+#ifdef PHYSMBF
+  felldown =                     // killough 11/98
+#endif
+  floatok = false;               
 
   if (!P_CheckPosition(thing, x, y))
     return false;   // solid wall or thing
@@ -763,21 +767,29 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
 	      if (tmfloorz - tmdropoffz > 24*FRACUNIT)
 		return false;                      // don't stand over a dropoff
 	    }
-#ifdef SMARTMOBJ
+#if defined(SMARTMOBJ) || defined(PHYSMBF)
 	  else
-	    if (!dropoff || (dropoff==2 &&  // large jump down (e.g. dogs)
+	    if (!dropoff
+#if defined(SMARTMOBJ)
+                         || (dropoff==2 &&  // large jump down (e.g. dogs)
 			     (tmfloorz-tmdropoffz > 128*FRACUNIT || 
-			      !thing->target || thing->target->z >tmdropoffz)))
+			      !thing->target || thing->target->z >tmdropoffz))
+#endif
+               )
 	      {
+#if defined(SMARTMOBJ)
 		if (!monkeys || demo_version < 203 ?
 		    tmfloorz - tmdropoffz > 24*FRACUNIT :
 		    thing->floorz  - tmfloorz > 24*FRACUNIT ||
 		    thing->dropoffz - tmdropoffz > 24*FRACUNIT)
+#endif
 		  return false;
 	      }
+#ifdef PHYSMBF
 	    else  // dropoff allowed -- check for whether it fell more than 24
 	      felldown = !(thing->flags & MF_NOGRAVITY) &&
 		thing->z - tmfloorz > 24*FRACUNIT;
+#endif
 #endif
 	}
 #ifdef PHYSMBF

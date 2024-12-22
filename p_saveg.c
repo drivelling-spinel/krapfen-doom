@@ -304,6 +304,7 @@ void P_ArchiveThinkers (void)
             P_MobjThinker ?
             (mobj_t *) mobj->tracer->thinker.prev : NULL;
 
+#ifdef REMEMBER
         // killough 2/14/98: new field: save last known enemy. Prevents
         // monsters from going to sleep after killing monsters and not
         // seeing player anymore.
@@ -312,7 +313,7 @@ void P_ArchiveThinkers (void)
           mobj->lastenemy = mobj->lastenemy->thinker.function ==
             P_MobjThinker ?
             (mobj_t *) mobj->lastenemy->thinker.prev : NULL;
-
+#endif
         // killough 2/14/98: end changes
 
         if (mobj->above_thing)                                      // phares
@@ -455,10 +456,10 @@ void P_UnArchiveThinkers (void)
 
       P_SetNewTarget(&((mobj_t *) th)->tracer,
         mobj_p[(size_t)((mobj_t *)th)->tracer]);
-
+#ifdef REMEMBER 
       P_SetNewTarget(&((mobj_t *) th)->lastenemy,
         mobj_p[(size_t)((mobj_t *)th)->lastenemy]);
-
+#endif
       // phares: added two new fields for Sprite Height problem
 
       P_SetNewTarget(&((mobj_t *) th)->above_thing,

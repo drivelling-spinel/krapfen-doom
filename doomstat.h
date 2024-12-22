@@ -331,8 +331,10 @@ extern int default_allow_pushers;
 extern int variable_friction;  // ice & mud            // phares 3/10/98
 extern int default_variable_friction;
 
+#ifdef REMEMBER
 extern int monsters_remember;                          // killough 3/1/98
 extern int default_monsters_remember;
+#endif
 
 extern int weapon_recoil;          // weapon recoil    // phares
 extern int default_weapon_recoil;
@@ -366,8 +368,10 @@ extern int monster_backing, default_monster_backing;
 extern int monster_avoid_hazards, default_monster_avoid_hazards;
 #endif
 
+#ifdef PHYSMBF
 // killough 10/98: whether monsters are affected by friction
 extern int monster_friction, default_monster_friction;
+#endif
 
 #ifdef SMARTMOBJ
 // killough 9/9/98: whether monsters help friends
@@ -376,7 +380,9 @@ extern int help_friends, default_help_friends;
 
 extern int flashing_hom; // killough 10/98
 
+#ifdef WEAPONMBF
 extern int doom_weapon_toggles;   // killough 10/98
+#endif
 
 #endif
 

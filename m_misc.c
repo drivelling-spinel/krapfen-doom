@@ -239,13 +239,14 @@ default_t defaults[] = {
     1, {0,1}, number, ss_weap, wad_no,
     "1 to enable player bobbing (view moving up/down slightly)"
   },
-
+#ifdef REMEMBER
   { // killough 3/1/98
     "monsters_remember",
     &default_monsters_remember, &monsters_remember,
     1, {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters remembering enemies after killing others"
   },
+#endif
 #ifdef SMARTMOBJ
   { // killough 7/19/98
     "monster_infighting",
@@ -275,12 +276,14 @@ default_t defaults[] = {
     "1 to enable monsters to move up/down steep stairs"
   },
 #endif
+#ifdef PHYSMBF
   { //killough 9/9/98:
     "monster_friction",
     &default_monster_friction, &monster_friction,
     1, {0,1}, number, ss_enem, wad_yes,
     "1 to enable monsters to be affected by friction"
   },
+#endif
 #ifdef SMARTMOBJ      
   { //killough 9/9/98:
     "help_friends",

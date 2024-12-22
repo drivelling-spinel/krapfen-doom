@@ -68,8 +68,10 @@ int  default_weapon_recoil;      // killough 3/1/98: make local to each game
 int player_bobbing;  // whether player bobs or not          // phares 2/25/98
 int default_player_bobbing;      // killough 3/1/98: make local to each game
 
+#ifdef REMEMBER
 int monsters_remember=1;        // killough 3/1/98
 int default_monsters_remember=1;
+#endif
 
 #ifdef SMARTMOBJ
 int monster_infighting=1;       // killough 7/19/98: monster<=>monster attacks
@@ -110,7 +112,9 @@ int help_friends, default_help_friends;
 
 int flashing_hom;     // killough 10/98
 
+#ifdef WEAPONMBF
 int doom_weapon_toggles; // killough 10/98
+#endif
 
 #ifdef SMARTMOBJ
 int monkeys, default_monkeys;

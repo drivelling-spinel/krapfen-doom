@@ -448,7 +448,7 @@ static struct
       {G_DeferedPlayDemo, "demo1"},
       {G_DeferedPlayDemo, "demo1"},
     },
-#ifdef CREDIT
+#ifdef CREDITS
     {
       {D_SetPageName, NULL},
       {D_SetPageName, NULL},
@@ -487,7 +487,7 @@ static struct
       {G_DeferedPlayDemo, "demo3"},
       {G_DeferedPlayDemo, "demo3"},
     },
-#ifdef CREDIT
+#ifdef CREDITS
     {
       {NULL},
       {NULL},

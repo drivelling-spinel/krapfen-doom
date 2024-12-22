@@ -5,6 +5,9 @@
 // CFLAGS_NEWFEATURES = -DDOGS -DBETA -DV12C -DCALT
 
 // DOGS        - Friendly helper dogs,
+//               includes dogs sprites and sounds among other things
+//               TODO: remove the assets from source as this likely are
+//               based on commercially licensed Wolfenstein assets -- LP 2024
 #define DOGS
 
 // BETA        - Doom beta version emulation
@@ -40,8 +43,8 @@
 // PRELOAD     - deh and wad preloading via config
 #define PRELOAD
 
-// PHYSMBF     - sticky, bouncy objects, drop-offs, torque
-#define MBFPHYS
+// PHYSMBF     - monsters sliding on ice, bouncy objects, dropoff torque, etc
+#define PHYSMBF
 
 // CPTRMBF     - additional code pointers
 #define CPTRMBF
@@ -62,6 +65,10 @@
 //               otherwise draws help screens in "classic" Doom order       
 #define CREDITS
 
+// WEAPONMBF   - inclusion of weapon UX tweaks, such if 1 and 3 toggle
+//               respectively fist/chainsaw and shotgun/SSG, and so on
+#define WEAPONMBF
+
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)
 #define FRIENDMOBJ
@@ -73,5 +80,9 @@
 #define PHYSMBF
 #endif
 
+// One may need those missing lumps for 1.1 and 1.2 
+#if defined(V12C) && !defined(V11V12LUMPS)
+#define V11V12LUMPS
+#endif
 
 #endif

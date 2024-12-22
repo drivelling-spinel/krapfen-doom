@@ -27,6 +27,7 @@
 #ifndef __M_MENU__
 #define __M_MENU__
 
+#include "features.h"
 #include "d_event.h"
 
 //
@@ -106,7 +107,9 @@ extern int warning_about_changes, print_warning_about_changes;
 #define S_BADVAL  0x40000// killough 10/98: Warn about bad value
 #define S_FILE    0x80000// killough 10/98: Filenames
 #define S_LEFTJUST 0x100000 // killough 10/98: items which are left-justified
+#ifdef CREDITS
 #define S_CREDIT  0x200000  // killough 10/98: credit
+#endif
 #define S_BADVID  0x400000  // killough 12/98: video mode change error
 #define S_BADOPT  0x800000  // GB 2014: bad video option
 #define S_DRIVER1 0x1000000  // GB 2014: sound driver name. ( flag value 0x7FFFFFFF is the max I suppose )
@@ -117,7 +120,11 @@ extern int warning_about_changes, print_warning_about_changes;
 // S_STRING    = the set of items whose settings are strings -- killough 10/98:
 // S_HASDEFPTR = the set of items whose var field points to default array
 
+#ifdef CREDITS
 #define S_SHOWDESC (S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_RESET|S_PREV|S_NEXT|S_KEY|S_WEAP|S_NUM|S_FILE|S_CREDIT)
+#else
+#define S_SHOWDESC (S_TITLE|S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_RESET|S_PREV|S_NEXT|S_KEY|S_WEAP|S_NUM|S_FILE)
+#endif
 
 #define S_SHOWSET  (S_YESNO|S_CRITEM|S_COLOR|S_CHAT|S_KEY|S_WEAP|S_NUM|S_FILE)
 

@@ -166,10 +166,10 @@ $(OBJS): Makefile
 
 # individual file depedencies follow
 
-features.h: features/mbf.h
+features.h: features/mbf.h features/boom.h
 	$(TOUCH) features.h
 
-$(O)/doomdef.o: doomdef.c doomdef.h z_zone.h m_swap.h version.h
+$(O)/doomdef.o: doomdef.c doomdef.h z_zone.h m_swap.h version.h features.h
 
 $(O)/doomstat.o: doomstat.c doomstat.h doomdata.h doomtype.h d_net.h \
  d_player.h d_items.h doomdef.h z_zone.h m_swap.h version.h p_pspr.h \

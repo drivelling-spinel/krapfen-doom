@@ -34,6 +34,7 @@
 #define __inline__
 #endif
 
+#include "features.h"
 // This must come first, since it redefines malloc(), free(), etc. -- killough:
 #include "z_zone.h"
 
@@ -265,7 +266,9 @@ typedef enum {
   ss_weap,
   ss_stat,
   ss_auto,
+#if defined(DOGS) || defined(FRIENDMOBJ) || defined(SMARTMOBJ) || defined(REMEMBER) || defined(PHYSMBF) || defined(PHYSMBF) || defined(PHYSMBF)
   ss_enem,
+#endif
   ss_mess,
   ss_chat,
   ss_gen,       // killough 10/98
