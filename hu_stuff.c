@@ -163,7 +163,9 @@ static player_t*  plr;
 patch_t* hu_font[HU_FONTSIZE];
 patch_t* hu_font2[HU_FONTSIZE];
 patch_t* hu_fontk[HU_FONTSIZE];//jff 3/7/98 added for graphic key indicators
+#ifdef MESSAGEBG
 patch_t* hu_msgbg[9];          //jff 2/26/98 add patches for message background
+#endif
 
 // widgets
 static hu_textline_t  w_title;
@@ -210,11 +212,15 @@ int hudcolor_chat;  // color range of chat lines
 int hud_msg_lines;  // number of message lines in window
 //jff 2/26/98 hud text colors, controls added
 int hudcolor_list;  // list of messages color
+#ifdef MESSAGEBG
 int hud_list_bgon;  // enable for solid window background for message list
+#endif
 
 int hud_msg_scrollup;  // killough 11/98: allow messages to scroll upwards
 int hud_msg_timed;     // killough 11/98: allow > 1 messages to time out
 int message_list;      // killough 11/98: made global
+
+int hud_msg_oneoff;
 
 int hud_msg_timer  = HU_MSGTIMEOUT * (1000/TICRATE);     // killough 11/98
 int message_timer  = HU_MSGTIMEOUT * (1000/TICRATE);     // killough 11/98
@@ -385,6 +391,7 @@ void HU_Init(void)
                         hu_font[i] = hu_font[0]; //jff 2/16/98 account for gap
     }
 
+#ifdef MESSAGEBG
   //jff 2/26/98 load patches for message background
   hu_msgbg[0] = (patch_t *) W_CacheLumpName("BOXUL", PU_STATIC);
   hu_msgbg[1] = (patch_t *) W_CacheLumpName("BOXUC", PU_STATIC);
@@ -395,7 +402,7 @@ void HU_Init(void)
   hu_msgbg[6] = (patch_t *) W_CacheLumpName("BOXLL", PU_STATIC);
   hu_msgbg[7] = (patch_t *) W_CacheLumpName("BOXLC", PU_STATIC);
   hu_msgbg[8] = (patch_t *) W_CacheLumpName("BOXLR", PU_STATIC);
-
+#endif
   //jff 2/26/98 load patches for keys and double keys
   hu_fontk[0] = (patch_t *) W_CacheLumpName("STKEYS0", PU_STATIC);
   hu_fontk[1] = (patch_t *) W_CacheLumpName("STKEYS1", PU_STATIC);
@@ -403,6 +410,11 @@ void HU_Init(void)
   hu_fontk[3] = (patch_t *) W_CacheLumpName("STKEYS3", PU_STATIC);
   hu_fontk[4] = (patch_t *) W_CacheLumpName("STKEYS4", PU_STATIC);
   hu_fontk[5] = (patch_t *) W_CacheLumpName("STKEYS5", PU_STATIC);
+
+#ifdef ONEOFFREVIEW
+  if(hud_msg_oneoff)
+    message_list = 0;
+#endif
 }
 
 //
@@ -518,7 +530,12 @@ void HU_Start(void)
   HUlib_initMText(&w_rtext, 0, 0, SCREENWIDTH,
 		  (hud_msg_lines+2)*HU_REFRESHSPACING, hu_font,
 		  HU_FONTSTART, colrngs[hudcolor_list],
-		  hu_msgbg, &message_list_on);      // killough 11/98
+#ifdef MESSAGEBG
+		  hu_msgbg,
+#else
+                  NULL,
+#endif
+                  &message_list_on);      // killough 11/98
 
   // initialize the automap's level title widget
   s = gamemode != commercial ? HU_TITLE : gamemission == pack_tnt ?
@@ -1241,8 +1258,14 @@ void HU_Ticker(void)
   if (message_list_counter && !--message_list_counter)
     {
       reviewing_message = message_list_on = false;
+#ifdef ONEOFFREVIEW
+      if (hud_msg_oneoff)
+        message_list = false;
+#endif
+#ifdef MESSAGEBG
       if (hud_list_bgon && scaledviewheight<200)  // killough 11/98
 	R_FillBackScreen();
+#endif
     }
 
   // tick down message counter if message is up
@@ -1424,16 +1447,23 @@ boolean HU_Responder(event_t *ev)
         {
 	  //jff 2/26/98 toggle list of messages
 
+#ifndef ONEOFFREVIEW
 	  // killough 11/98:
 	  // Toggle message list only if a message is actively being reviewed.
 	  if (has_message)
+#endif
 	    {
 	      if (message_list ? message_list_on && 
 		  (reviewing_message || !hud_msg_timed) :
 		  message_on && reviewing_message)
+#ifdef ONEOFFREVIEW
+              {
+#endif
 		if (!(message_list = !message_list))
 		  {
+#ifdef MESSAGEBG
 		    extern boolean setsizeneeded;
+#endif
 
 		    // killough 12/98:
 		    // fix crash at startup if key_enter held down
@@ -1441,14 +1471,21 @@ boolean HU_Responder(event_t *ev)
 		      HU_Erase(); //jff 4/28/98 erase behind messages
 
 		    message_list_on = false;
+#ifdef MESSAGEBG
 		    // killough 11/98: fix background for smaller screens:
 		    if (hud_list_bgon && scaledviewheight<200)
 		      setsizeneeded = true;
+#endif
 		  }
+#ifdef ONEOFFREVIEW
+              }
+              else if(hud_msg_oneoff)
+                message_list = true;
+#endif
 
 	      // killough 11/98: Support timed or continuous message lists
 
-	      if (!message_list)      // if not message list, refresh message
+              if (!message_list)      // if not message list, refresh message
 		{
 		  message_counter = message_count;
 		  reviewing_message = message_on = true;

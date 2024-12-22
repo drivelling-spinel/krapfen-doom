@@ -6091,6 +6091,7 @@ static const char stkeys8[]=  // show both red keys on stat bar
     0,185,177,246,185,182,  0,255,  3,  3,  0,185,175,174,  0,255,
 };
 #endif
+#ifdef MESSAGEBG
 // Background characters for the message review when enabled
 // Makes a general purpose background box, could be used for other
 // purposes as well
@@ -6225,6 +6226,7 @@ static const char boxur[]=  // end message background characters
     0, 10, 11,126, 11,126,126,126,126,  0,255,  0,  8,  0,159, 10,
    10, 10, 10,  9, 10,  9,  0,255,
 };
+#endif
 #ifdef V11V12LUMPS
 static const char sttminus[]=  // minus on status bar
 {
@@ -15563,6 +15565,7 @@ const lumpinfo_t predefined_lumps[]={
   { "STKEYS7",  sizeof stkeys7, stkeys7 },
   { "STKEYS8",  sizeof stkeys8, stkeys8 },
 #endif
+#ifdef MESSAGEBG
   { "BOXUL",    sizeof boxul, boxul }, //jff 2/26/98 background window graphics
   { "BOXUC",    sizeof boxuc, boxuc },
   { "BOXUR",    sizeof boxur, boxur },
@@ -15572,6 +15575,7 @@ const lumpinfo_t predefined_lumps[]={
   { "BOXLL",    sizeof boxll, boxll },
   { "BOXLC",    sizeof boxlc, boxlc },
   { "BOXLR",    sizeof boxlr, boxlr },
+#endif
 #ifdef V11V12LUMPS
   { "STTMINUS", sizeof sttminus, sttminus }, //jff 2/27/98 -- for v1.2
   { "WIMINUS",  sizeof wiminus,  wiminus},   // killough 4/25/98 -- for v1.1

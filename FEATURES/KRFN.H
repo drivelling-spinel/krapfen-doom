@@ -23,6 +23,10 @@
 //                logic to help with Final Doom demos
 #define STAIRVERSION
 
+// ONEOFFREVIEW - option to play with classic Doom messages, but
+//                invoke one off message review mode any time with Enter
+//#define ONEOFFREVIEW
+
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
 #endif

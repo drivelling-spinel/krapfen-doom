@@ -269,7 +269,9 @@ extern int hud_nosecrets; // status does not list secrets/items/kills
 #ifdef TRADKEY
 extern int sts_traditional_keys;  // display keys the traditional way
 #endif
+#ifdef MESSAGEBG
 extern int hud_list_bgon; // solid window background for list of messages
+#endif
 extern int hud_msg_lines; // number of message lines in window up to 16
 extern int hud_msg_scrollup; // killough 11/98: whether list scrolls upwards
 extern int mapcolor_back; // map background
@@ -3576,7 +3578,9 @@ enum {
   mess_hud_timer,
   mess_lines,
   mess_scrollup,
+#ifdef MESSAGEBG
   mess_background,
+#endif
 };
 
 setup_menu_t mess_settings1[];
@@ -3615,10 +3619,10 @@ setup_menu_t mess_settings1[] =  // Messages screen
 
   {"Message Listing Scrolls Upwards",  S_YESNO,  m_null,  M_X,
    M_Y + mess_scrollup*8, {"hud_msg_scrollup"}},
-
+#ifdef MESSAGEBG
   {"Message Background",  S_YESNO,  m_null,  M_X,  
    M_Y + mess_background*8, {"hud_list_bgon"}},
-
+#endif
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 

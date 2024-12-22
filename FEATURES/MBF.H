@@ -75,8 +75,9 @@
 // COMMONERROR - fix common wad errors (missing sidedefs)
 #define COMMONERROR
 
-// COMPSTAIR   - Build stairs exactly the same way that Doom does
-//               causes demos go out of sync when they don't in BOOM
+// COMPSTAIR   - Compatibility option for building stairs
+//               "exactly the same way that Doom does";
+//               when not defined always attempt the "exatly the same" way
 #define COMPSTAIR
 
 // DOGS assumes that FRIENDMOBJ is enabled

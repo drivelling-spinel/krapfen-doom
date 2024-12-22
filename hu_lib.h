@@ -99,7 +99,9 @@ typedef struct
   int     cl;                          // current line number
 
   int x,y,w,h;                         // window position and size
+#ifdef MESSAGEBG
   patch_t **bg;                        // patches for background
+#endif
 
   // pointer to boolean stating whether to update window
   boolean*    on;
