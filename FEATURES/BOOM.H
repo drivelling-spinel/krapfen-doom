@@ -63,6 +63,10 @@
 //               Doom clasic status bar
 #define COLORSTBAR
 
+// INDICATEHOM - whether to flash indicator in case "hall of
+//               mirrors" is detected
+#define INDICATEHOM
+
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif

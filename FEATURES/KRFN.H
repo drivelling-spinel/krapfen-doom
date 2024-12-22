@@ -37,8 +37,10 @@
 
 // FIRELINEPARM - make BOOM fix for slime trails / firelines only apply
 //                when command line argument -fixslime2 is specified
-#define FIRELINEPARM
+//#define FIRELINEPARM
 
+// RECALCANGLE - do not trust angles found in seg definitions of maps
+#define RECALCANGLE
 
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR

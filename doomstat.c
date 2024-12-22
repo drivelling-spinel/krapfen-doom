@@ -119,9 +119,9 @@ int monster_avoid_hazards, default_monster_avoid_hazards;
 // killough 9/9/98: whether monsters help friends
 int help_friends, default_help_friends;
 #endif
-
+#ifdef INDICATEHOM
 int flashing_hom;     // killough 10/98
-
+#endif
 #ifdef WEAPONMBF
 int doom_weapon_toggles; // killough 10/98
 #endif

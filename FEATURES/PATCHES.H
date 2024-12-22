@@ -24,7 +24,7 @@
 
 // FIRELINEFIX  - BOOM way of dealing with slime trails, as implemented
 //                by Rand Phares for BOOM 2.02
-#define FIRELINEFIX
+//#define FIRELINEFIX
 
 
 #if defined(DGONDOS) && !defined(SAKITOSHI)

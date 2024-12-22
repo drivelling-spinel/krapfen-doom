@@ -71,7 +71,9 @@ static void cheat_massacre();
 #endif
 static void cheat_ddt();
 #ifdef CHEATBOOM
+#ifdef INDICATEHOM
 static void cheat_hom();
+#endif
 static void cheat_fast();
 static void cheat_key();
 static void cheat_keyx();
@@ -178,9 +180,10 @@ struct cheat_s cheat[] = {
   {"iddt",       "Map cheat",         not_dm,
    cheat_ddt      },     // killough 2/07/98: moved from am_map.c
 #ifdef CHEATBOOM
+#ifdef INDICATEHOM
   {"hom",     NULL,                   always,
    cheat_hom      },     // killough 2/07/98: HOM autodetector
-
+#endif
   {"key",     NULL,                   not_net | not_demo, 
    cheat_key   },     // killough 2/16/98: generalized key cheats
 
@@ -604,6 +607,7 @@ static void cheat_ddt()
     ddt_cheating = (ddt_cheating+1) % 3;
 }
 #ifdef CHEATBOOM
+#ifdef INDICATEHOM
 // killough 2/7/98: HOM autodetection
 static void cheat_hom()
 {
@@ -611,7 +615,7 @@ static void cheat_hom()
   plyr->message = (autodetect_hom = !autodetect_hom) ? "HOM Detection On" :
     "HOM Detection Off";
 }
-
+#endif
 // killough 3/6/98: -fast parameter toggle
 static void cheat_fast()
 {

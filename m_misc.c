@@ -77,6 +77,9 @@ extern int tran_filter_pct;            // killough 2/21/98
 extern int screenblocks;
 extern int showMessages;
 
+#ifdef RECALCANGLE
+extern boolean recalcangle;
+#endif
 
 extern char *chat_macros[]
 #ifdef PRELOAD
@@ -215,6 +218,7 @@ default_t defaults[] = {
     "number of dead bodies in view supported (negative value = no limit)"
   },
 #endif
+#ifdef INDICATEHOM
   { // killough 10/98
     "flashing_hom",
     &flashing_hom, NULL,
@@ -226,6 +230,20 @@ default_t defaults[] = {
        {0,1}, number, ss_gen, wad_yes,
     "1 to enable flashing HOM indicator"
   },
+#endif
+#ifdef RECALCANGLE
+  {
+    "recalcangle",
+    &recalcangle, NULL,
+#ifdef KRFNDFLT
+    1,
+#else
+    0,
+#endif
+       {0,1}, number, ss_gen, wad_yes,
+    "1 to recalculate line segment angles in maps"
+  },
+#endif
 
   { // GB 2014
     "show_fps",

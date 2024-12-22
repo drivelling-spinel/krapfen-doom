@@ -116,6 +116,9 @@ boolean firelineparm;
 #ifdef SLIMEPARM
 boolean slimeparm;
 #endif
+#ifdef RECALCANGLE
+boolean recalcangle;
+#endif
 
 //
 // P_LoadVertexes
@@ -198,7 +201,11 @@ void P_LoadSegs (int lump)
 
       li->v1 = &vertexes[SHORT(ml->v1)];
       li->v2 = &vertexes[SHORT(ml->v2)];
-
+#ifdef RECALCANGLE      
+      if(recalcangle)
+        li->angle = R_PointToAngle2(li->v1->x, li->v1->y, li->v2->x, li->v2->y);
+      else
+#endif
       li->angle = (SHORT(ml->angle))<<16;
 #ifdef FIRELINEFIX
 // phares 10/4/98: In the case of a lineseg that was created by splitting
@@ -981,7 +988,7 @@ void P_GroupLines (void)
 //
 // Firelines (TM) is a Rezistered Trademark of MBF Productions
 //
-
+       
 void P_RemoveSlimeTrails(void)                // killough 10/98
 {
   byte *hit = calloc(1, numvertexes);         // Hitlist for vertices

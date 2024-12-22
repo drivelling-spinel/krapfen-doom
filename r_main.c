@@ -494,9 +494,9 @@ void R_SetupFrame (player_t *player)
 
   validcount++;
 }
-
+#ifdef INDICATEHOM
 int autodetect_hom = 0;       // killough 2/7/98: HOM autodetection flag
-
+#endif
 //
 // R_RenderView
 //
@@ -509,7 +509,7 @@ void R_RenderPlayerView (player_t* player)
   R_ClearDrawSegs ();
   R_ClearPlanes ();
   R_ClearSprites ();
-    
+#ifdef INDICATEHOM    
   if (autodetect_hom)
     { // killough 2/10/98: add flashing red HOM indicators
       char c[47*47];
@@ -580,13 +580,14 @@ void R_RenderPlayerView (player_t* player)
                     (viewwindowy + viewheight/2 - 24)>>hires, 0, 47, 47, c);
       R_DrawViewBorder();
     }
+#endif
 
   // check for new console commands.
   NetUpdate ();
 
   // The head node is the last node output.
   R_RenderBSPNode (numnodes-1);
-    
+
   // Check for new console commands.
   NetUpdate ();
     

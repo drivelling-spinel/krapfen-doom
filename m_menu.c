@@ -3204,7 +3204,9 @@ enum {
 #ifdef DISKICON
   general_diskicon,
 #endif
+#ifdef INDICATEHOM
   general_hom
+#endif
 };
 
 enum {
@@ -3261,9 +3263,10 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Flash Icon During Disk IO", S_YESNO, m_null, G_X,
    G_Y + general_diskicon*8, {"disk_icon"}},
 #endif
+#ifdef INDICATEHOM
   {"Flashing HOM indicator", S_YESNO, m_null, G_X,
    G_Y + general_hom*8, {"flashing_hom"}},
-
+#endif
   {"Sound & Music ( use Setup.exe )", S_SKIP|S_TITLE, m_null, G_X, G_Y2 },
 
   {"Sound Driver", S_NUM|S_DRIVER1|S_SKIP,m_null,G_X-100,G_Y2 + general_sndcard*8 +4, {"traditional_menu"}},
@@ -3316,6 +3319,9 @@ enum {
   general_corpse,
 #endif
   general_realtic,
+#ifdef RECALCANGLE
+  general_angle,
+#endif
   general_end
 };
 
@@ -3351,6 +3357,10 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 #endif
   {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, G_X,
    G_Y4 + general_realtic*8, {"realtic_clock_rate"}},
+#ifdef RECALCANGLE
+  {"Recalculate line angles in maps", S_YESNO|S_LEVWARN, m_null, G_X,
+   G_Y4 + general_angle*8, {"recalcangle"}},
+#endif
 
   {"<- PREV",S_SKIP|S_PREV, m_null, KB_PREV, KB_Y+20*8, {gen_settings1}},
 
