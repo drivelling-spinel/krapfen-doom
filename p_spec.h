@@ -26,6 +26,7 @@
 #ifndef __P_SPEC__
 #define __P_SPEC__
 
+#include "features.h"
 #include "r_defs.h"
 #include "d_player.h"
 

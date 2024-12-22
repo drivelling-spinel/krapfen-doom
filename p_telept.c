@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: p_telept.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "p_spec.h"
 #include "p_maputl.h"

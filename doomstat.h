@@ -32,6 +32,7 @@
 #ifndef __D_STATE__
 #define __D_STATE__
 
+#include "features.h"
 // We need globally shared data structures,
 //  for defining the global state variables.
 #include "doomdata.h"
@@ -48,17 +49,23 @@ extern  boolean nomonsters;   // checkparm of -nomonsters
 extern  boolean respawnparm;  // checkparm of -respawn
 extern  boolean fastparm;     // checkparm of -fast
 extern  boolean devparm;      // DEBUG: launched with -devparm
+#ifdef SSGD1
 extern  boolean ssgparm;      // checkparm of -ssg      GB 2013
+#endif
 extern  boolean nolfbparm;    // checkparm of -nolfb    GB 2014
 extern  boolean nopmparm;     // checkparm of -nopm     GB 2014
+#ifdef CALT
 extern  boolean noasmparm;    // checkparm of -noasm    GB 2014
 extern  boolean noasmxparm;   // checkparm of -noasmx   GB 2014
+#endif
 extern  boolean asmp6parm;    // checkparm of -asmp6    GB 2014
 extern  boolean safeparm;     // checkparm of -safe     GB 2014
 extern  boolean stdvidparm;   // checkparm of -stdvid   GB 2014
 extern  boolean bestvidparm;  // checkparm of -bestvid  GB 2014
 extern  boolean lowdetparm;   // checkparm of -lowdet   GB 2015
+#ifdef V12C
 extern  boolean v12_compat;   // GB 2014
+#endif
 extern  int statusbar_dirty;  // GB 2014, only draw when necessary
 extern  int screenblocks;     // killough 11/98
 
@@ -117,6 +124,7 @@ enum {
   comp_stairs,
   comp_infcheat,
   comp_zerotags,
+  comp_respawnfix,
   COMP_TOTAL=32  // Some extra room for additional variables
 };
 

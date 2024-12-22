@@ -219,7 +219,11 @@ extern skill_t startskill;      //note 0-based
 int defaultskill;               //note 1-based
 
 // killough 2/8/98: make corpse queue variable in size
-int    bodyqueslot, bodyquesize, default_bodyquesize; // killough 2/8/98, 10/98
+int    bodyqueslot, bodyquesize, default_bodyquesize
+#ifndef MAXCORPSE
+= 32
+#endif
+; // killough 2/8/98, 10/98
 
 void   *statcopy;       // for statistics driver
 
@@ -350,8 +354,12 @@ void G_BuildTiccmd(ticcmd_t* cmd)
         gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
         gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
         gamekeydown[key_weapon8] ? wp_chainsaw :
-        gamekeydown[key_weapon9] && ((gamemode == commercial) || ssgparm) ? wp_supershotgun :
-        wp_nochange;    // GB 2013
+        gamekeydown[key_weapon9] && ((gamemode == commercial)
+#ifdef SSGD1
+        || ssgparm // GB 2013
+#endif
+        ) ? wp_supershotgun :
+        wp_nochange;    
 
       // killough 3/22/98: For network and demo consistency with the
       // new weapons preferences, we must do the weapons switches here
@@ -387,7 +395,11 @@ void G_BuildTiccmd(ticcmd_t* cmd)
           // in use, or if the SSG is not already in use and the
           // player prefers it.
 
-          if (newweapon == wp_shotgun && (gamemode == commercial || ssgparm) && // GB 2013
+          if (newweapon == wp_shotgun && (gamemode == commercial
+#ifdef SSGD1
+          || ssgparm // GB 2013
+#endif
+          ) && 
               player->weaponowned[wp_supershotgun] &&
               (!player->weaponowned[wp_shotgun] ||
                player->readyweapon == wp_shotgun ||
@@ -1014,13 +1026,15 @@ static void G_DoPlayDemo(void)
         }
       else
         {
-          //v1.2 compatibility, now properly implemented GB 2014, All Credits: PrBoom Authors
-		  //search for 'v12_compat' to see where it branches from the default 
-		  v12_compat=true;
           episode = *demo_p++;
           map = *demo_p++;
           deathmatch = respawnparm = fastparm =
 		  nomonsters = consoleplayer = 0;
+
+#ifdef V12C
+          //v1.2 compatibility, now properly implemented GB 2014, All Credits: PrBoom Authors
+		  //search for 'v12_compat' to see where it branches from the default 
+		  v12_compat=true;
 
 		  // GB 2014 - from PrBoom - e6y
           // Ability to force -nomonsters and -respawn for playback of 1.2 demos.
@@ -1030,6 +1044,7 @@ static void G_DoPlayDemo(void)
           respawnparm = M_CheckParm("-respawn");
           fastparm = M_CheckParm("-fast");
           nomonsters = M_CheckParm("-nomonsters");
+#endif
         }
     }
   else    // new versions of demos
@@ -1217,6 +1232,7 @@ static void G_DoSaveGame(void)
   char *description;
   int  length, i; 
 
+#ifdef SSGD1
   // GB 2013, remove ready supershotgun in -ssg mode before saving, to maintain compatibility, prevent crash
   // works only when not reloading or firing.... otherwise crash. better leave it to the user.
   /*
@@ -1225,6 +1241,7 @@ static void G_DoSaveGame(void)
 	 players[consoleplayer].readyweapon=wp_shotgun;
 	 players[consoleplayer].pendingweapon=wp_shotgun;
   } */
+#endif
 
   G_SaveGameName(name,savegameslot);
 
@@ -1920,7 +1937,9 @@ void G_ReloadDefaults(void)
   consoleplayer = 0;
 
   compatibility = false;     // killough 10/98: replaced by comp[] vector
+#ifdef V12C
   v12_compat = false;        // GB 2014
+#endif
 
   memcpy(comp, default_comp, sizeof comp);
 

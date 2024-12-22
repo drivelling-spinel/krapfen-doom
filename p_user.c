@@ -29,6 +29,7 @@
 static const char
 rcsid[] = "$Id: p_user.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "d_event.h"
 #include "r_main.h"
@@ -368,7 +369,11 @@ void P_PlayerThink (player_t* player)
 	      (player->readyweapon != wp_chainsaw ||
 	       !player->powers[pw_strength]))
 	    newweapon = wp_chainsaw;
-	  if ((gamemode == commercial || ssgparm) && // GB 2013
+	  if ((gamemode == commercial
+#ifdef SSGD1
+          || ssgparm // GB 2013
+#endif
+          ) && 
 	      newweapon == wp_shotgun &&
 	      player->weaponowned[wp_supershotgun] &&
 	      player->readyweapon != wp_supershotgun)

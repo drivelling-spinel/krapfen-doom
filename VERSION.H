@@ -15,6 +15,9 @@ enum { VERSION =  204 };
 
 extern const char version_date[];
 
+#define PORTNAME "MBF"
+#define PORTAUTHOR "Ludicrous_peridot"
+
 #endif
 
 //----------------------------------------------------------------------------

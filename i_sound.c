@@ -375,7 +375,6 @@ void I_InitSound(void)
 
   // Initialize external data (all sounds) at start, keep static.
   fputs("I_InitSound: Load sound data",stdout); // killough 8/8/98 // GB 2014 added suffix
-
   for (i=1; i<NUMSFX; i++)
     if (!S_sfx[i].link)   // Load data from WAD file.
       S_sfx[i].data = getsfx(S_sfx[i].name, &lengths[i]);
@@ -385,7 +384,6 @@ void I_InitSound(void)
         S_sfx[i].data = S_sfx[i].link->data;
         lengths[i] = lengths[(S_sfx[i].link - S_sfx)/sizeof(sfxinfo_t)];
       }
-
   // GB 2014
   // Allegro load_ibk: Reads in a .IBK patch set file, for use by the Adlib driver.
   // Returns non-zero on error. 

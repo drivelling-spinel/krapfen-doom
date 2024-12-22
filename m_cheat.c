@@ -27,6 +27,7 @@
 static const char
 rcsid[] = "$Id: m_cheat.c,v 1.3 2000-08-12 21:29:28 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "g_game.h"
 #include "r_data.h"
@@ -372,7 +373,11 @@ static void cheat_fa()
   // You can't own weapons that aren't in the game // phares 02/27/98
   for (i=0;i<NUMWEAPONS;i++)
     if (!(((i == wp_plasma || i == wp_bfg) && gamemode == shareware) ||
-          (i == wp_supershotgun && (gamemode != commercial && !ssgparm )))) // GB 2013
+          (i == wp_supershotgun && (gamemode != commercial
+#ifdef SSGD1
+          && !ssgparm // GB 2013
+#endif
+          )))) 
       plyr->weaponowned[i] = true;
         
   for (i=0;i<NUMAMMO;i++)
@@ -609,7 +614,11 @@ char buf[3];
 {
   int w = *buf - '1';
 
-  if ((w==wp_supershotgun && (gamemode!=commercial && !ssgparm)) ||   // killough 2/28/98  GB 2013
+  if ((w==wp_supershotgun && (gamemode!=commercial
+#ifdef SSGD1
+  && !ssgparm  // GB 2013
+#endif
+  )) ||   // killough 2/28/98  
       ((w==wp_bfg || w==wp_plasma) && gamemode==shareware))
     return;
 

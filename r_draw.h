@@ -27,6 +27,7 @@
 #ifndef __R_DRAW__
 #define __R_DRAW__
 
+#include "features.h"
 #include "r_defs.h"
 
 extern lighttable_t *dc_colormap;

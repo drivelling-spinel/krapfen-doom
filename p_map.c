@@ -28,6 +28,7 @@
 static const char
 rcsid[] = "$Id: p_map.c,v 1.3 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h"
 #include "r_main.h"
 #include "p_mobj.h"
@@ -1711,11 +1712,14 @@ static boolean PIT_ChangeSector(mobj_t *thing)
   if (thing->health <= 0)
     {
     P_SetMobjState (thing, S_GIBS);
-
+#ifdef V12C
     if (!v12_compat)
     {
+#endif
       thing->flags &= ~MF_SOLID;
+#ifdef V12C
     }
+#endif
     thing->height = 0;
     thing->radius = 0;
     return true; // keep checking

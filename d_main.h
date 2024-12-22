@@ -27,6 +27,7 @@
 #ifndef __D_MAIN__
 #define __D_MAIN__
 
+#include "features.h"
 #include "d_event.h"
 
 extern char **wadfiles;       // killough 11/98
@@ -45,7 +46,9 @@ extern char basesavegame[];     // killough 2/16/98: savegame path
 extern boolean clnomonsters; // checkparm of -nomonsters
 extern boolean clrespawnparm;  // checkparm of -respawn
 extern boolean clfastparm; // checkparm of -fast
+#ifdef SSGD1
 extern boolean clssgparm; // GB 2013 checkparm of -ssg : assume supershotgun data available
+#endif
 
 //jff end of external declaration of command line playmode
 
