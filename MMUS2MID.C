@@ -289,6 +289,275 @@ static UBYTE MidiEvent(MIDI *mididata,UBYTE midicode,UBYTE MIDIchannel,
 //
 // Returns 0 if successful, otherwise an error code (see mmus2mid.h).
 //
+#ifdef PERIDOT
+char _has_secondary_instrument(char);
+
+int mmus2mid(UBYTE *mus, MIDI *mididata, UWORD division, int nocomp, int sec)
+{
+  UWORD TrackCnt = 0;
+  UBYTE evt, MUSchannel, MIDIchannel, MIDItrack=0, NewEvent;
+  int i, event, data;
+  UBYTE *musptr;
+  size_t muslen;
+  static MUSheader MUSh;
+  UBYTE MIDIchan2track[MIDI_TRACKS];  // killough 10/7/98: fix too small array
+  int MUS2MIDchannel[MIDI_TRACKS];    // killough 10/7/98: fix too small array
+
+  char secondaries[MIDI_TRACKS];
+  int first_unused = 0;
+
+  // copy the MUS header from the MUS buffer to the MUSh header structure
+
+  memcpy(&MUSh,mus,sizeof(MUSheader));
+
+  // check some things and set length of MUS buffer from internal data
+
+  if (!(muslen = MUSh.ScoreLength + MUSh.ScoreStart))
+    return MUSDATAMT;     // MUS file empty
+
+  if (MUSh.channels > 15)       // MUSchannels + drum channel > 16
+    return TOOMCHAN ;
+
+  musptr = mus+MUSh.ScoreStart; // init musptr to start of score
+
+  for (i = 0; i < MIDI_TRACKS; i++)   // init the track structure's tracks
+    {
+      MUS2MIDchannel[i] = -1;       // flag for channel not used yet
+      track[i].velocity = 64;
+      track[i].deltaT = 0;
+      track[i].lastEvt = 0;
+      free(mididata->track[i].data);//jff 3/5/98 remove old allocations
+      mididata->track[i].data=NULL;
+      track[i].alloced = 0;
+      mididata->track[i].len = 0;
+    }
+
+  if (!division)
+    division = 70;
+
+  // allocate the first track which is a special tempo/key track
+  // note multiple tracks means midi format 1
+
+  // set the divisions (ticks per quarter note)
+  mididata->divisions = division;
+
+  // allocate for midi tempo/key track, allow for end of track
+  if (!(mididata->track[0].data =
+        realloc(mididata->track[0].data,sizeof(midikey)+sizeof(miditempo)+4)))
+    return MEMALLOC;
+
+  // key C major
+  memcpy(mididata->track[0].data,midikey,sizeof(midikey));
+  // tempo uS/qnote
+  memcpy(mididata->track[0].data+sizeof(midikey),miditempo,sizeof(miditempo));
+  mididata->track[0].len = sizeof(midikey)+sizeof(miditempo);
+  secondaries[0] = 0;
+
+  TrackCnt++;   // music tracks start at 1
+
+  // process the MUS events in the MUS buffer
+
+  do
+    {
+      // get a mus event, decode its type and channel fields
+
+      event = *musptr++;
+      if ((evt = event_type(event)) == SCORE_END) //jff 1/23/98 use symbol
+        break;  // if end of score event, leave
+      MUSchannel = channel(event);
+
+      // if this channel not initialized, do so
+
+      if (MUS2MIDchannel[MUSchannel] == -1)
+        {
+          // set MIDIchannel and MIDItrack
+
+          MIDIchannel = MUS2MIDchannel[MUSchannel] =
+            (MUSchannel == 15 ? 9 : FirstChannelAvailable(MUS2MIDchannel));
+          MIDItrack = MIDIchan2track[MIDIchannel] = TrackCnt++;
+          secondaries[MIDItrack] = 0;
+        }
+      else // channel already allocated as a track, use those values
+        {
+          MIDIchannel = MUS2MIDchannel[MUSchannel];
+          MIDItrack   = MIDIchan2track[MIDIchannel];
+        }
+
+      if (TWriteVarLen(mididata, MIDItrack, track[MIDItrack].deltaT))
+        return MEMALLOC;
+      track[MIDItrack].deltaT = 0;
+
+      switch(evt)
+        {
+        case RELEASE_NOTE:
+	  // killough 10/7/98: Fix noise problems by not allowing compression
+          if (!(NewEvent=MidiEvent(mididata,0x90,MIDIchannel,MIDItrack,1)))
+            return MEMALLOC;
+
+          data = *musptr++;
+          if (TWriteByte(mididata, MIDItrack, data & 0x7F))
+            return MEMALLOC;
+          if (TWriteByte(mididata, MIDItrack, 0))
+            return MEMALLOC;
+          break;
+
+        case PLAY_NOTE:
+          if (!(NewEvent=MidiEvent(mididata,0x90,MIDIchannel,MIDItrack,nocomp)))
+            return MEMALLOC;
+
+          data = *musptr++;
+          if (TWriteByte(mididata, MIDItrack, data & 0x7F))
+            return MEMALLOC;
+          if( data & 0x80 )
+            track[MIDItrack].velocity = (*musptr++) & 0x7f;
+          if (TWriteByte(mididata, MIDItrack, track[MIDItrack].velocity))
+            return MEMALLOC;
+          break;
+
+        case BEND_NOTE:
+          if (!(NewEvent=MidiEvent(mididata,0xE0,MIDIchannel,MIDItrack,nocomp)))
+            return MEMALLOC;
+
+          data = *musptr++;
+          if (TWriteByte(mididata, MIDItrack, (data & 1) << 6))
+            return MEMALLOC;
+          if (TWriteByte(mididata, MIDItrack, data >> 1))
+            return MEMALLOC;
+          break;
+
+        case SYS_EVENT:
+          data = *musptr++;
+          if (data<10 || data>14)
+            break;
+            //return BADSYSEVT;
+
+          if (!(NewEvent=MidiEvent(mididata,0xB0,MIDIchannel,MIDItrack,nocomp)))
+            return MEMALLOC;
+
+          if (TWriteByte(mididata, MIDItrack, MUS2MIDcontrol[data]))
+            return MEMALLOC;
+          if (data == 12)
+            {
+              if (TWriteByte(mididata, MIDItrack, MUSh.channels+1))
+                return MEMALLOC;
+            }
+          else 
+	    if (TWriteByte(mididata, MIDItrack, 0))
+	      return MEMALLOC;
+          break;
+
+        case CNTL_CHANGE:
+          data = *musptr++;
+          if (data>9)
+            {
+              data = *musptr++;
+              break;
+              //return BADCTLCHG;
+            }
+
+          if (data)
+            {
+              if (!(NewEvent=MidiEvent(mididata,0xB0,MIDIchannel,MIDItrack,nocomp)))
+                return MEMALLOC;
+
+              if (TWriteByte(mididata, MIDItrack, MUS2MIDcontrol[data]))
+                return MEMALLOC;
+            }
+          else
+            {
+              if(MIDIchannel != 9 && _has_secondary_instrument(*musptr) && sec)
+                secondaries[MIDItrack] |= 1;
+              if (!(NewEvent=MidiEvent(mididata,0xC0,MIDIchannel,MIDItrack,nocomp)))
+                return MEMALLOC;
+            }
+          data = *musptr++;
+          if (TWriteByte(mididata, MIDItrack, data & 0x7F))
+            return MEMALLOC;
+          break;
+
+        case UNKNOWN_EVENT1:   // mus events 5 and 7
+          data = *musptr++;
+          break;
+          
+        case UNKNOWN_EVENT2:   // meaning not known
+          break;
+        //  return BADMUSCTL;
+
+        case SCORE_END:
+          break;
+
+        default:
+          return BADMUSCTL;   // exit with error
+        }
+      if (last(event))
+        {
+          ULONG DeltaTime = ReadTime(&musptr); // killough 10/7/98: make local
+	  for (i = 0;i < MIDI_TRACKS; i++) //jff 3/13/98 update all tracks
+	    track[i].deltaT += DeltaTime;  //whether allocated yet or not
+        }
+    } 
+  while ((evt != SCORE_END) && musptr-mus < muslen);
+
+  if (evt!=SCORE_END)
+    return MUSDATACOR;
+
+  // Now add an end of track to each mididata track, correct allocation
+
+  for (i = 0; i < MIDI_TRACKS; i++)
+    if (mididata->track[i].len)
+      {       // killough 10/7/98: simplify code
+	if (TWriteByte(mididata, i, 0x00) || // midi end of track code
+	    TWriteByte(mididata, i, 0xFF) ||
+	    TWriteByte(mididata, i, 0x2F) ||
+	    TWriteByte(mididata, i, 0x00))
+	  return MEMALLOC;
+
+	// jff 1/23/98 fix failure to set data NULL, len 0 for unused tracks
+	// shorten allocation to proper length (important for Allegro)
+
+	if (!(mididata->track[i].data =
+	      realloc(mididata->track[i].data,mididata->track[i].len)))
+	  return MEMALLOC;
+      }
+    else
+      {
+	free(mididata->track[i].data);
+	mididata->track[i].data = NULL;
+      }
+
+  first_unused = FirstChannelAvailable(MUS2MIDchannel);
+
+  for (i = 0; i < MIDI_TRACKS && first_unused < 16; i++)
+  {
+    if(mididata->track[i].len)
+    {
+      if(secondaries[i])
+        {
+          int j;
+          for(j = 0 ; j < MIDI_TRACKS ; j ++)
+            {
+              if(!mididata->track[j].len) break;
+            }
+          if(j >= MIDI_TRACKS) break;
+          doom_printf("DEBUG MIDI %d->%d(ch %d)", i, j, first_unused);
+
+          secondaries[i] = secondaries[j] = 0;
+          mididata->track[j].len = mididata->track[i].len + 2;
+          mididata->track[j].data = calloc(mididata->track[j].len, 1);
+          memcpy(mididata->track[j].data, mididata->track[i].data,
+            mididata->track[i].len);
+          //LP: mark the track for allegro-side hack
+          mididata->track[j].data[mididata->track[i].len] = 0x23;
+          mididata->track[j].data[mididata->track[i].len + 1] = first_unused++;
+
+          if(first_unused == 9) first_unused++;
+        }
+    }
+  }
+
+  return 0;
+}
+#else
 int mmus2mid(UBYTE *mus, MIDI *mididata, UWORD division, int nocomp)
 {
   UWORD TrackCnt = 0;
@@ -508,6 +777,7 @@ int mmus2mid(UBYTE *mus, MIDI *mididata, UWORD division, int nocomp)
 
   return 0;
 }
+#endif
 
 //
 // ReadLength()

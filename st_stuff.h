@@ -87,8 +87,9 @@ extern int ammo_red;      // ammo percent less than which status is red
 extern int ammo_yellow;   // ammo percent less is yellow more green
 extern int sts_always_red;// status numbers do not change colors
 extern int sts_pct_always_gray;// status percents do not change colors
+#ifdef TRADKEY
 extern int sts_traditional_keys;  // display keys the traditional way
-
+#endif
 #endif
 
 //----------------------------------------------------------------------------

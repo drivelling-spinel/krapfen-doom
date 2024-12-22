@@ -3,9 +3,13 @@
 
 // KRFNDFLT    - use defaults for options which are closer to vanilla
 //               except some which are not (e.g. prefer BMP screenshots)
-//#define KRFNDFLT
+#define KRFNDFLT
 
 // KRFNSLIM    - remove some of the less frequently used bits an pieces
-//#define KRFNSLIM
+#define KRFNSLIM
+
+// AIRTELEPT   - whether to include compatibility with Final Doom
+//               teleport bug, also adds comp_airteleport to toggle
+#define AIRTELEPT
 
 #endif

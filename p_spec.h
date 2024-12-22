@@ -880,12 +880,14 @@ void T_FireFlicker(fireflicker_t *);  // killough 10/4/98
 
 int EV_Teleport(line_t *line, int side, mobj_t *thing);
 
+#ifdef TRIGGERBOOM
 // killough 2/14/98: Add silent teleporter
 int EV_SilentTeleport(line_t *line, int side, mobj_t *thing);
 
 // killough 1/31/98: Add silent line teleporter
 int EV_SilentLineTeleport(line_t *line, int side, 
 			  mobj_t *thing, boolean reverse);
+#endif
 
 // p_floor
 

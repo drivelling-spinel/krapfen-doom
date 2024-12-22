@@ -241,7 +241,11 @@ static patch_t *shortnum[10];
 
 // 3 key-cards, 3 skulls, 3 card/skull combos
 // jff 2/24/98 extend number of patches by three skull/card combos
-static patch_t *keys[NUMCARDS+3];
+static patch_t *keys[NUMCARDS
+#ifdef TRADKEY
++3
+#endif
+];
 
 // face status patches
 static patch_t *faces[ST_NUMFACES];
@@ -555,7 +559,9 @@ void ST_updateFaceWidget(void)
 
 }
 
+#ifdef TRADKEY
 int sts_traditional_keys; // killough 2/28/98: traditional status bar keys
+#endif
 
 void ST_updateWidgets(void)
 {
@@ -594,7 +600,14 @@ void ST_updateWidgets(void)
       //killough 2/28/98: preserve traditional keys by config option
 
       if (plyr->cards[i+3])
-        keyboxes[i] = keyboxes[i]==-1 || sts_traditional_keys ? i+3 : i+6;
+        keyboxes[i] =  
+#ifdef TRADKEY
+        keyboxes[i]==-1 || sts_traditional_keys ? i+3 : i+6
+#else
+        i+3;
+#endif
+        ;
+
     }
 
   // refresh everything if this is him coming back to life
@@ -799,7 +812,11 @@ void ST_loadGraphics(void)
   tallpercent = (patch_t *) W_CacheLumpName("STTPRCNT", PU_STATIC);
 
   // key cards
-  for (i=0;i<NUMCARDS+3;i++)  //jff 2/23/98 show both keys too
+  for (i=0;i<NUMCARDS
+#ifdef TRADKEY
+  +3
+#endif
+  ;i++)  //jff 2/23/98 show both keys too
     {
       sprintf(namebuf, "STKEYS%d", i);
       keys[i] = (patch_t *) W_CacheLumpName(namebuf, PU_STATIC);
@@ -885,7 +902,11 @@ void ST_unloadGraphics(void)
     Z_ChangeTag(arms[i][0], PU_CACHE);
 
   // unload the key cards
-  for (i=0;i<NUMCARDS+3;i++)  //jff 2/23/98 unload double key patches too
+  for (i=0;i<NUMCARDS
+#ifdef TRADKEY
+  +3
+#endif
+  ;i++)  //jff 2/23/98 unload double key patches too
     Z_ChangeTag(keys[i], PU_CACHE);
 
   Z_ChangeTag(sbar, PU_CACHE);

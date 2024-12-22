@@ -127,9 +127,8 @@ enum {
   comp_infcheat,
   comp_zerotags,
   comp_respawnfix,
-#ifdef SOULBOUNCE
   comp_soulbounce,
-#endif
+  comp_airteleport,
   COMP_TOTAL=32  // Some extra room for additional variables
 };
 

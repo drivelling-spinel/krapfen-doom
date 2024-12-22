@@ -876,6 +876,8 @@ int P_CheckTag(line_t *line)
   if (comp[comp_zerotags] || line->tag)
     return 1;
 
+  //FIXME: New tags introduced in BOOM are among the below, and should
+  //       probably be ifdef-ed with TRIGGERBOOM -- LP 2024
   switch (line->special)
     {
     case 1:   // Manual door specials
@@ -1133,6 +1135,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
         case 4:       // raise door
         case 10:      // plat down-wait-up-stay trigger
         case 88:      // plat down-wait-up-stay retrigger
+#ifdef TRIGGERBOOM 
           //jff 3/5/98 add ability of monsters etc. to use teleporters
         case 208:     //silent thing teleporters
         case 207:
@@ -1146,6 +1149,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
         case 267:
         case 268:
         case 269:
+#endif
           ok = 1;
           break;
         }
@@ -1593,6 +1597,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
       // killough 2/16/98: Fix problems with W1 types being cleared too early
 
     default:
+#ifdef TRIGGERBOOM
       if (!demo_compatibility)
         switch (line->special)
           {
@@ -1887,6 +1892,7 @@ void P_CrossSpecialLine(line_t *line, int side, mobj_t *thing)
             //jff 1/29/98 end of added WR linedef types
 
           }
+#endif
       break;
     }
 }
@@ -2051,6 +2057,7 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
       // killough 1/31/98: added demo_compatibility check, added inner switch
 
     default:
+#ifdef TRIGGERBOOM
       if (!demo_compatibility)
         switch (line->special)
           {
@@ -2075,6 +2082,7 @@ void P_ShootSpecialLine(mobj_t *thing, line_t *line)
             break;
             //jff end addition of new gun linedefs
           }
+#endif
       break;
     }
 }
@@ -2630,6 +2638,7 @@ static void Add_Scroller(int type, fixed_t dx, fixed_t dy,
   P_AddThinker(&s->thinker);
 }
 
+#ifdef SCROLLBOOM
 // Adds wall scroller. Scroll amount is rotated with respect to wall's
 // linedef first, so that scrolling towards the wall in a perpendicular
 // direction is translated into vertical motion, while scrolling along
@@ -2660,6 +2669,7 @@ static void Add_WallScroller(long long dx, long long dy, const line_t *l,
 // Factor to scale scrolling effect into mobj-carrying properties = 3/32.
 // (This is so scrolling floors and objects on them can move at same speed.)
 #define CARRYFACTOR ((fixed_t)(FRACUNIT*.09375))
+#endif
 
 // Initialize the scrollers
 static void P_SpawnScrollers(void)
@@ -2669,11 +2679,19 @@ static void P_SpawnScrollers(void)
 
   for (i=0;i<numlines;i++,l++)
     {
+#ifdef SCROLLBOOM
       fixed_t dx = l->dx >> SCROLL_SHIFT;  // direction and speed of scrolling
       fixed_t dy = l->dy >> SCROLL_SHIFT;
-      int control = -1, accel = 0;         // no control sector or acceleration
+#endif
+      int
+#ifdef SCROLLBOOM
+          control = -1,
+#endif
+          accel = 0          // no control sector or acceleration
+      ;
       int special = l->special;
 
+#ifdef SCROLLBOOM 
       // killough 3/7/98: Types 245-249 are same as 250-254 except that the
       // first side's sector's heights cause scrolling when they change, and
       // this linedef controls the direction and speed of the scrolling. The
@@ -2694,11 +2712,12 @@ static void P_SpawnScrollers(void)
             special += 250-214;
             control = sides[*l->sidenum].sector - sectors;
           }
+#endif
 
       switch (special)
         {
+#ifdef SCROLLBOOM
           register int s;
-
         case 250:   // scroll effect ceiling
           for (s=-1; (s = P_FindSectorFromLineTag(l,s)) >= 0;)
             Add_Scroller(sc_ceiling, -dx, dy, control, s, accel);
@@ -2731,14 +2750,16 @@ static void P_SpawnScrollers(void)
           Add_Scroller(sc_side, -sides[s].textureoffset,
                        sides[s].rowoffset, -1, s, accel);
           break;
-
+#endif
         case 48:                  // scroll first side
           Add_Scroller(sc_side,  FRACUNIT, 0, -1, lines[i].sidenum[0], accel);
           break;
 
+#ifdef SCROLLBOOM
         case 85:                  // jff 1/30/98 2-way scroll
           Add_Scroller(sc_side, -FRACUNIT, 0, -1, lines[i].sidenum[0], accel);
           break;
+#endif
         }
     }
 }

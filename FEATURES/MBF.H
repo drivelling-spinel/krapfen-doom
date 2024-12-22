@@ -19,7 +19,6 @@
 // CALT        - Alternate GFX procedures in C, for noasm parameter.
 #define CALT
 
-
 // SSGD1       - enable super shotgun also in Doom 1
 #define SSGD1
 

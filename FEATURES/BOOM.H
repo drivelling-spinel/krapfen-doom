@@ -33,7 +33,19 @@
 // PCXSSHOT    - ability to take screenshots in PCX format
 #define PCXSSHOT
 
-#if (defined(PUSHERS) || defined(FRICTION)) && !defined(GENERALIZED)
+// TRADKEY     - whether to support alternative graphics in HUD
+//               for when carrying both keycard and skull key
+#define TRADKEY
+
+// TRIGGERBOOM - whether to check for additional triggers
+//               and include silent teleportes support
+#define TIRGGERBOOM
+
+// SCROLLBOOM  - whether to inclue extended scrollers support
+//               incl. for handling voodoo scripting belts
+#define SCROLLBOOM
+
+#if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif
 

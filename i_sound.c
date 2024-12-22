@@ -288,6 +288,14 @@ void I_ShutdownSound(void)
 //char midi_desc[160];
 //char digi_desc[160];
 
+#ifdef PERIDOT
+static char _secondaries[256];
+
+char _has_secondary_instrument(char inst)
+{
+  return _secondaries[(unsigned char) inst];
+}
+#endif
 
 void I_InitSound(void)
 {
@@ -299,6 +307,10 @@ void I_InitSound(void)
 
   // Secure and configure sound device first.
   fputs("I_InitSound: ", stdout);
+
+#ifdef PERIDOT
+  memset(_secondaries, 0, sizeof(_secondaries));
+#endif
 
   // GB 2014: In practice, Allegro 3.12 legacy audio selection does not work...
   // Here is the manual conversion from 3.00 to 3.12 device IDs.
@@ -384,6 +396,7 @@ void I_InitSound(void)
         S_sfx[i].data = S_sfx[i].link->data;
         lengths[i] = lengths[(S_sfx[i].link - S_sfx)/sizeof(sfxinfo_t)];
       }
+#ifndef PERIDOT
   // GB 2014
   // Allegro load_ibk: Reads in a .IBK patch set file, for use by the Adlib driver.
   // Returns non-zero on error. 
@@ -401,12 +414,27 @@ void I_InitSound(void)
        //load_ibk("drum.ibk",1);
     }	
   }
+#endif
   // Finished initialization.
   puts("\nI_InitSound: sound module ready");    // killough 8/8/98
 
   //rest(4000);
   //sleep(8); //uncomment for debugging
 }
+
+#ifdef PERIDOT
+void I_LoadSoundBank(void *bank)
+{
+  // GB 2014
+  // Allegro load_ibk: Reads in a .IBK patch set file, for use by the Adlib driver.
+  // Returns non-zero on error. 
+  // int load_ibk(char *filename, int drums)
+  if (mus_card>0)
+  {
+     load_op2_extra(bank, _secondaries);
+  } 
+}
+#endif
 
 ///
 // MUSIC API.
