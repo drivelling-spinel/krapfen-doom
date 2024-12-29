@@ -84,6 +84,11 @@
 //               with keypress as in original Doom
 #define LOWDET
 
+// FUZZMBF     - MBF changes to Specter "fuzz" effect
+//               (i.e. @fraggle's fix on top original MBF code);
+//               when disable attempt to behave closer to vanilla Doom
+#define FUZZMBF
+
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)
 #define FRIENDMOBJ
