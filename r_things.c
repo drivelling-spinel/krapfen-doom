@@ -91,6 +91,19 @@ static void R_InstallSpriteLump(int lump, unsigned frame,
   if (frame >= MAX_SPRITE_FRAMES || rotation > 8)
     I_Error("R_InstallSpriteLump: Bad frame characters in lump %i", lump);
 
+#ifdef WADMERGE
+  if (-1 == spritewidth[lump - firstspritelump] &&
+      -1 == spriteoffset[lump - firstspritelump] &&
+      -1 == spritetopoffset[lump - firstspritelump]) 
+    {
+
+      patch_t * patch = W_CacheLumpNum(lump, PU_CACHE);
+      spritewidth[lump - firstspritelump] = SHORT(patch->width)<<FRACBITS;
+      spriteoffset[lump - firstspritelump] = SHORT(patch->leftoffset)<<FRACBITS;
+      spritetopoffset[lump - firstspritelump] = SHORT(patch->topoffset)<<FRACBITS;
+    }  
+#endif
+
   if ((int) frame > maxframe)
     maxframe = frame;
 
@@ -199,15 +212,33 @@ void R_InitSpriteDefs(char **namelist)
                     (lump->name[2] ^ spritename[2]) |
                     (lump->name[3] ^ spritename[3])))
                 {
+#ifdef WADMERGE
+                  char frame = lump->name[4] - 'A';
+                  char rotation = lump->name[5] - '0';
+                  byte good = 0;
+
+                  if(good = (frame >= 0 && frame < MAX_SPRITE_FRAMES &&
+                             rotation >= 0 && rotation < 9))
+#endif
                   R_InstallSpriteLump(j+firstspritelump,
                                       lump->name[4] - 'A',
                                       lump->name[5] - '0',
                                       false);
                   if (lump->name[6])
+#ifdef WADMERGE
+                    if(good) {
+                      frame = lump->name[6] - 'A';
+                      rotation = lump->name[7] - '0';
+                      if(good = (frame >= 0 && frame < MAX_SPRITE_FRAMES &&
+                                 rotation >= 0 && rotation < 9))
+#endif
                     R_InstallSpriteLump(j+firstspritelump,
                                         lump->name[6] - 'A',
                                         lump->name[7] - '0',
                                         true);
+#ifdef WADMERGE
+                    }
+#endif
                 }
             }
           while ((j = hash[j].next) >= 0);
@@ -357,7 +388,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
   int      texturecolumn;
   fixed_t  frac;
   patch_t  *patch = W_CacheLumpNum (vis->patch+firstspritelump, PU_CACHE);
-
+            
   dc_colormap = vis->colormap;
 
   // killough 4/11/98: rearrange and handle translucent sprites

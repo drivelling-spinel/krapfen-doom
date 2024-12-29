@@ -489,7 +489,11 @@ void R_InitTextures (void)
           // appear first in a wad. This is a kludgy solution to the wad
           // lump namespace problem.
 
-          patchlookup[i] = (W_CheckNumForName)(name, ns_sprites);
+          patchlookup[i] = (W_CheckNumForName)(name
+#ifdef WADNAMESPACE
+                                                   , ns_sprites
+#endif
+                                                               );
 
           if (patchlookup[i] == -1 && devparm)	    // killough 8/8/98
             printf("\nWarning: patch %.8s, index %d does not exist",name,i);
@@ -660,7 +664,13 @@ void R_InitFlats(void)
 {
   int i;
 
-  firstflat = W_GetNumForName("F_START") + 1;
+  firstflat =
+#ifdef WADMERGE
+              W_FirstNumForName("F_START") 
+#else
+              W_GetNumForName("F_START")
+#endif
+                                           + 1;
   lastflat  = W_GetNumForName("F_END") - 1;
   numflats  = lastflat - firstflat + 1;
 
@@ -684,9 +694,17 @@ void R_InitFlats(void)
 void R_InitSpriteLumps(void)
 {
   int i;
+#ifndef WADMERGE
   patch_t *patch;
+#endif
 
-  firstspritelump = W_GetNumForName("S_START") + 1;
+  firstspritelump = 
+#ifdef WADMERGE
+                    W_FirstNumForName("S_START")
+#else
+                    W_GetNumForName("S_START")
+#endif
+                                                + 1;
   lastspritelump = W_GetNumForName("S_END") - 1;
   numspritelumps = lastspritelump - firstspritelump + 1;
 
@@ -702,11 +720,16 @@ void R_InitSpriteLumps(void)
     {
       if (!(i&127))            // killough
         putchar ('.');
-
+#ifdef WADMERGE
+      spritewidth[i] = -1;
+      spriteoffset[i] = -1;
+      spritetopoffset[i] = -1;
+#else
       patch = W_CacheLumpNum(firstspritelump+i, PU_CACHE);
       spritewidth[i] = SHORT(patch->width)<<FRACBITS;
       spriteoffset[i] = SHORT(patch->leftoffset)<<FRACBITS;
       spritetopoffset[i] = SHORT(patch->topoffset)<<FRACBITS;
+#endif
     }
 }
 
@@ -909,7 +932,11 @@ void R_InitData(void)
 
 int R_FlatNumForName(const char *name)    // killough -- const added
 {
-  int i = (W_CheckNumForName)(name, ns_flats);
+  int i = (W_CheckNumForName)(name
+#ifdef WADNAMESPACE
+                                  , ns_flats
+#endif
+                                            );
   if (i == -1)
     I_Error("R_FlatNumForName: %.8s not found", name);
   return i - firstflat;

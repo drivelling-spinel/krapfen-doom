@@ -154,7 +154,11 @@ void P_InitPicAnims (void)
         }
       else
         {
-          if ((W_CheckNumForName)(animdefs[i].startname, ns_flats) == -1)  // killough 4/17/98
+          if ((W_CheckNumForName)(animdefs[i].startname
+#ifdef WADNAMESPACE
+                                                       , ns_flats       // killough 4/17/98
+#endif
+                                                                 ) == -1)  
             continue;
 
           lastanim->picnum = R_FlatNumForName (animdefs[i].endname);

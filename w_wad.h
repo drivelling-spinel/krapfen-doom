@@ -62,6 +62,7 @@ typedef struct
   // killough 1/31/98: hash table fields, used for ultra-fast hash table lookup
   int index, next;
 
+#ifdef WADNAMESPACE
   // killough 4/17/98: namespace tags, to prevent conflicts between resources
   enum {
     ns_global=0,
@@ -71,6 +72,7 @@ typedef struct
     ns_colormaps
 #endif
   } namespace;
+#endif
 
   int handle;
   int position;
@@ -86,11 +88,15 @@ extern int        numlumps;
 
 void W_InitMultipleFiles(char *const*filenames);
 
+#ifdef WADNAMESPACE
 // killough 4/17/98: if W_CheckNumForName() called with only
 // one argument, pass ns_global as the default namespace
 
 #define W_CheckNumForName(name) (W_CheckNumForName)(name, ns_global)
 int     (W_CheckNumForName)(const char* name, int);   // killough 4/17/98
+#else
+int     W_CheckNumForName(const char* name);          
+#endif
 int     W_GetNumForName (const char* name);
 int     W_LumpLength (int lump);
 void    W_ReadLump (int lump, void *dest);
@@ -108,6 +114,10 @@ void I_BeginRead(void), I_EndRead(void); // killough 10/98
 #ifndef KRFNSLIM
 // Function to write all predefined lumps to a PWAD if requested
 extern void WritePredefinedLumpWad(const char *filename); // jff 5/6/98
+#endif
+
+#ifdef WADMERGE
+int W_FirstNumForName(const char* name);
 #endif
 
 #endif

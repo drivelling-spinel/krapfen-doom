@@ -67,11 +67,19 @@
 //               mirrors" is detected
 #define INDICATEHOM
 
-// BOOMERROR - fix map errors on loading (missing sidedefs)
+// BOOMERROR   - fix map errors on loading (missing sidedefs)
 #define BOOMERROR
+
+// WADNAMESPACE - search for sprites and flats separately from
+//                "general purpose" lumps
+#define WADNAMESPACE
 
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
+#endif
+                           
+#if defined(DEEPWATER) && !defined(WADNAMESPACE)
+#define WADNAMESPACE
 #endif
 
 #endif

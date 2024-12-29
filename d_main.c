@@ -1204,8 +1204,12 @@ static void D_ProcessDehInWad(int i)
   if (i >= 0)
     {
       D_ProcessDehInWad(lumpinfo[i].next);
-      if (!strncasecmp(lumpinfo[i].name, "dehacked", 8) &&
-          lumpinfo[i].namespace == ns_global)
+      if (!strncasecmp(lumpinfo[i].name, "dehacked", 8)
+#ifdef WADNAMESPACE
+                                                        &&
+          lumpinfo[i].namespace == ns_global
+#endif
+                                            )
         ProcessDehFile(NULL, D_dehout(), i);  // (D_ProcessDehPreincludes)
     }
 }
@@ -1554,8 +1558,12 @@ void D_DoomMain(void)
       // but w/o all the lumps of the registered version.
       if (gamemode == registered)
         for (i = 0;i < 23; i++)
-          if (W_CheckNumForName(name[i])<0 &&
-              (W_CheckNumForName)(name[i],ns_sprites)<0) // killough 4/18/98
+          if (W_CheckNumForName(name[i])<0 
+#ifdef WADNAMESPACE
+                                           &&
+              (W_CheckNumForName)(name[i],ns_sprites)<0 // killough 4/18/98
+#endif
+                                                       )
             I_Error("\nThis is not the registered version.");
   }
 

@@ -2,14 +2,14 @@
 #define __FEATURES_KRFN_
 
 // KRFNDFLT     - use defaults for options which are closer to vanilla
-//               except some which are not (e.g. prefer BMP screenshots)
+//                except some which are not (e.g. prefer BMP screenshots)
 #define KRFNDFLT
 
 // KRFNSLIM     - remove some of the less frequently used bits an pieces
 #define KRFNSLIM
 
 // AIRTELEPT    - whether to include compatibility with Final Doom
-//               teleport bug, also adds comp_airteleport to toggle
+//                teleport bug, also adds comp_airteleport to toggle
 #define AIRTELEPT
 
 // USEVESA      - adds option to enable/disable search for VESA modes
@@ -34,9 +34,14 @@
 // SLIMEOPT     - make slime trails removal optional
 //#define SLIMEOPT
 
-// D1BRAN       - allow spawning "brain targets" in Doom 1
+// D1BRAIN      - allow spawning "brain targets" in Doom 1
 //                like vanilla did
 //#define D1BRAIN
+
+// WADMERGE     - look for sprites and flats outside of index markers;
+//                allows adding assets from PWAD-s without a need to
+//                run `deusf -apend` or `nwt -merge`
+//#define WADMERGE
 
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR

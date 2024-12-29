@@ -219,13 +219,16 @@ static void W_AddFile(const char *name) // killough 1/31/98: static, const
         lump_p->position = LONG(fileinfo->filepos);
         lump_p->size = LONG(fileinfo->size);
         lump_p->data = NULL;                        // killough 1/31/98
+#ifdef WADNAMESPACE
         lump_p->namespace = ns_global;              // killough 4/17/98
+#endif
         strncpy (lump_p->name, fileinfo->name, 8);
       }
 
     free(fileinfo2free);      // killough
 }
 
+#ifdef WADNAMESPACE
 // jff 1/23/98 Create routines to reorder the master directory
 // putting all flats into one marked block, and all sprites into another.
 // This will allow loading of sprites and flats from a PWAD with no
@@ -290,6 +293,7 @@ static void W_CoalesceMarkedResource(const char *start_marker,
       strncpy(lumpinfo[numlumps++].name, end_marker, 8);
     }
 }
+#endif
 
 // Hash function used for lump names.
 // Must be mod'ed with table size.
@@ -326,12 +330,17 @@ unsigned W_LumpNameHash(const char *s)
 // just as much work as simply doing the string comparisons with the new
 // algorithm, which minimizes the expected number of comparisons to under 2.
 //
+#ifdef WADNAMESPACE
 // killough 4/17/98: add namespace parameter to prevent collisions
 // between different resources such as flats, sprites, colormaps
 //
 
 int (W_CheckNumForName)(register const char *name, register int namespace)
+#else
+int (W_CheckNumForName)(register const char *name)
+#endif
 {
+
   // Hash function maps the name to one of possibly numlump chains.
   // It has been tuned so that the average chain length never exceeds 2.
 
@@ -343,14 +352,36 @@ int (W_CheckNumForName)(register const char *name, register int namespace)
   // worth the overhead, considering namespace collisions are rare in
   // Doom wads.
 
-  while (i >= 0 && (strncasecmp(lumpinfo[i].name, name, 8) ||
-                    lumpinfo[i].namespace != namespace))
+  while (i >= 0 && (strncasecmp(lumpinfo[i].name, name, 8)
+#ifdef WADNAMESPACE
+                                                           ||
+                    lumpinfo[i].namespace != namespace
+#endif
+                                                      ))
     i = lumpinfo[i].next;
 
   // Return the matching lump, or -1 if none found.
 
   return i;
 }
+
+#ifdef WADMERGE
+int W_FirstNumForName(const char* name)
+{
+  register int i = lumpinfo[W_LumpNameHash(name) % (unsigned) numlumps].index;
+  register int j = -1;
+
+  while (i >= 0 )
+    {
+      if(!strncasecmp(lumpinfo[i].name, name, 8)) j = i;
+      i = lumpinfo[i].next;
+    }                                                  
+
+  if (j == -1)
+    I_Error ("W_LastNumForName: %.8s not found!", name);
+  return j;
+}
+#endif
 
 //
 // killough 1/31/98: Initialize lump hash table
@@ -406,6 +437,10 @@ int W_GetNumForName (const char* name)     // killough -- const added
 
 void W_InitMultipleFiles(char *const *filenames)
 {
+#ifdef WADMERGE
+  numlumps = 0;
+  lumpinfo = 0;
+#else
   // killough 1/31/98: add predefined lumps first
 
   numlumps = num_predefined_lumps;
@@ -414,17 +449,29 @@ void W_InitMultipleFiles(char *const *filenames)
   lumpinfo = malloc(numlumps*sizeof(*lumpinfo));
 
   memcpy(lumpinfo, predefined_lumps, numlumps*sizeof(*lumpinfo));
-
+#endif
   // open all the files, load headers, and count lumps
   while (*filenames)
+#ifdef WADMERGE
+    {
+      byte first = !numlumps;
+#endif
     W_AddFile(*filenames++);
-
+#ifdef WADMERGE                                                       
+      if(!first || !numlumps) continue;
+      lumpinfo = realloc(lumpinfo, (numlumps + num_predefined_lumps)*sizeof(*lumpinfo));
+      memcpy(lumpinfo + numlumps, predefined_lumps, num_predefined_lumps*sizeof(*lumpinfo));
+      numlumps += num_predefined_lumps;
+    }
+#endif
+               
   if (!numlumps)
     I_Error ("W_InitFiles: no files found");
 
   //jff 1/23/98
   // get all the sprites and flats into one marked block each
   // killough 1/24/98: change interface to use M_START/M_END explicitly
+#ifdef WADNAMESPACE
   // killough 4/17/98: Add namespace tags to each entry
 
   W_CoalesceMarkedResource("S_START", "S_END", ns_sprites);
@@ -433,6 +480,7 @@ void W_InitMultipleFiles(char *const *filenames)
 #ifdef DEEPWATER
   // killough 4/4/98: add colormap markers
   W_CoalesceMarkedResource("C_START", "C_END", ns_colormaps);
+#endif
 #endif
 
   // set up caching
