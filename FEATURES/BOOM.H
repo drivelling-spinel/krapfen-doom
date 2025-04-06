@@ -74,11 +74,20 @@
 //                "general purpose" lumps
 #define WADNAMESPACE
 
+// ANIMATED    - load animated textures and sprites definitions
+//               from ANIMATED lump; when not defined use internal
+//               definitions only
+#define ANIMATED
+
+// SWITCHES    - load names switches definition from SWITCHES lump;
+//               when not defined use internal definitions only
+#define SWITCHES
+
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif
                            
-#if defined(DEEPWATER) && !defined(WADNAMESPACE)
+#if (defined(DEEPWATER) || defined(ANIMATED)) && !defined(WADNAMESPACE)
 #define WADNAMESPACE
 #endif
 

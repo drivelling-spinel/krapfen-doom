@@ -663,6 +663,9 @@ void R_InitTextures (void)
 void R_InitFlats(void)
 {
   int i;
+#ifdef WADMERGE
+  int f;
+#endif
 
   firstflat =
 #ifdef WADMERGE
@@ -672,6 +675,11 @@ void R_InitFlats(void)
 #endif
                                            + 1;
   lastflat  = W_GetNumForName("F_END") - 1;
+#ifdef WADMERGE
+  f = W_CheckNumForName("FF_END") - 1;
+  if(f > lastflat)
+    lastflat = f;
+#endif
   numflats  = lastflat - firstflat + 1;
 
   // Create translation table for global animation.
@@ -696,6 +704,8 @@ void R_InitSpriteLumps(void)
   int i;
 #ifndef WADMERGE
   patch_t *patch;
+#else
+  int s;
 #endif
 
   firstspritelump = 
@@ -706,6 +716,11 @@ void R_InitSpriteLumps(void)
 #endif
                                                 + 1;
   lastspritelump = W_GetNumForName("S_END") - 1;
+#ifdef WADMERGE
+  s =  W_CheckNumForName("SS_END") - 1;
+  if(s > lastspritelump)
+    lastspritelump = s;
+#endif
   numspritelumps = lastspritelump - firstspritelump + 1;
 
   // killough 4/9/98: make columnd offsets 32-bit;

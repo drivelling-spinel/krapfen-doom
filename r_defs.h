@@ -109,11 +109,17 @@ typedef struct
   void *ceilingdata;  // floors, ceilings, lighting,
   void *lightingdata; // independent of one another
 
+#ifdef GENERALIZED
   // jff 2/26/98 lockout machinery for stairbuilding
   int stairlock;   // -2 on first locked -1 after thinker done 0 normally
   int prevsec;     // -1 or number of sector for previous step
   int nextsec;     // -1 or number of next step sector
-  
+#else
+  int dumgen0;
+  int dumgen1;
+  int dumgen2;
+#endif
+
   // killough 3/7/98: floor and ceiling texture offsets
   fixed_t   floor_xoffs,   floor_yoffs;
   fixed_t ceiling_xoffs, ceiling_yoffs;

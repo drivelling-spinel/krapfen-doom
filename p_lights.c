@@ -29,6 +29,7 @@
 static const char
 rcsid[] = "$Id: p_lights.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 
+#include "features.h"
 #include "doomstat.h" //jff 5/18/98
 #include "doomdef.h"
 #include "m_random.h"
@@ -391,6 +392,7 @@ int EV_LightTurnOn(line_t *line, int bright)
   return 1;
 }
 
+#ifdef GRADLIGHT
 // killough 10/98:
 //
 // EV_LightTurnOnPartway()
@@ -432,7 +434,7 @@ int EV_LightTurnOnPartway(line_t *line, fixed_t level)
     }
   return 1;
 }
-
+#endif
 //----------------------------------------------------------------------------
 //
 // $Log: p_lights.c,v $

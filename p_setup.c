@@ -250,8 +250,10 @@ void P_LoadSectors (int lump)
       ss->thinglist = NULL;
       ss->touching_thinglist = NULL;            // phares 3/14/98
 
+#ifdef GENERALIZED
       ss->nextsec = -1; //jff 2/26/98 add fields to support locking out
       ss->prevsec = -1; // stair retriggering until build completes
+#endif
 
       // killough 3/7/98:
       ss->floor_xoffs = 0;

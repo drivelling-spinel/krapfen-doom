@@ -82,7 +82,9 @@ void T_MoveCeiling (ceiling_t* ceiling)
         switch(ceiling->type)
         {
           case silentCrushAndRaise:
+#ifdef GENERALIZED
           case genSilentCrusher:
+#endif
             break;
           default:
             S_StartSound((mobj_t *)&ceiling->sector->soundorg,sfx_stnmov);
@@ -97,10 +99,13 @@ void T_MoveCeiling (ceiling_t* ceiling)
         {
           // plain movers are just removed
           case raiseToHighest:
+#ifdef GENERALIZED
           case genCeiling:
+#endif
             P_RemoveActiveCeiling(ceiling);
             break;
 
+#ifdef GENERALIZED
           // movers with texture change, change the texture then get removed
           case genCeilingChgT:
           case genCeilingChg0:
@@ -111,12 +116,14 @@ void T_MoveCeiling (ceiling_t* ceiling)
             ceiling->sector->ceilingpic = ceiling->texture;
             P_RemoveActiveCeiling(ceiling);
             break;
-
+#endif
           // crushers reverse direction at the top
           case silentCrushAndRaise:
             S_StartSound((mobj_t *)&ceiling->sector->soundorg,sfx_pstop);
+#ifdef GENERALIZED
           case genSilentCrusher:
           case genCrusher:
+#endif
           case fastCrushAndRaise:
           case crushAndRaise:
             ceiling->direction = -1;
@@ -146,7 +153,9 @@ void T_MoveCeiling (ceiling_t* ceiling)
         switch(ceiling->type)
         {
           case silentCrushAndRaise:
+#ifdef GENERALIZED
           case genSilentCrusher:
+#endif
             break;
           default:
             S_StartSound((mobj_t *)&ceiling->sector->soundorg,sfx_stnmov);
@@ -158,6 +167,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
       {
         switch(ceiling->type)
         {
+#ifdef GENERALIZED
           // 02/09/98 jff change slow crushers' speed back to normal
           // start back up
           case genSilentCrusher:
@@ -166,7 +176,7 @@ void T_MoveCeiling (ceiling_t* ceiling)
               ceiling->speed = ceiling->oldspeed;
             ceiling->direction = 1; //jff 2/22/98 make it go back up!
             break;
-
+#endif
           // make platform stop at bottom of all crusher strokes
           // except generalized ones, reset speed, start back up
           case silentCrushAndRaise:
@@ -176,7 +186,8 @@ void T_MoveCeiling (ceiling_t* ceiling)
           case fastCrushAndRaise:
             ceiling->direction = 1;
             break;
-          
+
+#ifdef GENERALIZED
           // in the case of ceiling mover/changer, change the texture
           // then remove the active ceiling
           case genCeilingChgT:
@@ -188,13 +199,15 @@ void T_MoveCeiling (ceiling_t* ceiling)
             ceiling->sector->ceilingpic = ceiling->texture;
             P_RemoveActiveCeiling(ceiling);
             break;
-
+#endif
           // all other case, just remove the active ceiling
           case lowerAndCrush:
           case lowerToFloor:
           case lowerToLowest:
           case lowerToMaxFloor:
+#ifdef GENERALIZED
           case genCeiling:
+#endif
             P_RemoveActiveCeiling(ceiling);
             break;
 
@@ -209,12 +222,14 @@ void T_MoveCeiling (ceiling_t* ceiling)
         {
           switch(ceiling->type)
           {
+#ifdef GENERALIZED
             //jff 02/08/98 slow down slow crushers on obstacle
             case genCrusher:  
             case genSilentCrusher:
               if (ceiling->oldspeed < CEILSPEED*3)
                 ceiling->speed = CEILSPEED / 8;
               break;
+#endif
             case silentCrushAndRaise:
             case crushAndRaise:
             case lowerAndCrush:

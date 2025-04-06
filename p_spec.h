@@ -355,10 +355,11 @@ typedef enum
   raiseAndChange,
   raiseToNearestAndChange,
   blazeDWUS,
+#ifdef GENERALIZED
   genLift,      //jff added to support generalized Plat types
   genPerpetual, 
   toggleUpDn,   //jff 3/14/98 added to support instant toggle type
-
+#endif
 } plattype_e;
 
 // p_doors
@@ -373,7 +374,7 @@ typedef enum
   blazeRaise,
   blazeOpen,
   blazeClose,
-
+#ifdef GENERALIZED
   //jff 02/05/98 add generalize door types
   genRaise,
   genBlazeRaise,
@@ -383,6 +384,7 @@ typedef enum
   genBlazeClose,
   genCdO,
   genBlazeCdO,
+#endif
 } vldoor_e;
 
 // p_ceilng
@@ -397,7 +399,7 @@ typedef enum
   crushAndRaise,
   fastCrushAndRaise,
   silentCrushAndRaise,
-
+#ifdef GENERALIZED
   //jff 02/04/98 add types for generalized ceiling mover
   genCeiling,
   genCeilingChg,
@@ -407,7 +409,7 @@ typedef enum
   //jff 02/05/98 add types for generalized ceiling mover
   genCrusher,
   genSilentCrusher,
-
+#endif
 } ceiling_e;
 
 // p_floor
@@ -457,16 +459,18 @@ typedef enum
   raiseFloorTurbo,       
   donutRaise,
   raiseFloor512,
-
+#ifdef GENERALIZED
   //jff 02/04/98  add types for generalized floor mover
   genFloor,
   genFloorChg,
   genFloorChg0,
   genFloorChgT,
-
+#endif
   //new types for stair builders
   buildStair,
+#ifdef GENERALIZED
   genBuildStair,
+#endif
 } floor_e;
 
 typedef enum
@@ -624,7 +628,11 @@ typedef struct
   //jff 1/31/98 keep track of line door is triggered by
   line_t *line;
 
+#ifdef GRADLIGHT
   int lighttag; //killough 10/98: sector tag for gradual lighting effects
+#else
+  int dummylight;
+#endif
 } vldoor_t;
 
 // p_doors
@@ -921,7 +929,9 @@ int EV_TurnTagLightsOff(line_t *line);
 
 int EV_LightTurnOn(line_t *line, int bright);
 
+#ifdef GRADLIGHT
 int EV_LightTurnOnPartway(line_t *line, fixed_t level);  // killough 10/10/98
+#endif
 
 // p_floor
 

@@ -122,14 +122,23 @@ extern int variable_friction;         // phares 3/20/98
 // source text file DEFSWANI.DAT also in the BOOM util distribution.
 //
 //
+
+#ifndef ANIMATED
+extern const char animated[];
+#endif
+
 void P_InitPicAnims (void)
 {
   int         i;
   animdef_t   *animdefs; //jff 3/23/98 pointer to animation lump
   //  Init animation
 
+#ifdef ANIMATED
   //jff 3/23/98 read from predefined or wad lump instead of table
   animdefs = W_CacheLumpName("ANIMATED",PU_STATIC);
+#else
+  animdefs = (animdef_t *)animated;
+#endif
 
   lastanim = anims;
   for (i=0 ; animdefs[i].istexture != -1 ; i++)
@@ -176,7 +185,9 @@ void P_InitPicAnims (void)
       lastanim->speed = LONG(animdefs[i].speed); // killough 5/5/98: add LONG()
       lastanim++;
     }
+#ifdef ANIMATED
   Z_ChangeTag (animdefs,PU_CACHE); //jff 3/23/98 allow table to be freed
+#endif
 }
 
 ///////////////////////////////////////////////////////////////

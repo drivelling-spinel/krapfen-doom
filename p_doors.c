@@ -65,28 +65,35 @@ void T_VerticalDoor (vldoor_t *door)
         switch(door->type)
           {
           case blazeRaise:
+#ifdef GENERALIZED
           case genBlazeRaise:
+#endif
             door->direction = -1; // time to go back down
             S_StartSound((mobj_t *)&door->sector->soundorg,sfx_bdcls);
             break;
 
           case normal:
+#ifdef GENERALIZED
           case genRaise:
+#endif
             door->direction = -1; // time to go back down
             S_StartSound((mobj_t *)&door->sector->soundorg,sfx_dorcls);
             break;
 
           case close30ThenOpen:
+#ifdef GENERALIZED
           case genCdO:
+#endif
             door->direction = 1;  // time to go back up
             S_StartSound((mobj_t *)&door->sector->soundorg,sfx_doropn);
             break;
 
+#ifdef GENERALIZED
           case genBlazeCdO:
             door->direction = 1;  // time to go back up
             S_StartSound((mobj_t *)&door->sector->soundorg,sfx_bdopn);
             break;
-
+#endif
           default:
             break;
           }
@@ -114,6 +121,7 @@ void T_VerticalDoor (vldoor_t *door)
                         door->sector->floorheight,
                         false, 1, door->direction);
 
+#ifdef GRADLIGHT
       // killough 10/98: implement gradual lighting effects
       if (door->lighttag && door->topheight - door->sector->floorheight)
         EV_LightTurnOnPartway(door->line,
@@ -121,7 +129,7 @@ void T_VerticalDoor (vldoor_t *door)
                                        door->sector->floorheight,
                                        door->topheight -
                                        door->sector->floorheight));
-
+#endif
       // handle door reaching bottom
       if (res == pastdest)
         switch(door->type)
@@ -129,8 +137,10 @@ void T_VerticalDoor (vldoor_t *door)
             // regular open and close doors are all done, remove them
           case blazeRaise:
           case blazeClose:
+#ifdef GENERALIZED
           case genBlazeRaise:
           case genBlazeClose:
+#endif
             door->sector->ceilingdata = NULL;  //jff 2/22/98
             P_RemoveThinker (&door->thinker);  // unlink and free
             // killough 4/15/98: remove double-closing sound of blazing doors
@@ -140,8 +150,10 @@ void T_VerticalDoor (vldoor_t *door)
 
           case normal:
           case close:
+#ifdef GENERALIZED
           case genRaise:
           case genClose:
+#endif
             door->sector->ceilingdata = NULL; //jff 2/22/98
             P_RemoveThinker (&door->thinker);  // unlink and free
             break;
@@ -152,12 +164,13 @@ void T_VerticalDoor (vldoor_t *door)
             door->topcountdown = TICRATE*30;
             break;
 
+#ifdef GENERALIZED
           case genCdO:
           case genBlazeCdO:
             door->direction = 0;
             door->topcountdown = door->topwait; // jff 5/8/98 insert delay
             break;
-
+#endif
           default:
             break;
           }
@@ -169,8 +182,10 @@ void T_VerticalDoor (vldoor_t *door)
         if (res == crushed) // handle door meeting obstruction on way down
           switch(door->type)
             {
+#ifdef GENERALIZED
             case genClose:
             case genBlazeClose:
+#endif
             case blazeClose:
             case close:          // Close types do not bounce, merely wait
               break;
@@ -188,6 +203,7 @@ void T_VerticalDoor (vldoor_t *door)
                         door->topheight, false, 1,
                         door->direction);
 
+#ifdef GRADLIGHT
       // killough 10/98: implement gradual lighting effects
       if (door->lighttag && door->topheight - door->sector->floorheight)
         EV_LightTurnOnPartway(door->line,
@@ -195,6 +211,7 @@ void T_VerticalDoor (vldoor_t *door)
                                        door->sector->floorheight,
                                        door->topheight -
                                        door->sector->floorheight));
+#endif
 
       // handle door reaching the top
       if (res == pastdest)
@@ -202,8 +219,10 @@ void T_VerticalDoor (vldoor_t *door)
           {
           case blazeRaise:       // regular open/close doors start waiting
           case normal:
+#ifdef GENERALIZED
           case genRaise:
           case genBlazeRaise:
+#endif
             door->direction = 0; // wait at top with delay
             door->topcountdown = door->topwait;
             break;
@@ -211,10 +230,12 @@ void T_VerticalDoor (vldoor_t *door)
           case close30ThenOpen:  // close and close/open doors are done
           case blazeOpen:
           case open:
+#ifdef GENERALIZED
           case genBlazeOpen:
           case genOpen:
           case genCdO:
           case genBlazeCdO:
+#endif
             door->sector->ceilingdata = NULL; //jff 2/22/98
             P_RemoveThinker (&door->thinker); // unlink and free
             break;
@@ -324,7 +345,9 @@ int EV_DoDoor(line_t *line, vldoor_e type)
       door->topwait = VDOORWAIT;
       door->speed = VDOORSPEED;
       door->line = line;  // jff 1/31/98 remember line that triggered us
+#ifdef GRADLIGHT
       door->lighttag = 0; // killough 10/98: no light effects with tagged doors
+#endif
 
       // setup door parameters according to type of door
       switch(type)
@@ -503,7 +526,6 @@ int EV_VerticalDoor(line_t *line, mobj_t *thing)
     return 0;
   }
 
-
   // emit proper sound
   switch(line->special)
     {
@@ -533,8 +555,10 @@ int EV_VerticalDoor(line_t *line, mobj_t *thing)
   door->topwait = VDOORWAIT;
   door->line = line; // jff 1/31/98 remember line that triggered us
 
+#ifdef GRADLIGHT
   // killough 10/98: use gradual lighting changes if nonzero tag given
   door->lighttag = comp[comp_doorlight] ? 0 : line->tag; // killough 10/98
+#endif
 
   // set the type of door from the activating linedef type
   switch(line->special)
@@ -566,7 +590,9 @@ int EV_VerticalDoor(line_t *line, mobj_t *thing)
       break;
 
     default:
+#ifdef GRADLIGHT
       door->lighttag = 0;   // killough 10/98
+#endif
       break;
     }
 
@@ -607,7 +633,9 @@ void P_SpawnDoorCloseIn30 (sector_t* sec)
   door->speed = VDOORSPEED;
   door->topcountdown = 30 * 35;
   door->line = NULL; // jff 1/31/98 remember line that triggered us
+#ifdef GRADLIGHT
   door->lighttag = 0;  // killough 10/98: no lighting changes
+#endif
 }
 
 //
@@ -640,7 +668,9 @@ void P_SpawnDoorRaiseIn5Mins(sector_t *sec, int secnum)
   door->topwait = VDOORWAIT;
   door->topcountdown = 5 * 60 * 35;
   door->line = NULL; // jff 1/31/98 remember line that triggered us
+#ifdef GRADLIGHT
   door->lighttag = 0;  // killough 10/98: no lighting changes
+#endif
 }
 
 //----------------------------------------------------------------------------

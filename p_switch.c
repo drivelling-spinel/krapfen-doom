@@ -63,6 +63,10 @@ button_t  buttonlist[MAXBUTTONS];
 //
 // Rewritten by Lee Killough to remove limit 2/8/98
 //
+#ifndef SWITCHES
+extern const char switches[];
+#endif
+
 void P_InitSwitchList(void)
 {
   int i, index = 0;
@@ -70,8 +74,12 @@ void P_InitSwitchList(void)
                  2 : gamemode == commercial ? 3 : 1;
   switchlist_t *alphSwitchList;         //jff 3/23/98 pointer to switch table
 
+#ifdef SWITCHES
   //jff 3/23/98 read the switch table from a predefined lump             
   alphSwitchList = (switchlist_t *)W_CacheLumpName("SWITCHES",PU_STATIC);
+#else
+  alphSwitchList = (switchlist_t *)switches;
+#endif
 
   for (i=0;;i++)
   {
@@ -89,7 +97,9 @@ void P_InitSwitchList(void)
 
   numswitches = index/2;
   switchlist[index] = -1;
+#ifdef SWITCHES
   Z_ChangeTag(alphSwitchList,PU_CACHE); //jff 3/23/98 allow table to be freed
+#endif
 }
 
 //

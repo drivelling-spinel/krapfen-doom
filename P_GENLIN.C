@@ -978,9 +978,11 @@ manual_locked:
     door->topheight -= 4*FRACUNIT;
     door->direction = 1;
 
+#ifdef GRADLIGHT
     // killough 10/98: implement gradual lighting
     door->lighttag = !comp[comp_doorlight] && (line->special&6) == 6 && 
       line->special > GenLockedBase ? line->tag : 0;
+#endif
 
     // setup speed of door motion
     switch(Sped)
@@ -1117,9 +1119,11 @@ manual_door:
     }
     door->line = line; // jff 1/31/98 remember line that triggered us
 
+#ifdef GRADLIGHT
     // killough 10/98: implement gradual lighting
     door->lighttag = !comp[comp_doorlight] && (line->special&6) == 6 && 
       line->special > GenLockedBase ? line->tag : 0;
+#endif
 
     // set kind of door, whether it opens then close, opens, closes etc.
     // assign target heights accordingly

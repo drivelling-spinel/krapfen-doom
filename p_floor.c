@@ -71,7 +71,6 @@ result_e T_MovePlane
   fixed_t       lastpos;     
   fixed_t       destheight; //jff 02/04/98 used to keep floors/ceilings
                             // from moving thru each other
-
   switch(floorOrCeiling)
   {
     case 0:
@@ -257,6 +256,7 @@ void T_MoveFloor(floormove_t* floor)
           floor->sector->special = floor->newspecial;
           floor->sector->floorpic = floor->texture;
           break;
+#ifdef GENERALIZED
         case genFloorChgT:
         case genFloorChg0:
           floor->sector->special = floor->newspecial;
@@ -266,6 +266,7 @@ void T_MoveFloor(floormove_t* floor)
         case genFloorChg:
           floor->sector->floorpic = floor->texture;
           break;
+#endif
         default:
           break;
       }
@@ -280,6 +281,7 @@ void T_MoveFloor(floormove_t* floor)
           floor->sector->oldspecial = floor->oldspecial;
           floor->sector->floorpic = floor->texture;
           break;
+#ifdef GENERALIZED
         case genFloorChgT:
         case genFloorChg0:
           floor->sector->special = floor->newspecial;
@@ -289,6 +291,7 @@ void T_MoveFloor(floormove_t* floor)
         case genFloorChg:
           floor->sector->floorpic = floor->texture;
           break;
+#endif
         default:
           break;
       }
@@ -296,7 +299,7 @@ void T_MoveFloor(floormove_t* floor)
 
     floor->sector->floordata = NULL; //jff 2/22/98
     P_RemoveThinker(&floor->thinker);//remove this floor from list of movers
-
+#ifdef GENERALIZED
     //jff 2/26/98 implement stair retrigger lockout while still building
     // note this only applies to the retriggerable generalized stairs
 
@@ -323,7 +326,7 @@ void T_MoveFloor(floormove_t* floor)
         }
       }
     }
-
+#endif
     // make floor stop sound
     S_StartSound((mobj_t *)&floor->sector->soundorg, sfx_pstop);
   }

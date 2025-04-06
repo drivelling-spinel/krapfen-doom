@@ -77,19 +77,22 @@ void T_PlatRaise(plat_t* plat)
       {
         if (res == pastdest) // end of stroke
         {
+#ifdef GENERALIZED
           // if not an instant toggle type, wait, make plat stop sound
           if (plat->type!=toggleUpDn)
           {
+#endif
             plat->count = plat->wait;
             plat->status = waiting;
             S_StartSound((mobj_t *)&plat->sector->soundorg, sfx_pstop);
+#ifdef GENERALIZED
           }
           else // else go into stasis awaiting next toggle activation
           {
             plat->oldstatus = plat->status;//jff 3/14/98 after action wait  
             plat->status = in_stasis;      //for reactivation of toggle
           }
-
+#endif
           // lift types and pure raise types are done at end of up stroke
           // only the perpetual type waits then goes back up
           switch(plat->type)
@@ -98,7 +101,9 @@ void T_PlatRaise(plat_t* plat)
             case downWaitUpStay:
             case raiseAndChange:
             case raiseToNearestAndChange:
+#ifdef GENERALIZED
             case genLift:
+#endif
               P_RemoveActivePlat(plat);     // killough
             default:
               break;
@@ -113,19 +118,22 @@ void T_PlatRaise(plat_t* plat)
       // handle reaching end of down stroke
       if (res == pastdest)
       {
+#ifdef GENERALIZED
         // if not an instant toggle, start waiting, make plat stop sound
         if (plat->type!=toggleUpDn) //jff 3/14/98 toggle up down
         {                           // is silent, instant, no waiting
+#endif
           plat->count = plat->wait;
           plat->status = waiting;
           S_StartSound((mobj_t *)&plat->sector->soundorg,sfx_pstop);
+#ifdef GENERALIZED
         }
         else // instant toggles go into stasis awaiting next activation
         {
           plat->oldstatus = plat->status;//jff 3/14/98 after action wait  
           plat->status = in_stasis;      //for reactivation of toggle
         }
-
+#endif
         //jff 1/26/98 remove the plat if it bounced so it can be tried again
         //only affects plats that raise and bounce
         //killough 1/31/98: relax compatibility to demo_compatibility
@@ -193,12 +201,12 @@ int EV_DoPlat
     case perpetualRaise:
       P_ActivateInStasis(line->tag);
       break;
-
+#ifdef GENERALIZED
     case toggleUpDn:
       P_ActivateInStasis(line->tag);
       rtn=1;
       break;
-        
+#endif
     default:
       break;
   }
@@ -297,7 +305,7 @@ int EV_DoPlat
 
         S_StartSound((mobj_t *)&sec->soundorg,sfx_pstart);
         break;
-
+#ifdef GENERALIZED
       case toggleUpDn: //jff 3/14/98 add new type to support instant toggle
         plat->speed = PLATSPEED;  //not used
         plat->wait = 35*PLATWAIT; //not used
@@ -308,7 +316,7 @@ int EV_DoPlat
         plat->high = sec->floorheight;
         plat->status =  down;
         break;
-
+#endif
       default:
         break;
     }
@@ -342,9 +350,11 @@ void P_ActivateInStasis(int tag)
     plat_t *plat = pl->plat;              // for one in stasis with right tag
     if (plat->tag == tag && plat->status == in_stasis) 
     {
+#ifdef GENERALIZED
       if (plat->type==toggleUpDn) //jff 3/14/98 reactivate toggle type
         plat->status = plat->oldstatus==up? down : up;
       else
+#endif
         plat->status = plat->oldstatus;
       plat->thinker.function = T_PlatRaise;
     }

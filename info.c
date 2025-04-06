@@ -8851,7 +8851,10 @@ static const char m_butt2[]=  // Options reset button lit
 };
 
 // Animated textures definition lump -- see SWANTBLS.EXE docs
-static const char animated[]=
+#ifdef ANIMATED
+static
+#endif
+const char animated[]=
 {
     0, 78, 85, 75, 65, 71, 69, 51,  0,  0, 78, 85, 75, 65, 71, 69,
    49,  0,  0,  8,  0,  0,  0,  0, 70, 87, 65, 84, 69, 82, 52,  0,
@@ -8888,7 +8891,10 @@ static const char animated[]=
 };
 
 // Switch textures definition lump -- see SWANTBLS.EXE docs
-static const char switches[]=
+#ifdef SWITCHES
+static
+#endif
+const char switches[]=
 {
    83, 87, 49, 66, 82, 67, 79, 77,  0, 83, 87, 50, 66, 82, 67, 79,
    77,  0,  1,  0, 83, 87, 49, 66, 82, 78, 49,  0,  0, 83, 87, 50,
@@ -15683,8 +15689,12 @@ const lumpinfo_t predefined_lumps[]={
   {"DOGOVRLY", sizeof dogovrly, dogovrly},
 #endif
 
+#ifdef SWITCHES
   { "SWITCHES", sizeof switches, switches},   // jff 3/23/98 switch list
+#endif
+#ifdef ANIMATED
   { "ANIMATED", sizeof animated, animated},   // jff 3/23/98 animation list
+#endif
   { "M_SETUP" , sizeof m_setup,  m_setup },   // phares 3/24/98 menu item
   { "M_KEYBND", sizeof m_keybnd, m_keybnd},   // phares 3/24/98 menu item
   { "M_AUTO"  , sizeof m_auto,   m_auto  },   // phares 3/30/98 menu item
