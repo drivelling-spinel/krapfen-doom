@@ -38,8 +38,10 @@ _R_DrawColumn:
  movl _dc_colormap,%edi
  addl _dc_texturemid,%edx
 
+#ifdef HIRES
  cmpl $0, _hires
  jne hi
+#endif
 
  testl %eax,%ecx
  je powerof2
@@ -125,6 +127,7 @@ powerof2:
  popl %ebp
  ret
 
+#ifdef HIRES
 // killough 11/98: add hires support
 
  .align 8
@@ -204,6 +207,7 @@ powerof2_hi:
  popl %esi
  popl %ebp
  ret
+#endif
 
 #ifdef TRANSLUCENT
 //================

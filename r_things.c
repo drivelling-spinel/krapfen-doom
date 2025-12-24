@@ -624,7 +624,11 @@ void R_ProjectSprite (mobj_t* thing)
     vis->colormap = fullcolormap;       // full bright  // killough 3/20/98
   else
     {      // diminished light
+#ifdef HIRES
       int index = xscale>>(LIGHTSCALESHIFT+hires);  // killough 11/98
+#else
+      int index = xscale>>LIGHTSCALESHIFT;
+#endif
       if (index >= MAXLIGHTSCALE)
         index = MAXLIGHTSCALE-1;
       vis->colormap = spritelights[index];

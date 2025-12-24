@@ -579,10 +579,15 @@ void AM_LevelInit(void)
   // killough 2/7/98: get rid of finit_ vars
   // to allow runtime setting of width/height
   //
+#ifdef HIRES
   // killough 11/98: ... finally add hires support :)
 
   f_w = (SCREENWIDTH) << hires;
   f_h = (SCREENHEIGHT-ST_HEIGHT) << hires;
+#else
+  f_w = (SCREENWIDTH);
+  f_h = (SCREENHEIGHT-ST_HEIGHT);
+#endif
 
   AM_findMinMaxBoundaries();
   scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
@@ -620,14 +625,24 @@ void AM_Stop (void)
 //
 void AM_Start()
 {
-  static int lastlevel = -1, lastepisode = -1, last_hires = -1;
+  static int lastlevel = -1, lastepisode = -1
+#ifdef HIRES
+                                             , last_hires = -1
+#endif
+                                                              ;
 
   if (!stopped)
     AM_Stop();
   stopped = false;
+#ifdef HIRES
   if (lastlevel != gamemap || lastepisode != gameepisode || hires!=last_hires)
   {
-    last_hires = hires;          // killough 11/98
+    last_hires = hires;          // killough 11/98 
+
+#else
+  if (lastlevel != gamemap || lastepisode != gameepisode)
+  {
+#endif
     AM_LevelInit();
     lastlevel = gamemap;
     lastepisode = gameepisode;
@@ -1720,6 +1735,7 @@ void AM_drawMarks(void)
   for (i=0;i<markpointnum;i++) // killough 2/22/98: remove automap mark limit
     if (markpoints[i].x != -1)
       {
+#ifdef HIRES
 	int w = 5 << hires;
 	int h = 6 << hires;
 	int fx = CXMTOF(markpoints[i].x);
@@ -1741,6 +1757,29 @@ void AM_drawMarks(void)
 	    j /= 10;
 	  }
 	while (j>0);
+#else
+	int w = 5;
+	int h = 6;
+	int fx = CXMTOF(markpoints[i].x);
+	int fy = CYMTOF(markpoints[i].y);
+	int j = i;
+
+	do
+	  {
+	    int d = j % 10;
+
+	    if (d==1)           // killough 2/22/98: less spacing for '1'
+	      fx += 1;
+
+	    if (fx >= f_x && fx < f_w - w && fy >= f_y && fy < f_h - h)
+	      V_DrawPatch(fx, fy, FB, marknums[d]);
+
+	    fx -= w - 1;        // killough 2/22/98: 1 space backwards
+
+	    j /= 10;
+	  }
+	while (j>0);
+#endif
       }
 }
 

@@ -205,11 +205,14 @@ byte *dascreen;
 int show_fps;           // GB 2014
 int use_vsync;          // killough 2/8/98: controls whether vsync is called
 int page_flip;          // killough 8/15/98: enables page flipping
+#ifndef HIRES
+static 
+#endif
 int hires;
 int in_graphics_mode;
-int in_page_flip, in_hires, linear;
-int scroll_offset;
-int blackband; // GB 2014: for 640x480 fallback mode
+static int in_page_flip, in_hires, linear;
+static int scroll_offset;
+static int blackband; // GB 2014: for 640x480 fallback mode
 // GB 2014, FPS counter variables:
 char fps_string[12];
 char mode_string[128];

@@ -434,9 +434,19 @@ void M_DrawEnemy(void);
 void M_DrawMessages(void);
 void M_DrawChatStrings(void);
 void M_Compat(int);       // killough 10/98
+#ifndef COMPACTMNU
 void M_General(int);      // killough 10/98
+#endif
+#ifdef COMPACTMNU
+void M_CompactGeneral(int);
+#endif
 void M_DrawCompat(void);  // killough 10/98
+#ifndef COMPACTMNU
 void M_DrawGeneral(void); // killough 10/98
+#endif
+#ifdef COMPACTMNU
+void M_DrawCompactGeneral(void);
+#endif
 #ifdef TRANSLUCENCY
 void M_Trans(void);       // killough 10/98
 #endif
@@ -1119,7 +1129,13 @@ enum
 menuitem_t OptionsMenu[]=
 {
   // killough 4/6/98: move setup to be a sub-menu of OPTIONs
-  {1,"M_GENERL", M_General, 'g'},      // killough 10/98
+  {1,"M_GENERL",
+#ifdef COMPACTMNU
+                 M_CompactGeneral
+#else
+                 M_General
+#endif
+                                 , 'g'},      // killough 10/98
   {1,"M_SETUP",  M_Setup,   's'},                          // phares 3/21/98
   {1,"M_ENDGAM", M_EndGame,'e'},
   {1,"M_MESSG",  M_ChangeMessages,'m'},
@@ -1833,6 +1849,7 @@ menu_t ChatStrDef =                                         // phares 4/10/98
   0
 };
 
+#ifndef COMPACTMNU
 menu_t GeneralDef =                                           // killough 10/98
 {
   generic_setup_end,
@@ -1842,6 +1859,19 @@ menu_t GeneralDef =                                           // killough 10/98
   34,5,      // skull drawn here
   0
 };
+#endif
+
+#ifdef COMPACTMNU
+menu_t CompactGeneralDef =
+{
+  generic_setup_end,
+  &OptionsDef,
+  Generic_Setup,
+  M_DrawCompactGeneral,
+  34,5,      // skull drawn here
+  0
+};
+#endif
 
 menu_t CompatDef =                                           // killough 10/98
 {
@@ -1870,6 +1900,7 @@ void M_DrawBackground(char* patchname, byte *back_dest)
   src = back_src = 
     W_CacheLumpNum(firstflat+R_FlatNumForName(patchname),PU_CACHE);
 
+#ifdef HIRES
   if (hires)       // killough 11/98: hires support
 #if 0              // this tiles it in hires
     for (y = 0 ; y < SCREENHEIGHT*2 ; src = ((++y & 63)<<6) + back_src)
@@ -1892,6 +1923,7 @@ void M_DrawBackground(char* patchname, byte *back_dest)
 	  }
 #endif
   else
+#endif
     for (y = 0 ; y < SCREENHEIGHT ; src = ((++y & 63)<<6) + back_src)
       for (x = 0 ; x < SCREENWIDTH/64 ; x++)
 	{
@@ -3178,6 +3210,7 @@ void M_DrawEnemy(void)
 // The General table.
 // killough 10/10/98
 
+#ifndef COMPACTMNU
 extern int usejoystick, usemouse; //, default_mus_card, default_snd_card;
 extern int detect_voices, realtic_clock_rate, tran_filter_pct;
 
@@ -3189,12 +3222,15 @@ setup_menu_t* gen_settings[] =
   gen_settings2,
   NULL
 };
+#endif
 
 enum {
 #ifdef USEVESA
   general_vesa,
 #endif
+#ifdef HIRES
   general_hires,
+#endif
   general_pageflip,
   general_vsync,
 #ifdef TRANSLUCENT
@@ -3216,9 +3252,11 @@ enum {
 };
 
 enum {
+#ifndef COMPACTMNU
   general_detvoices,
   general_sndcard,
   general_muscard,
+#endif
 //  general_detvoices,
   general_sndchan,
 #ifdef SNDPITCH  
@@ -3226,16 +3264,17 @@ enum {
 #endif
 };
 
+#ifndef COMPACTMNU
 #define G_X 250
 #define G_Y  44
 #define G_Y2 (G_Y+82) 
 #define G_Y3 (G_Y+44)
 #ifdef PRELOAD
 #define G_Y4 (G_Y3+52)
+#define GF_X 76
 #else
 #define G_Y4 (G_Y3)
 #endif
-#define GF_X 76
 
 setup_menu_t gen_settings1[] = { // General Settings screen1
 
@@ -3246,8 +3285,10 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
    {"usevesa"}, 0, 0 },
 #endif
 
+#ifdef HIRES
   {"High Resolution", S_YESNO, m_null, G_X, G_Y + general_hires*8,
    {"hires"}, 0, 0, I_ResetScreen},
+#endif
 
   {"Use Page-Flipping", S_YESNO, m_null, G_X, G_Y + general_pageflip*8,
    {"page_flip"}, 0, 0, I_ResetScreen},
@@ -3308,6 +3349,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   // Final entry
   {0,S_SKIP|S_END,m_null}
 };
+#endif
 
 enum {
   general_mouse,
@@ -3335,6 +3377,7 @@ enum {
   general_end
 };
 
+#ifndef COMPACTMNU
 setup_menu_t gen_settings2[] = { // General Settings screen2
 
   {"Input Devices"     ,S_SKIP|S_TITLE, m_null, G_X, G_Y - 12},
@@ -3378,6 +3421,7 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 
   {0,S_SKIP|S_END,m_null}
 };
+#endif
 
 #ifdef TRANSLUCENCY
 void M_Trans(void) // To reset translucency after setting it in menu
@@ -3387,6 +3431,7 @@ void M_Trans(void) // To reset translucency after setting it in menu
 }
 #endif
 
+#ifndef COMPACTMNU
 // Setting up for the General screen. Turn on flags, set pointers,
 // locate the first item on the screen where the cursor is allowed to
 // land.
@@ -3426,6 +3471,107 @@ void M_DrawGeneral(void)
   if (default_verify)
     M_DrawDefVerify();
 }
+#endif
+
+#ifdef COMPACTMNU
+
+#define GC_X 250
+#define GC_Y  44
+#define GC_Y2 (GC_Y+58)
+#define GC_Y3 (GC_Y+84)
+#define GC_Y4 (GC_Y+128)
+
+setup_menu_t gen_settings3[] = { // General Settings screen
+
+  {"Video"       ,S_SKIP|S_TITLE, m_null, GC_X, GC_Y - 12},
+
+#ifdef USEVESA 
+  {"VESA modes", S_YESNO|S_PRGWARN, m_null, GC_X, GC_Y + general_vesa*8,
+   {"usevesa"}, 0, 0 },
+#endif
+
+  {"Use Page-Flipping", S_YESNO, m_null, GC_X, GC_Y + general_pageflip*8,
+   {"page_flip"}, 0, 0, I_ResetScreen},
+
+  {"Wait for Vertical Retrace", S_YESNO, m_null, GC_X,
+   GC_Y + general_vsync*8, {"use_vsync"}, 0, 0, I_ResetScreen},
+
+  {"Show Frame rate + Mode indicator", S_YESNO, m_null, GC_X,
+   GC_Y + general_fps*8, {"show_fps"}, 0, 0, I_ResetScreen},
+      
+  {"Sound & Music", S_SKIP|S_TITLE, m_null, GC_X, GC_Y2 - 12},
+
+  {"Number of Sound Channels", S_NUM|S_PRGWARN, m_null, GC_X,
+   GC_Y2 + general_sndchan*8, {"snd_channels"}},
+
+  {"Input Devices"     ,S_SKIP|S_TITLE, m_null, GC_X, GC_Y3 - 12},
+
+  {"Enable Mouse", S_YESNO, m_null, GC_X,
+   GC_Y3 + general_mouse*8, {"use_mouse"}},
+
+  {"Enable Joystick", S_YESNO, m_null, GC_X,
+   GC_Y3 + general_joy*8, {"use_joystick"}},
+
+  {"Keyboard LEDs Always Off", S_YESNO, m_null, GC_X,
+   GC_Y3 + general_leds*8, {"leds_always_off"}, 0, 0, I_ResetLEDs},
+
+  {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, GC_X, GC_Y4 - 12},
+
+  {"Game speed, percentage of normal", S_NUM|S_PRGWARN, m_null, GC_X,
+   GC_Y4 + general_realtic*8, {"realtic_clock_rate"}},
+
+  // Button for resetting to defaults
+  {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
+
+  // Final entry
+
+  {0,S_SKIP|S_END,m_null}
+};
+
+setup_menu_t* gen_compact_settings[] =
+{
+  gen_settings3,
+  NULL
+};
+
+
+void M_CompactGeneral(int choice)
+{
+  M_SetupNextMenu(&CompactGeneralDef);
+
+  setup_active = true;
+  setup_screen = ss_gen;
+  set_general_active = true;
+  setup_select = false;
+  default_verify = false;
+  setup_gather = false;
+  mult_screens_index = 0;
+  current_setup_menu = gen_compact_settings[0];
+  set_menu_itemon = 0;
+  while (current_setup_menu[set_menu_itemon++].m_flags & S_SKIP);
+  current_setup_menu[--set_menu_itemon].m_flags |= S_HILITE;
+}
+
+// The drawing part of the General Setup initialization. Draw the
+// background, title, instruction line, and items.
+
+void M_DrawCompactGeneral(void)
+{
+  inhelpscreens = true;
+
+  M_DrawBackground("FLOOR4_6", screens[0]); // Draw background
+  V_DrawPatchDirect (114,2,0,W_CacheLumpName("M_GENERL",PU_CACHE));
+  M_DrawInstructions();
+  M_DrawScreenItems(current_setup_menu);
+
+  // If the Reset Button has been selected, an "Are you sure?" message
+  // is overlayed across everything else.
+
+  if (default_verify)
+    M_DrawDefVerify();
+}
+
+#endif
 
 /////////////////////////////
 //
@@ -3850,7 +3996,12 @@ static setup_menu_t **setup_screens[] =
 #endif
   mess_settings,
   chat_settings,
+#ifndef COMPACTMNU
   gen_settings,      // killough 10/98
+#endif
+#ifdef COMPACTMNU
+  gen_compact_settings,
+#endif
   comp_settings,
 };
 

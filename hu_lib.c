@@ -199,9 +199,13 @@ void HUlib_drawTextLine(hu_textline_t *l, boolean drawcursor)
 
 void HUlib_eraseTextLine(hu_textline_t* l)
 {
+#ifdef HIRES
   // killough 11/98: trick to shadow variables
   int x = viewwindowx, y = viewwindowy; 
   int viewwindowx = x >> hires, viewwindowy = y >> hires;  // killough 11/98
+#else
+  int y;
+#endif
 
   // Only erases when NOT in automap and the screen is reduced,
   // and the text must either need updating or refreshing
@@ -525,9 +529,13 @@ void HUlib_drawMText(hu_mtext_t* m)
 
 static void HUlib_eraseMBg(hu_mtext_t *m)
 {
+#ifdef HIRES
   // killough 11/98: trick to shadow variables
   int x = viewwindowx, y = viewwindowy; 
   int viewwindowx = x >> hires, viewwindowy = y >> hires;  // killough 11/98
+#else
+  int y;
+#endif
 
   // Only erases when NOT in automap and the screen is reduced,
   // and the text must either need updating or refreshing

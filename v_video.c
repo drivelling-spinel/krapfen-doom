@@ -238,6 +238,7 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
 
   V_MarkRect (destx, desty, width, height);
 
+#ifdef HIRES
   if (hires)   // killough 11/98: hires support
     {
       width<<=1;
@@ -253,6 +254,7 @@ void V_CopyRect(int srcx, int srcy, int srcscrn, int width,
 	}
     }
   else
+#endif
     {
       src = screens[srcscrn]+SCREENWIDTH*srcy+srcx;
       dest = screens[destscrn]+SCREENWIDTH*desty+destx;
@@ -308,6 +310,7 @@ void V_DrawPatchGeneral(int x, int y, int scrn, patch_t *patch,
   if (!scrn)
     V_MarkRect (x, y, SHORT(patch->width), SHORT(patch->height));
 
+#ifdef HIRES
   if (hires)       // killough 11/98: hires support (well, sorta :)
     {
       byte *desttop = screens[scrn]+y*SCREENWIDTH*4+x*2;
@@ -368,6 +371,7 @@ void V_DrawPatchGeneral(int x, int y, int scrn, patch_t *patch,
 	}
     }
   else
+#endif
     {
       byte *desttop = screens[scrn]+y*SCREENWIDTH+x;
 
@@ -458,6 +462,7 @@ void V_DrawPatchTranslated(int x, int y, int scrn, patch_t *patch,
   col = 0;
   w = SHORT(patch->width);
 
+#ifdef HIRES
   if (hires)       // killough 11/98: hires support (well, sorta :)
     {
       byte *desttop = screens[scrn]+y*SCREENWIDTH*4+x*2;
@@ -522,6 +527,7 @@ void V_DrawPatchTranslated(int x, int y, int scrn, patch_t *patch,
 	}
     }
   else
+#endif
     {
       byte *desttop = screens[scrn]+y*SCREENWIDTH+x;
 
@@ -604,6 +610,7 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height, byte *src)
 
   V_MarkRect(x, y, width, height);
 
+#ifdef HIRES
   if (hires)   // killough 11/98: hires support
     {
       byte *dest = screens[scrn] + y*SCREENWIDTH*4+x*2;
@@ -620,6 +627,7 @@ void V_DrawBlock(int x, int y, int scrn, int width, int height, byte *src)
 	}
     }
   else
+#endif
     {
       byte *dest = screens[scrn] + y*SCREENWIDTH+x;
 
@@ -655,6 +663,7 @@ void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
     I_Error ("Bad V_DrawBlock");
 #endif
 
+#ifdef HIRES
   if (hires)   // killough 11/98: hires support
     y<<=2, x<<=1, width<<=1, height<<=1;
 
@@ -665,6 +674,15 @@ void V_GetBlock(int x, int y, int scrn, int width, int height, byte *dest)
       src += SCREENWIDTH << hires;
       dest += width;
     }
+#else
+  src = screens[scrn] + y*SCREENWIDTH+x;
+  while (height--)
+    {
+      memcpy (dest, src, width);
+      src += SCREENWIDTH;
+      dest += width;
+    }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -682,6 +700,7 @@ void V_DrawRect(int scrn, int x1,int y1, int x2, int y2, byte color)
 
    int top_offset,bottom_offset,i,w,scrw=SCREENWIDTH;
 
+#ifdef HIRES
    if (hires)
    {
 	  x1+=x1;
@@ -695,12 +714,14 @@ void V_DrawRect(int scrn, int x1,int y1, int x2, int y2, byte color)
       for(i=top_offset;i<=bottom_offset;i+=(scrw)) memset(&screens[scrn][i],color,w);
    } 
    else
+#else
    {
       w=x2-x1+1;
       top_offset=(y1<<8)+(y1<<6)+x1;
       bottom_offset=(y2<<8)+(y2<<6)+x1;
       for(i=top_offset;i<=bottom_offset;i+=scrw)   memset(&screens[scrn][i],color,w);
    }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -715,7 +736,11 @@ void V_DrawRect(int scrn, int x1,int y1, int x2, int y2, byte color)
 //
 void V_Init(void)
 {
+#ifdef HIRES
   int size = (hires ? SCREENWIDTH*SCREENHEIGHT*4 : SCREENWIDTH*SCREENHEIGHT);
+#else
+  int size = SCREENWIDTH*SCREENHEIGHT;
+#endif
   static byte *s;
 
   if (s) free(s);

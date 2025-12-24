@@ -98,6 +98,9 @@
 // TRANSLPCT   - technically a feature implemented in MBF
 //relies on TRANSLUCENT being set, but both are intentionally never def-ed
 
+// HIRES       - hires support in game engine (but not platform code)
+//is intentionally not defined anywhere
+
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)
 #define FRIENDMOBJ

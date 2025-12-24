@@ -43,6 +43,9 @@
 //                run `deusf -apend` or `nwt -merge`
 #define WADMERGE
 
+// COMPACTMNU   - try to push all menu items under General into one sceen
+#define COMPACTMNU
+
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
 #endif

@@ -804,6 +804,7 @@ void R_DrawSpan_C_LowDet (void)
 
 void R_InitBuffer(int width, int height)
 { 
+#ifdef HIRES
   int i; 
 
   linesize = SCREENWIDTH << hires;    // killough 11/98
@@ -829,6 +830,32 @@ void R_InitBuffer(int width, int height)
 
   for (i = height << hires; i--; )
     ylookup[i] = screens[0] + (i+viewwindowy)*linesize; // killough 11/98
+#else
+  int i; 
+
+  linesize = SCREENWIDTH;    // killough 11/98
+
+  // Handle resize,
+  //  e.g. smaller view windows
+  //  with border and/or status bar.
+
+  viewwindowx = SCREENWIDTH-width;  // killough 11/98
+
+  // Column offset. For windows.
+
+  for (i = width ; i--; )   // killough 11/98
+    columnofs[i] = viewwindowx + i;
+    
+  // Same with base row offset.
+
+  viewwindowy = width==SCREENWIDTH ? 0 : (SCREENHEIGHT-SBARHEIGHT-height)>>1; 
+
+  // Preclaculate all row offsets.
+
+  for (i = height ; i--; )
+    ylookup[i] = screens[0] + (i+viewwindowy)*linesize; // killough 11/98
+
+#endif
 } 
 
 // R_FillBackScreen
@@ -838,9 +865,13 @@ void R_InitBuffer(int width, int height)
 
 void R_FillBackScreen (void) 
 { 
+#ifdef HIRES
   // killough 11/98: trick to shadow variables
   int x = viewwindowx, y = viewwindowy; 
   int viewwindowx = x >> hires, viewwindowy = y >> hires;  // killough 11/98
+#else
+  int x, y;
+#endif
   patch_t *patch;
 
   if (scaledviewwidth == 320)
@@ -894,12 +925,14 @@ void R_FillBackScreen (void)
 
 void R_VideoErase(unsigned ofs, int count)
 { 
+#ifdef HIRES
   if (hires)     // killough 11/98: hires support
     {
       ofs = ofs*4 - (ofs % SCREENWIDTH)*2;   // recompose offset
       memcpy(screens[0]+ofs, screens[1]+ofs, count*=2);   // LFB copy.
       ofs += SCREENWIDTH*2;
     }
+#endif
   memcpy(screens[0]+ofs, screens[1]+ofs, count);   // LFB copy.
 } 
 
@@ -914,10 +947,11 @@ void R_VideoErase(unsigned ofs, int count)
 void R_DrawViewBorder(void) 
 { 
   int side, ofs, i;
- 
+
   if (scaledviewwidth == SCREENWIDTH) 
     return;
 
+#ifdef HIRES
   // copy top
   for (ofs = 0, i = viewwindowy >> hires; i--; ofs += SCREENWIDTH)
     R_VideoErase(ofs, SCREENWIDTH); 
@@ -933,7 +967,23 @@ void R_DrawViewBorder(void)
   // copy bottom 
   for (i = viewwindowy >> hires; i--; ofs += SCREENWIDTH)
     R_VideoErase(ofs, SCREENWIDTH); 
- 
+#else
+  // copy top
+  for (ofs = 0, i = viewwindowy; i--; ofs += SCREENWIDTH)
+    R_VideoErase(ofs, SCREENWIDTH); 
+
+  // copy sides
+  for (side = viewwindowx, i = scaledviewheight; i--;)
+    { 
+      R_VideoErase(ofs, side); 
+      ofs += SCREENWIDTH;
+      R_VideoErase(ofs - side, side); 
+    } 
+
+  // copy bottom 
+  for (i = viewwindowy; i--; ofs += SCREENWIDTH)
+    R_VideoErase(ofs, SCREENWIDTH); 
+#endif 
   V_MarkRect (0,0,SCREENWIDTH, SCREENHEIGHT-SBARHEIGHT); 
 } 
 

@@ -85,6 +85,7 @@
 
 // TRANSLUCENT - support translucency features in renderer
 //this is intentionally not set
+//depends on HIRES being set, also deliberatey not defined (see MBF.H)
 
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED

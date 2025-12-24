@@ -138,11 +138,13 @@ default_t defaults[] = {
     "1 to enable low detail drawing routines"
   },
 #endif
+#ifdef HIRES
   { // killough 11/98: hires
     "hires", &hires, NULL,
     0, {0,1}, number, ss_gen, wad_no,
     "1 to enable 640x400 resolution for rendering scenes"
   },
+#endif
 
   { // killough 8/15/98: page flipping option
     "page_flip",
@@ -2286,7 +2288,9 @@ void M_LoadDefaults (void)
 
   if (stdvidparm) // GB 2014 - Stock settings for benchmarking
   {
+#ifdef HIRES
 	  hires=false;
+#endif
       page_flip=false;
 	  use_vsync=false;
 #ifdef TRANSLUCENT	  
@@ -2305,7 +2309,9 @@ void M_LoadDefaults (void)
 
   if (bestvidparm) // GB 2014 - Stock settings for benchmarking
   {
+#ifdef HIRES      
 	  hires=true;
+#endif
       page_flip=true;
 	  use_vsync=true;
 #ifdef TRANSLUCENT
@@ -2742,7 +2748,11 @@ void M_ScreenShot (void)
                 screenshot_pcx ? WritePCXfile :
 #endif
                                                 WriteBMPfile)
+#ifdef HIRES		
                 (lbmname,linear, SCREENWIDTH<<hires, SCREENHEIGHT<<hires,pal)))
+#else
+                (lbmname,linear, SCREENWIDTH, SCREENHEIGHT,pal)))
+#endif
 	    {
 	      int t = errno;
 	      remove(lbmname);

@@ -622,6 +622,7 @@ static void F_DrawPatchCol(int x, patch_t *patch, int col)
   const column_t *column = 
     (const column_t *)((byte *) patch + LONG(patch->columnofs[col]));
 
+#ifdef HIRES
   // step through the posts in a column
   if (hires)
     while (column->topdelta != 0xff)
@@ -636,6 +637,7 @@ static void F_DrawPatchCol(int x, patch_t *patch, int col)
 	column = (column_t *)(source+1);
       }
   else
+#endif
     while (column->topdelta != 0xff)
       {
 	byte *desttop = screens[0] + x;

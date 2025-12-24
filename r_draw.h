@@ -38,7 +38,9 @@ extern fixed_t  dc_iscale;
 extern fixed_t  dc_texturemid;
 extern int      dc_texheight;    // killough
 extern int      linesize;        // killough 11/98
+#ifdef HIRES
 extern int      hires;           // killough 11/98
+#endif
 
 // first pixel in a column
 extern byte     *dc_source;         
