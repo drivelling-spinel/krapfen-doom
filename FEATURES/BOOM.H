@@ -83,6 +83,9 @@
 //               when not defined use internal definitions only
 //#define SWITCHES
 
+// TRANSLUCENT - support translucency features in renderer
+//this is intentionally not set
+
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif

@@ -95,6 +95,9 @@
 // SNDPITCH    - imitate v1.1 random sound effects pitch 
 //#define SNDPITCH
 
+// TRANSLPCT   - technically a feature implemented in MBF
+//relies on TRANSLUCENT being set, but both are intentionally never def-ed
+
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)
 #define FRIENDMOBJ

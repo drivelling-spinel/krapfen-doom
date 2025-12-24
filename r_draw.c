@@ -67,9 +67,11 @@ int lowdet;
 //  (color ramps used for  suit colors).
 
 byte translations[3][256];
- 
+
+#ifdef TRANSLUCENT 
 byte *tranmap;          // translucency filter maps 256x256   // phares 
 byte *main_tranmap;     // killough 4/11/98
+#endif
 
 // R_DrawColumn
 // Source is the top of the column to scale.
@@ -275,7 +277,7 @@ void R_DrawColumn_C_LowDet (void)
 
 
 
-
+#ifdef TRANSLUCENT
 // Here is the version of R_DrawColumn that deals with translucent  // phares
 // textures and sprites. It's identical to R_DrawColumn except      //    |
 // for the spot where the color index is stuffed into *dest. At     //    V
@@ -374,7 +376,6 @@ void R_DrawTLColumn_C (void)
 	  }
   }
 } 
-
 
 #ifdef LOWDET
 // GB 2015
@@ -481,6 +482,7 @@ void R_DrawTLColumn_C_LowDet (void)
 } 
 #endif
 #endif // CALT // killough 2/21/98: converted to x86 asm
+#endif // TRANSLUCENT
 
 //
 // Spectre/Invisibility.

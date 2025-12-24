@@ -8,7 +8,7 @@
 //                also introduced into MBF by sakitoshi.
 #define MAPCOORD
 
-// CRVS         - Voodoo hires, memory allocation and some other fixes
+// CRVS         - Vodoo hires, memory allocation and some other fixes
 #define CRVS
 
 // DGONDOS      - SIGIL II support

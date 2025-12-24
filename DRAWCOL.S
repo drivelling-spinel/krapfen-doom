@@ -205,6 +205,7 @@ powerof2_hi:
  popl %ebp
  ret
 
+#ifdef TRANSLUCENT
 //================
 //
 // R_DrawTLColumn
@@ -458,6 +459,7 @@ powerof2_tl_hi:
  popl %esi
  popl %ebp
  ret
+#endif
 
 //----------------------------------------------------------------------------
 // $Id: drawcol.s,v 1.1.1.1 2000-07-29 13:20:39 fraggle Exp $

@@ -205,8 +205,10 @@ typedef enum
     MF_FRIEND = 0x40000000,        // killough 7/18/98: friendly monsters
 #endif
 
+#ifdef TRANSLUCENT
     // Translucent sprite?                                          // phares
     MF_TRANSLUCENT      = 0x80000000,                               // phares
+#endif
 } mobjflag_t;
 
 // killough 9/15/98: Same, but internal flags, not intended for .deh

@@ -104,8 +104,10 @@ void R_DrawViewBorder(void);
 
 void R_DrawTLColumn(void);    // drawing translucent textures     // phares
 
+#ifdef TRANSLUCENT
 extern byte *tranmap;         // translucency filter maps 256x256  // phares 
 extern byte *main_tranmap;    // killough 4/11/98
+#endif
 extern byte *ylookup[];       // killough 11/98
 
 #endif

@@ -795,6 +795,7 @@ int R_ColormapNumForName(const char *name)
 }
 #endif
 
+#ifdef TRANSLUCENT
 //
 // R_InitTranMap
 //
@@ -920,6 +921,7 @@ void R_InitTranMap(int progress)
       Z_ChangeTag(playpal, PU_CACHE);
     }
 }
+#endif
 
 //
 // R_InitData
@@ -933,8 +935,10 @@ void R_InitData(void)
   R_InitTextures();
   R_InitFlats();
   R_InitSpriteLumps();
+#ifdef TRANSLUCENT
   if (general_translucency)             // killough 3/1/98, 10/98
     R_InitTranMap(1);                   // killough 2/21/98, 3/6/98
+#endif
   R_InitColormaps();                    // killough 3/20/98
 }
 

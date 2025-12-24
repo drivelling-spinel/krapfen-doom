@@ -48,7 +48,9 @@ int R_FlatNumForName (const char* name);   // killough -- const added
 int R_TextureNumForName (const char *name);    // killough -- const added
 int R_CheckTextureNumForName (const char *name); 
 
+#ifdef TRANSLUCENT
 void R_InitTranMap(int);      // killough 3/6/98: translucency initialization
+#endif
 
 #ifdef DEEPWATER
 int R_ColormapNumForName(const char *name);      // killough 4/4/98
@@ -56,7 +58,9 @@ int R_ColormapNumForName(const char *name);      // killough 4/4/98
 
 void R_InitColormaps(void);   // killough 8/9/98
 
+#ifdef TRANSLUCENT
 extern byte *main_tranmap, *tranmap;
+#endif
 
 #endif
 

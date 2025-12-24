@@ -208,7 +208,9 @@ typedef struct line_s
   sector_t *backsector; 
   int validcount;        // if == validcount, already checked
   void *specialdata;     // thinker_t for reversable actions
+#ifdef TRANSLUCENT
   int tranlump;          // killough 4/11/98: translucency filter, -1 == none
+#endif
   int firsttag,nexttag;  // killough 4/17/98: improves searches for tags.
 } line_t;
 

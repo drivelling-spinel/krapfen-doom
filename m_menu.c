@@ -437,7 +437,9 @@ void M_Compat(int);       // killough 10/98
 void M_General(int);      // killough 10/98
 void M_DrawCompat(void);  // killough 10/98
 void M_DrawGeneral(void); // killough 10/98
+#ifdef TRANSLUCENCY
 void M_Trans(void);       // killough 10/98
+#endif
 void M_ResetMenu(void);   // killough 10/98
 
 menu_t NewDef;                                              // phares 5/04/98
@@ -3195,9 +3197,13 @@ enum {
   general_hires,
   general_pageflip,
   general_vsync,
+#ifdef TRANSLUCENT
   general_trans,
+#endif
   general_fps, // GB 2014
+#ifdef TRANSLPCT
   general_transpct,
+#endif
 #ifdef PCXSSHOT
   general_pcx,
 #endif
@@ -3248,15 +3254,16 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 
   {"Wait for Vertical Retrace", S_YESNO, m_null, G_X,
    G_Y + general_vsync*8, {"use_vsync"}, 0, 0, I_ResetScreen},
-
+#ifdef TRANSLUCENT
   {"Enable Translucency", S_YESNO, m_null, G_X,
    G_Y + general_trans*8, {"translucency"}, 0, 0, M_Trans},
-
+#endif
   {"Show Frame rate + Mode indicator", S_YESNO, m_null, G_X,
    G_Y + general_fps*8, {"show_fps"}, 0, 0, I_ResetScreen},
-
+#ifdef TRANSLPCT
   {"Translucency filter percentage", S_NUM, m_null, G_X, // GB 2014, need room, who cares.., if so edit the cfg
    G_Y + general_transpct*8, {"tran_filter_pct"}, 0, 0, M_Trans},
+#endif   
 #ifdef PCXSSHOT
   {"PCX instead of BMP for screenshots", S_YESNO, m_null, G_X,
    G_Y + general_pcx*8, {"screenshot_pcx"}},
@@ -3372,11 +3379,13 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {0,S_SKIP|S_END,m_null}
 };
 
+#ifdef TRANSLUCENCY
 void M_Trans(void) // To reset translucency after setting it in menu
 {
   if (general_translucency)
     R_InitTranMap(0);
 }
+#endif
 
 // Setting up for the General screen. Turn on flags, set pointers,
 // locate the first item on the screen where the cursor is allowed to

@@ -403,6 +403,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
         dc_translation = translationtables - 256 +
           ((vis->mobjflags & MF_TRANSLATION) >> (MF_TRANSSHIFT-8) );
       }
+#ifdef TRANSLUCENT
     else
       if (vis->mobjflags & MF_TRANSLUCENT && general_translucency) // phares
         {
@@ -418,6 +419,7 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 
           tranmap = main_tranmap;       // killough 4/11/98
         }
+#endif //TRANSLUCENT
       else
 		{
 		  #ifdef CALT

@@ -109,6 +109,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   #endif // CALT
   colfunc = R_DrawColumn;
 
+#ifdef TRANSLUCENT
   if (curline->linedef->tranlump >= 0 && general_translucency)
     {
       
@@ -125,6 +126,7 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         tranmap = W_CacheLumpNum(curline->linedef->tranlump-1, PU_STATIC);
     }
   // killough 4/11/98: end translucent 2s normal code
+#endif
 
   frontsector = curline->frontsector;
   backsector = curline->backsector;
@@ -220,9 +222,11 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
         maskedtexturecol[dc_x] = MAXSHORT;
       }
 
+#ifdef TRANSLUCENT
   // Except for main_tranmap, mark others purgable at this point
   if (curline->linedef->tranlump > 0 && general_translucency)
     Z_ChangeTag(tranmap, PU_CACHE); // killough 4/11/98
+#endif
 }
 
 //

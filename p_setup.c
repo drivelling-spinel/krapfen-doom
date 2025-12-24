@@ -400,7 +400,9 @@ void P_LoadLineDefs (int lump)
       ld->dx = v2->x - v1->x;
       ld->dy = v2->y - v1->y;
 
+#ifdef TRANSLUCENT
       ld->tranlump = -1;   // killough 4/11/98: no translucency by default
+#endif
 
       ld->slopetype = !ld->dx ? ST_VERTICAL : !ld->dy ? ST_HORIZONTAL :
         FixedDiv(ld->dy, ld->dx) > 0 ? ST_POSITIVE : ST_NEGATIVE;
@@ -457,6 +459,7 @@ void P_LoadLineDefs2(int lump)
 #endif
       ld->frontsector = ld->sidenum[0]!=-1 ? sides[ld->sidenum[0]].sector : 0;
       ld->backsector  = ld->sidenum[1]!=-1 ? sides[ld->sidenum[1]].sector : 0;
+#ifdef TRANSLUCENT
       switch (ld->special)
         {                       // killough 4/11/98: handle special types
           int lump, j;
@@ -471,6 +474,7 @@ void P_LoadLineDefs2(int lump)
                   lines[j].tranlump = lump;
             break;
         }
+#endif
     }
 }
 
@@ -524,6 +528,7 @@ void P_LoadSideDefs2(int lump)
             sec->topmap = 0, R_TextureNumForName(msd->toptexture)  : 0 ;
           break;
 #endif
+#ifdef TRANSLUCENT
         case 260: // killough 4/11/98: apply translucency to 2s normal texture
           sd->midtexture = strncasecmp("TRANMAP", msd->midtexture, 8) ?
             (sd->special = W_CheckNumForName(msd->midtexture)) < 0 ||
@@ -533,6 +538,7 @@ void P_LoadSideDefs2(int lump)
           sd->toptexture = R_TextureNumForName(msd->toptexture);
           sd->bottomtexture = R_TextureNumForName(msd->bottomtexture);
           break;
+#endif
 
         default:                        // normal cases
           sd->midtexture = R_TextureNumForName(msd->midtexture);

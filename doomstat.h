@@ -104,7 +104,9 @@ extern int monkeys, default_monkeys;
 extern int pitched_sounds;
 #endif
 
+#ifdef TRANSLUCENT
 extern int general_translucency;
+#endif
 
 extern int demo_insurance, default_demo_insurance;      // killough 4/5/98
 

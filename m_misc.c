@@ -193,6 +193,7 @@ default_t defaults[] = {
     "1 to enable variable pitch in sound effects (from id's original code)"
   },
 #endif
+#ifdef TRANSLUCENT
   { // phares
     "translucency",
     &general_translucency, NULL,
@@ -204,13 +205,15 @@ default_t defaults[] = {
        {0,1}, number, ss_gen, wad_yes,
     "1 to enable translucency for some things"
   },
-
+#endif
+#ifdef TRANSLPCT
   { // killough 2/21/98
     "tran_filter_pct",
     &tran_filter_pct, NULL,
     66, {0,100}, number, ss_gen, wad_yes,
     "set percentage of foreground/background translucency mix"
   },
+#endif
 #ifdef MAXCORPSE
   { // killough 2/8/98
     "max_player_corpse",
@@ -2195,7 +2198,9 @@ void M_LoadOptions(void)
       Z_ChangeTag(options, PU_CACHE);
     }
 
+#ifdef TRANSLUCENT
   M_Trans();           // reset translucency in case of change
+#endif
   M_ResetMenu();       // reset menu in case of change
 }
 
@@ -2284,7 +2289,9 @@ void M_LoadDefaults (void)
 	  hires=false;
       page_flip=false;
 	  use_vsync=false;
+#ifdef TRANSLUCENT	  
 	  general_translucency=false;
+#endif
 	  usegamma=0;
 #ifdef DISKICON
 	  disk_icon=true;
@@ -2301,7 +2308,9 @@ void M_LoadDefaults (void)
 	  hires=true;
       page_flip=true;
 	  use_vsync=true;
+#ifdef TRANSLUCENT
 	  general_translucency=true;
+#endif
 	  usegamma=0;
 #ifdef DISKICON
 	  disk_icon=true;
