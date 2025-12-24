@@ -238,12 +238,12 @@ void I_GenerateAllegroCfg(char * fname)
 "midi_volume = -1\n"
 "digi_voices = %d\n"
 "midi_voices = -1\n"
-"flip_pan = -1\n"
+"flip_pan = 0\n"
 "sb_port = %x\n"
-"sb_dma = %d\n"
+"sb_dma = -1\n"
 "sb_irq = %d\n"
-"sb_freq = -1\n"
-"fm_port = %x\n"
+"sb_freq = 11111\n"
+"fm_port = -1\n"
 "mpu_port = %x\n"
 "ibk_file =  \n"
 "ibk_drum_file = \n"  
@@ -290,12 +290,11 @@ void I_GenerateAllegroCfg(char * fname)
 	midi_lookup[snd_DesiredMusicDevice] : MIDI_AUTODETECT,
     snd_Channels,
     snd_SBport,
-    snd_SBdma,
+//    because of the hiccups with SB16 we leave it to liballeg to assign DMA
+//    snd_SBdma,
     snd_SBirq,
-    snd_Mport,
     snd_Mport
   );
-
   set_config_data(asetup, strlen(asetup) + 1);
 }
 #endif

@@ -250,6 +250,7 @@ void S_StartSound(const mobj_t *origin, int sfx_id)
           origin->y == players[displayplayer].mo->y)
         sep = NORM_SEP;
 
+#ifdef SNDPITCH
   if (pitched_sounds)
     {
       // hacks to vary the sfx pitches
@@ -265,6 +266,7 @@ void S_StartSound(const mobj_t *origin, int sfx_id)
       if (pitch>255)
 	pitch = 255;
     }
+#endif
 
   // kill old sound
   // killough 12/98: replace is_pickup hack with singularity flag

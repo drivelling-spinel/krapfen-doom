@@ -99,8 +99,10 @@ extern int monster_infighting, default_monster_infighting;
 extern int monkeys, default_monkeys;
 #endif
 
+#ifdef SNDPITCH
 // v1.1-like pitched sounds
 extern int pitched_sounds;
+#endif
 
 extern int general_translucency;
 

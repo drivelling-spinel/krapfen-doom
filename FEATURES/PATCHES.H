@@ -8,7 +8,7 @@
 //                also introduced into MBF by sakitoshi.
 #define MAPCOORD
 
-// CRVS         - Vodoo hires, memory allocation and some other fixes
+// CRVS         - Voodoo hires, memory allocation and some other fixes
 #define CRVS
 
 // DGONDOS      - SIGIL II support
@@ -16,7 +16,7 @@
 
 // PERIDOT      - GENMIDI lump and double voiced instrument support with OPL
 //                as well as random fixes here and there, e.g. for ENDOOM
-//#define PERIDOT
+#define PERIDOT
 
 // SOULBOUNCE   - compatibility settings for Lost Souls bouncing off the
 //                off the floors backported from Eternity Engine

@@ -180,9 +180,13 @@ int I_GetSfxLumpNum(sfxinfo_t* sfx)
 // rewritten by Lee Killough, based on Chi's rough initial
 // version.
 
+#ifdef SNDPITCH
 // killough 2/21/98: optionally use varying pitched sounds
 
 #define PITCH(x) (pitched_sounds ? ((x)*1000)/128 : 1000)
+#else
+#define PITCH(x) (1000)
+#endif
 
 // This is the number of active sounds that these routines
 // can handle at once, regardless of the mixer's ability

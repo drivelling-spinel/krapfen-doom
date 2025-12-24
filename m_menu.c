@@ -3215,7 +3215,9 @@ enum {
   general_muscard,
 //  general_detvoices,
   general_sndchan,
+#ifdef SNDPITCH  
   general_pitch
+#endif
 };
 
 #define G_X 250
@@ -3287,9 +3289,10 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Number of Sound Channels", S_NUM|S_PRGWARN, m_null, G_X,
    G_Y2 + general_sndchan*8 +8, {"snd_channels"}},
 
+#ifdef SNDPITCH
   {"Enable v1.1 Pitch Effects", S_YESNO, m_null, G_X,
    G_Y2 + general_pitch*8 +8, {"pitched_sounds"}},
-
+#endif
   // Button for resetting to defaults
   {0,S_RESET,m_null,X_BUTTON,Y_BUTTON},
 

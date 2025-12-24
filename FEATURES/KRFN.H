@@ -17,7 +17,7 @@
 
 // BOOM202      - BOOM 2.02 compatibility tweak for stairbuilding code
 //               
-#define BOOM202
+//#define BOOM202
 
 // STAIRVERSION - add more sophisticated stair building compatibility
 //                logic to help with Final Doom demos
@@ -25,23 +25,23 @@
 
 // ONEOFFREVIEW - option to play with classic Doom messages, but
 //                invoke one off message review mode any time with Enter
-//#define ONEOFFREVIEW
+#define ONEOFFREVIEW
 
 // DEFAULTCFG   - if Allegro setup.cfg is absent, try using Doom's own
 //                default.cfg
-//#define DEFAULTCFG
+#define DEFAULTCFG
 
 // SLIMEOPT     - make slime trails removal optional
 //#define SLIMEOPT
 
 // D1BRAIN      - allow spawning "brain targets" in Doom 1
 //                like vanilla did
-//#define D1BRAIN
+#define D1BRAIN
 
 // WADMERGE     - look for sprites and flats outside of index markers;
 //                allows adding assets from PWAD-s without a need to
 //                run `deusf -apend` or `nwt -merge`
-//#define WADMERGE
+#define WADMERGE
 
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR

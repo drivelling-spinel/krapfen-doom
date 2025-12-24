@@ -8,19 +8,19 @@
 //               includes dogs sprites and sounds among other things
 //               TODO: remove the assets from source as this likely are
 //               based on commercially licensed Wolfenstein assets -- LP 2024
-#define DOGS
+//#define DOGS
  
 // BETA        - Doom beta version emulation
-#define BETA
+//#define BETA
 
 // V12C        - Doom v1.2 Sight Routines (Demo compat)
-#define V12C
+//#define V12C
 
 // CALT        - Alternate GFX procedures in C, for noasm parameter.
 #define CALT
 
 // SSGD1       - enable super shotgun also in Doom 1
-#define SSGD1
+//#define SSGD1
 
 // MAXCORPSE   - when enabled allow configurable value for max_players_corpse
 //               (number of dead bodies in view supported)
@@ -33,47 +33,47 @@
 
 // FRIENDMOBJ  - flags, features and code pointers related to friendly
 //             monster behavior
-#define FRIENDMOBJ
+//#define FRIENDMOBJ
 
 // SMARTMOBJ   - advanced monster behaviour introduced in MBF
-#define SMARTMOBJ
+//#define SMARTMOBJ
 
 // PRELOAD     - deh and wad preloading via config
-#define PRELOAD
+//#define PRELOAD
 
 // PHYSMBF     - monsters sliding on ice, bouncy objects, dropoff torque, etc
-#define PHYSMBF
+//#define PHYSMBF
 
 // CPTRMBF     - additional code pointers
-#define CPTRMBF
+//#define CPTRMBF
 
 // MUSHROOM    - MBF mushroom explosion
-#define MUSHROOM
+//#define MUSHROOM
 
 // GRENADE     - grenades, mines, etc
-#define GRENADE
+//#define GRENADE
 
 // SKYTRANSFER - special sectors types that transfer sky texture from sidedefs
-#define SKYTRANSFER
+//#define SKYTRANSFER
 
 // CHEATMBF    - enables "nuke" cheat controlling if nuke does damage
-#define CHEATMBF
+//#define CHEATMBF
 
 // CREDITS     - whether to draw MBF credits in title screen sequence;
 //               otherwise draws help screens in "classic" Doom order       
-#define CREDITS
+//#define CREDITS
 
 // WEAPONMBF   - inclusion of weapon UX tweaks, such if 1 and 3 toggle
 //               respectively fist/chainsaw and shotgun/SSG, and so on
-#define WEAPONMBF
+//#define WEAPONMBF
 
 // REMOVESLIME - whether to tweak level geometry in order to remove slime
 //               trails; sadly, sometimes introduces artifacts, e.g.
 //               Plutonia MAP02
-#define REMOVESLIME
+//#define REMOVESLIME
 
 // COMMONERROR - fix common wad errors (missing sidedefs)
-#define COMMONERROR
+//#define COMMONERROR
 
 // COMPSTAIR   - Compatibility option for building stairs
 //               "exactly the same way that Doom does";
@@ -87,10 +87,13 @@
 // FUZZMBF     - MBF changes to Specter "fuzz" effect
 //               (i.e. @fraggle's fix on top original MBF code);
 //               when disable attempt to behave closer to vanilla Doom
-#define FUZZMBF
+//#define FUZZMBF
 
 // GRADLIGHT   - gadual lighting effects for when opening/closing doors
-#define GRADLIGHT
+//#define GRADLIGHT
+
+// SNDPITCH    - imitate v1.1 random sound effects pitch 
+//#define SNDPITCH
 
 // DOGS assumes that FRIENDMOBJ is enabled
 #if defined(DOGS) && !defined(FRIENDMOBJ)
