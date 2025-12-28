@@ -2,7 +2,7 @@
 #define __FEATURES_PATCHES_
 
 // SAKITOSHI    - Sigil, NRfTL level progression, names and ending texts
-//#define SAKITOSHI
+#define SAKITOSHI
 
 // MAPCOORD     - Ability to switch off coordinates displayed on the automap
 //                also introduced into MBF by sakitoshi.
@@ -12,7 +12,7 @@
 #define CRVS
 
 // DGONDOS      - SIGIL II support
-//#define DGONDOS
+#define DGONDOS
 
 // PERIDOT      - GENMIDI lump and double voiced instrument support with OPL
 //                as well as random fixes here and there, e.g. for ENDOOM
