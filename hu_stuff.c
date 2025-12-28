@@ -54,7 +54,7 @@ int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #endif
 
 #ifdef CONTRASTHUD
-#define CR_CONTRAST 7
+#define CR_CONTRAST (hudcolor_contr)
 #endif
 
 //
@@ -230,6 +230,9 @@ int hudcolor_chat;  // color range of chat lines
 int hud_msg_lines;  // number of message lines in window
 //jff 2/26/98 hud text colors, controls added
 int hudcolor_list;  // list of messages color
+#ifdef CONTRASTHUD
+int hudcolor_contr;
+#endif
 #ifdef MESSAGEBG
 int hud_list_bgon;  // enable for solid window background for message list
 #endif

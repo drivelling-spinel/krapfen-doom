@@ -71,6 +71,9 @@ extern int hudcolor_mesg;   // color range of scrolling messages
 extern int hudcolor_chat;   // color range of chat lines
 //jff 2/26/98 hud message list color and background enable
 extern int hudcolor_list;   // color of list of past messages
+#ifdef CONTRASTHUD
+extern int hudcolor_contr;
+#endif
 #ifdef MESSAGEBG
 extern int hud_list_bgon;   // solid window background for list of messages
 #endif

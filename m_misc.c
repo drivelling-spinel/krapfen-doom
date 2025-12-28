@@ -1698,7 +1698,12 @@ default_t defaults[] = {
   { // red range
     "hudcolor_mesg",
     &hudcolor_mesg, NULL,
-    6, {0,9}, number, ss_mess, wad_yes,
+#ifdef CONTRASTHUD
+    2,
+#else
+    6,
+#endif
+       {0,9}, number, ss_mess, wad_yes,
     "color range used for messages during play"
   },
 
@@ -1719,10 +1724,14 @@ default_t defaults[] = {
   { // gold range  //jff 2/26/98
     "hudcolor_list",
     &hudcolor_list, NULL,
+#ifdef CONTRASTHUD
+    2,
+#else
 #ifdef KRFNDFLT
     6,
 #else
     5,
+#endif
 #endif
        {0,9}, number, ss_mess, wad_yes,
     "color range used for message review"
@@ -1739,6 +1748,15 @@ default_t defaults[] = {
        {1,16}, number, ss_mess, wad_yes,
     "number of lines in review display"
   },
+
+#ifdef CONTRASTHUD  
+  { 
+    "hudcolor_contr",
+    &hudcolor_contr, NULL,
+    2, {0,9}, number, ss_auto, wad_yes,
+    "color range used for hud in contrast mode"
+  },
+#endif
 
   { // killough 11/98
     "hud_msg_scrollup",

@@ -311,6 +311,9 @@ extern int hudcolor_xyco; // color range of new coords on automap
 extern int hudcolor_mesg; // color range of scrolling messages
 extern int hudcolor_chat; // color range of chat lines
 extern int hudcolor_list; // color of list of past messages
+#ifdef CONTRASTHUD
+extern int hudcolor_contr;
+#endif
 #ifdef FRIENDMOBJ
 extern int mapcolor_frnd;  // friends colors  // killough 8/8/98
 #endif
@@ -2848,6 +2851,11 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
   {"ARMOR GOOD/EXTRA"  ,S_NUM       ,m_null,ST_X,ST_Y+13*8, {"armor_green"}},
   {"AMMO LOW/OK"       ,S_NUM       ,m_null,ST_X,ST_Y+14*8, {"ammo_red"}},
   {"AMMO OK/GOOD"      ,S_NUM       ,m_null,ST_X,ST_Y+15*8, {"ammo_yellow"}},
+#else
+#ifdef CONTRASTHUD
+  {"HUD COLOR", S_CRITEM, m_null, ST_X,
+   ST_Y + 8*8, {"hudcolor_contr"}},
+#endif
 #endif
 
   // Button for resetting to defaults
