@@ -382,7 +382,11 @@ void R_DrawMaskedColumn(column_t *column)
 //  mfloorclip and mceilingclip should also be set.
 //
 
-void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
+void R_DrawVisSprite(vissprite_t *vis, int x1, int x2
+#ifdef ASPECTCORRECT
+                                                     , boolean psprite
+#endif
+                                                                      )
 {
   column_t *column;
   int      texturecolumn;
@@ -433,10 +437,10 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 		}
          // killough 3/14/98, 4/11/98
 
-  dc_iscale = ASPECT_INVERSE(abs(vis->xiscale));
+  dc_iscale = ASPECT_INVERSE_PS(abs(vis->xiscale), psprite);
   dc_texturemid = vis->texturemid;
   frac = vis->startfrac;
-  spryscale = ASPECT_CORRECT(vis->scale);
+  spryscale = ASPECT_CORRECT_PS(vis->scale, psprite);
   sprtopscreen = centeryfrac - FixedMul(dc_texturemid,spryscale);
 
   for (dc_x=vis->x1 ; dc_x<=vis->x2 ; dc_x++, frac += vis->xiscale)
@@ -770,7 +774,11 @@ void R_DrawPSprite (pspdef_t *psp)
   else
     vis->colormap = spritelights[MAXLIGHTSCALE-1];  // local light
 
-  R_DrawVisSprite(vis, vis->x1, vis->x2);
+  R_DrawVisSprite(vis, vis->x1, vis->x2
+#ifdef ASPECTCORRECT
+                                       , true
+#endif
+                                             );
 }
 
 //
@@ -1036,7 +1044,11 @@ void R_DrawSprite (vissprite_t* spr)
 
   mfloorclip = clipbot;
   mceilingclip = cliptop;
-  R_DrawVisSprite (spr, spr->x1, spr->x2);
+  R_DrawVisSprite (spr, spr->x1, spr->x2
+#ifdef ASPECTCORRECT
+                                        , false
+#endif
+                                               );
 }
 
 //

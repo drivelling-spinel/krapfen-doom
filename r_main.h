@@ -113,10 +113,14 @@ void R_ExecuteSetViewSize(void);
 #ifdef ASPECTCORRECT
 extern int aspect_correct;
 #define ASPECT_CORRECT(x) (aspect_correct ? (x) * 6 / 5 : (x))
+#define ASPECT_CORRECT_PS(x, p) ((!p) ? ASPECT_CORRECT(x) : aspect_correct > 1 ? ASPECT_CORRECT(x) : (x))
 #define ASPECT_INVERSE(x) (aspect_correct ? (x) * 5 / 6 : (x))
+#define ASPECT_INVERSE_PS(x, p) ((!p) ? ASPECT_INVERSE(x) : aspect_correct > 1 ? ASPECT_INVERSE(x) : (x))
 #else
 #define ASPECT_CORRECT(x) (x)
 #define ASPECT_INVERSE(x) (x)
+#define ASPECT_CORRECT_PS(x, p) (x)
+#define ASPECT_INVERSE_PS(x, p) (x)
 #endif
 
 #endif
@@ -124,7 +128,7 @@ extern int aspect_correct;
 //----------------------------------------------------------------------------
 //
 // $Log: r_main.h,v $
-// Revision 1.2  2000-08-12 21:29:30  fifraggle
+// Revision 1.2  2000-08-12 21:29:30  fraggle
 // change license header
 //
 // Revision 1.1.1.1  2000/07/29 13:20:39  fraggle

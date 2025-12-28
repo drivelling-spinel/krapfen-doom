@@ -3291,7 +3291,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 #endif
 
 #ifdef ASPECTCORRECT 
-  {"Aspect correction", S_YESNO|S_PRGWARN, m_null, G_X, G_Y + general_aspect*8,
+  {"Aspect-correct (1 world, 2 player)", S_NUM|S_PRGWARN, m_null, G_X, G_Y + general_aspect*8,
    {"aspect_correct"}, 0, 0 },
 #endif
 
@@ -3508,7 +3508,7 @@ setup_menu_t gen_settings3[] = { // General Settings screen
 #endif
 
 #ifdef ASPECTCORRECT 
-  {"Aspect correction", S_YESNO|S_PRGWARN, m_null, GC_X, GC_Y + general_aspect*8,
+  {"Aspect-correct (1 world, 2 player)", S_NUM|S_PRGWARN, m_null, GC_X, GC_Y + general_aspect*8,
    {"aspect_correct"}, 0, 0 },
 #endif
 

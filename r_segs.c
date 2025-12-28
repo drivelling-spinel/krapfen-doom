@@ -460,7 +460,7 @@ void R_StoreWallRange(const int start, const int stop)
   // guaranteed to be big enough
 
   // calculate scale at both ends and step
-  ds_p->scale1 = rw_scale = 
+  ds_p->scale1 = rw_scale =
     R_ScaleFromGlobalAngle (viewangle + xtoviewangle[start]);
 
   if (stop > start)

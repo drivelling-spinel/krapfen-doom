@@ -28,12 +28,8 @@ CFLAGS_DEBUG = -g -O2 -DRANGECHECK -DINSTRUMENTED
 LDFLAGS_DEBUG =
 
 # optimized (release) options
-# CFLAGS_RELEASE =-O1 -ffast-math -fomit-frame-pointer -m486 -fexpensive-optimizations
-# CFLAGS_RELEASE =-O1 -ffast-math -fomit-frame-pointer -mtune=i486 -Wno-pointer-sign
-
- CFLAGS_RELEASE =-O3 -ffast-math -m486 
-# CFLAGS_RELEASE =-O1 -ffast-math -mtune=i486 -Wno-pointer-sign -fexpensive-optimizations
- 
+# CFLAGS_RELEASE =-O3 -ffast-math -m486 
+CFLAGS_RELEASE=-O1 -ffast-math -m486 -fexpensive-optimizations
 
 # GCC 2.7: -ffast-math makes no difference
 # GCC 2.7: -fomit-frame-pointer gives a few FPS less 
@@ -136,9 +132,9 @@ OBJS=	\
  	$(O)/emu8kmid.o	    
 
 doom all: $(O)/buck.exe
-	exe2coff $(O)\buck.exe
-	copy /y /b $(O)\cwsdstub.exe + $(O)\buck $(O)\buck.exe
-	upx -9 $(O)\buck.exe
+#	exe2coff $(O)\buck.exe
+#	copy /y /b $(O)\cwsdstub.exe + $(O)\buck $(O)\buck.exe
+#	upx -9 $(O)\buck.exe
 
 debug:
 	$(MAKE) MODE=DEBUG

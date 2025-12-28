@@ -224,8 +224,8 @@ default_t defaults[] = {
   { 
     "aspect_correct",
     &aspect_correct, NULL,
-    0, {0,1}, number, ss_gen, wad_no,
-    "set percentage of foreground/background translucency mix"
+    0, {0,2}, number, ss_gen, wad_no,
+    "set level at which renderer attempts to compensate for non 4:3 screens"
   },
 #endif
 #ifdef MAXCORPSE
