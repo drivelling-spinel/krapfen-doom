@@ -310,7 +310,7 @@ static void R_RenderSegLoop (void)
             index = MAXLIGHTSCALE-1;
           dc_colormap = walllights[index];
           dc_x = rw_x;
-          dc_iscale = 0xffffffffu / (unsigned)rw_scale;
+          dc_iscale = 0xffffffffu / (unsigned) (ASPECT_CORRECT(rw_scale));
         }
 
       // draw the wall tiers
@@ -460,7 +460,7 @@ void R_StoreWallRange(const int start, const int stop)
   // guaranteed to be big enough
 
   // calculate scale at both ends and step
-  ds_p->scale1 = rw_scale =
+  ds_p->scale1 = rw_scale = 
     R_ScaleFromGlobalAngle (viewangle + xtoviewangle[start]);
 
   if (stop > start)
@@ -703,6 +703,7 @@ void R_StoreWallRange(const int start, const int stop)
 #ifdef DEEPWATER
   // killough 3/7/98: add deep water check
   if (frontsector->heightsec == -1)
+#endif
     {
       if (frontsector->floorheight >= viewz)       // above view plane
         markfloor = false;
@@ -710,16 +711,15 @@ void R_StoreWallRange(const int start, const int stop)
           frontsector->ceilingpic != skyflatnum)   // below view plane
         markceiling = false;
     }
-#endif
   // calculate incremental stepping values for texture edges
   worldtop >>= 4;
   worldbottom >>= 4;
 
-  topstep = -FixedMul (rw_scalestep, worldtop);
-  topfrac = (centeryfrac>>4) - FixedMul (worldtop, rw_scale);
+  topstep = -FixedMul (ASPECT_CORRECT(rw_scalestep), worldtop);
+  topfrac = (centeryfrac>>4) - FixedMul (worldtop, ASPECT_CORRECT(rw_scale));
 
-  bottomstep = -FixedMul (rw_scalestep,worldbottom);
-  bottomfrac = (centeryfrac>>4) - FixedMul (worldbottom, rw_scale);
+  bottomstep = -FixedMul (ASPECT_CORRECT(rw_scalestep),worldbottom);
+  bottomfrac = (centeryfrac>>4) - FixedMul (worldbottom, ASPECT_CORRECT(rw_scale));
 
   if (backsector)
     {
@@ -728,13 +728,13 @@ void R_StoreWallRange(const int start, const int stop)
 
       if (worldhigh < worldtop)
         {
-          pixhigh = (centeryfrac>>4) - FixedMul (worldhigh, rw_scale);
-          pixhighstep = -FixedMul (rw_scalestep,worldhigh);
+          pixhigh = (centeryfrac>>4) - FixedMul (worldhigh, ASPECT_CORRECT(rw_scale));
+          pixhighstep = -FixedMul (ASPECT_CORRECT(rw_scalestep), worldhigh);
         }
       if (worldlow > worldbottom)
         {
-          pixlow = (centeryfrac>>4) - FixedMul (worldlow, rw_scale);
-          pixlowstep = -FixedMul (rw_scalestep,worldlow);
+          pixlow = (centeryfrac>>4) - FixedMul (worldlow, ASPECT_CORRECT(rw_scale));
+          pixlowstep = -FixedMul (ASPECT_CORRECT(rw_scalestep), worldlow);
         }
     }
 

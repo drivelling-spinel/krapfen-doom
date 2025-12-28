@@ -433,10 +433,10 @@ void R_DrawVisSprite(vissprite_t *vis, int x1, int x2)
 		}
          // killough 3/14/98, 4/11/98
 
-  dc_iscale = abs(vis->xiscale);
+  dc_iscale = ASPECT_INVERSE(abs(vis->xiscale));
   dc_texturemid = vis->texturemid;
   frac = vis->startfrac;
-  spryscale = vis->scale;
+  spryscale = ASPECT_CORRECT(vis->scale);
   sprtopscreen = centeryfrac - FixedMul(dc_texturemid,spryscale);
 
   for (dc_x=vis->x1 ; dc_x<=vis->x2 ; dc_x++, frac += vis->xiscale)
