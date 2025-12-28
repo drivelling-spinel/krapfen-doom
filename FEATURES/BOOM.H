@@ -57,7 +57,7 @@
 //#define MESSAGEBG
 
 // HUDBOOM     - BOOM fullscreen HUD features
-#define HUDBOOM
+//#define HUDBOOM
 
 // COLORSTBAR  - whether to include showing colored numbers in
 //               Doom clasic status bar

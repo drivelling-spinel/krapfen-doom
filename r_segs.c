@@ -149,7 +149,10 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   maskedtexturecol = ds->maskedtexturecol;
 
   rw_scalestep = ds->scalestep;
-  spryscale = ds->scale1 + (x1 - ds->x1)*rw_scalestep;
+  spryscale = ASPECT_CORRECT(ds->scale1 + (x1 - ds->x1)*rw_scalestep);
+#ifdef ASPECTCORRECT
+  rw_scalestep = ASPECT_CORRECT(rw_scalestep);
+#endif
   mfloorclip = ds->sprbottomclip;
   mceilingclip = ds->sprtopclip;
 

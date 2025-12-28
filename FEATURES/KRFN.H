@@ -49,6 +49,8 @@
 // ASPECTCORRECT - adjust renderer output for widescreen displays
 #define ASPECTCORRECT
 
+// CONTRASTHUD   - make BOOM-stlye widgets more contrast by default 
+#define CONTRASTHUD
 
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
@@ -57,5 +59,10 @@
 #if defined(SLIMEOPT) && !defined(REMOVESLIME)
 #define REMOVESLIME
 #endif
+
+#if defined(CONTRASTHUD) && !defined(HUDBOOM)
+#define HUDBOOM
+#endif
+
 
 #endif

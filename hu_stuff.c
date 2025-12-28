@@ -53,6 +53,10 @@ int hud_distributed;  //jff 3/4/98 display HUD in different places on screen
 int hud_graph_keys=1; //jff 3/7/98 display HUD keys as graphics
 #endif
 
+#ifdef CONTRASTHUD
+#define CR_CONTRAST 7
+#endif
+
 //
 // Locally used constants, shortcuts.
 //
@@ -516,35 +520,65 @@ void HU_Start(void)
   // lower left or upper right of screen
   HUlib_initTextLine(&w_health, hud_distributed ? HU_HEALTHX_D : HU_HEALTHX,
 		     hud_distributed ? HU_HEALTHY_D : HU_HEALTHY, hu_font2,
-		     HU_FONTSTART, colrngs[CR_GREEN]);
+		     HU_FONTSTART, 
+#ifdef CONTRASTHUD
+		                   colrngs[CR_CONTRAST]
+#else
+		                   colrngs[CR_GREEN]
+#endif
+		                                       );
 
   // create the hud armor widget
   // bargraph and number for amount of armor, 
   // lower left or upper right of screen
   HUlib_initTextLine(&w_armor, hud_distributed? HU_ARMORX_D : HU_ARMORX,
 		     hud_distributed ? HU_ARMORY_D : HU_ARMORY, hu_font2,
-		     HU_FONTSTART, colrngs[CR_GREEN]);
+		     HU_FONTSTART, 
+#ifdef CONTRASTHUD
+		                   colrngs[CR_CONTRAST]
+#else
+		                   colrngs[CR_GREEN]
+#endif
+		                                       );
 
   // create the hud ammo widget
   // bargraph and number for amount of ammo for current weapon, 
   // lower left or lower right of screen
   HUlib_initTextLine(&w_ammo, hud_distributed ? HU_AMMOX_D : HU_AMMOX,
 		     hud_distributed ? HU_AMMOY_D : HU_AMMOY, hu_font2,
-		     HU_FONTSTART, colrngs[CR_GOLD]);
+		     HU_FONTSTART, 
+#ifdef CONTRASTHUD
+		                   colrngs[CR_CONTRAST]
+#else
+		                   colrngs[CR_GOLD]
+#endif
+		                                       );
 
   // create the hud weapons widget
   // list of numbers of weapons possessed
   // lower left or lower right of screen
   HUlib_initTextLine(&w_weapon, hud_distributed ? HU_WEAPX_D : HU_WEAPX,
 		     hud_distributed ? HU_WEAPY_D : HU_WEAPY, hu_font2, 
-		     HU_FONTSTART, colrngs[CR_GRAY]);
+		     HU_FONTSTART, 
+#ifdef CONTRASTHUD
+		                   colrngs[CR_CONTRAST]
+#else
+		                   colrngs[CR_GRAY]
+#endif
+		                                       );
 
   // create the hud keys widget
   // display of key letters possessed
   // lower left of screen
   HUlib_initTextLine(&w_keys, hud_distributed ? HU_KEYSX_D : HU_KEYSX,
 		     hud_distributed ? HU_KEYSY_D : HU_KEYSY, hu_font2,
-		     HU_FONTSTART, colrngs[CR_GRAY]);
+		     HU_FONTSTART, 
+#ifdef CONTRASTHUD
+		                   colrngs[CR_CONTRAST]
+#else
+		                   colrngs[CR_GRAY]
+#endif
+		                                       );
 
   // create the hud graphic keys widget
   // display of key graphics possessed
@@ -558,7 +592,14 @@ void HU_Start(void)
   // lower left of screen
   HUlib_initTextLine(&w_monsec, hud_distributed ? HU_MONSECX_D : HU_MONSECX,
 		     hud_distributed? HU_MONSECY_D : HU_MONSECY, hu_font2,
-		     HU_FONTSTART, colrngs[CR_GRAY]);
+		     HU_FONTSTART, 
+#ifdef CONTRASTHUD
+		                   colrngs[CR_CONTRAST]
+#else
+		                   colrngs[CR_GRAY]
+#endif
+		                                       );
+
 #endif
   // create the hud text refresh widget
   // scrolling display of last hud_msg_lines messages received
@@ -827,7 +868,11 @@ void HU_Drawer(void)
       if (weaponinfo[plr->readyweapon].ammo == am_noammo)
         { // special case for weapon with no ammo selected - blank bargraph + N/A
           strcat(hud_ammostr,"\x7f\x7f\x7f\x7f\x7f\x7f\x7f N/A");
+#ifdef CONTRASTHUD
+          w_ammo.cr = colrngs[CR_CONTRAST];
+#else
           w_ammo.cr = colrngs[CR_GRAY];
+#endif
         }
       else
         {
@@ -871,8 +916,14 @@ void HU_Drawer(void)
             if (ammopct<ammo_yellow)
               w_ammo.cr = colrngs[CR_GOLD];
             else
-#endif
               w_ammo.cr = colrngs[CR_GREEN];
+#else
+#ifdef CONTRASTHUD
+          w_ammo.cr = colrngs[CR_CONTRAST];
+#else
+          w_ammo.cr = colrngs[CR_GREEN];
+#endif
+#endif
         }
       // transfer the init string to the widget
       s = hud_ammostr;
@@ -925,13 +976,16 @@ void HU_Drawer(void)
             w_health.cr = colrngs[CR_GOLD];
           else
             if (health<=health_green)
-#endif
               w_health.cr = colrngs[CR_GREEN];
-#if defined(COLORSTBAR) 
             else
               w_health.cr = colrngs[CR_BLUE];
+#else
+#ifdef CONTRASTHUD
+        w_health.cr = colrngs[CR_CONTRAST];
+#else
+        w_health.cr = colrngs[CR_GREEN];
 #endif
-
+#endif
         // transfer the init string to the widget
         s = hud_healthstr;
         while (*s)
@@ -979,13 +1033,16 @@ void HU_Drawer(void)
 #if defined(COLORSTBAR) 
 	  armor<armor_red ? colrngs[CR_RED] :
 	  armor<armor_yellow ? colrngs[CR_GOLD] :
-	  armor<=armor_green ?
+	  armor<=armor_green ? colrngs[CR_GREEN] :
+	  colrngs[CR_BLUE]
+#else
+#ifdef CONTRASTHUD
+	  colrngs[CR_CONTRAST]
+#else
+	  colrngs[CR_GREEN]
 #endif
-                               colrngs[CR_GREEN]
-#if defined(COLORSTBAR) 
-                                                 : colrngs[CR_BLUE]
 #endif
-                                                                   ;
+	;
 
         // transfer the init string to the widget
         s = hud_armorstr;
@@ -1037,6 +1094,7 @@ void HU_Drawer(void)
 
             // display each weapon number in a color related to the ammo for it
             hud_weapstr[i++] = '\x1b'; //jff 3/26/98 use ESC not '\' for paths
+#ifndef CONTRASTHUD
             if (weaponinfo[w].ammo==am_noammo) //jff 3/14/98 show berserk on HUD
               hud_weapstr[i++] = plr->powers[pw_strength]? '0'+CR_GREEN : '0'+CR_GRAY;
 #ifdef COLORSTBAR
@@ -1049,6 +1107,9 @@ void HU_Drawer(void)
                 else
 #endif
                   hud_weapstr[i++] = '0'+CR_GREEN;
+#else
+            hud_weapstr[i++] = '0'+CR_CONTRAST;
+#endif
             hud_weapstr[i++] = '0'+w+1;
             hud_weapstr[i++] = ' ';
             hud_weapstr[i] = '\0';
@@ -1066,7 +1127,11 @@ void HU_Drawer(void)
         {
           int k;
 
+#ifndef COLORHUD
           hud_keysstr[4] = '\0';    //jff 3/7/98 make sure deleted keys go away
+#else
+          hud_keysstr[6] = '\0';    //jff 3/7/98 make sure deleted keys go away
+#endif
           //jff add case for graphic key display
           if (!deathmatch && hud_graph_keys)
             {
@@ -1173,37 +1238,61 @@ void HU_Drawer(void)
                       switch(k)
                         {
                         case 0:
+#ifdef CONTRASTHUD
+                          hud_keysstr[i++] = '0'+CR_CONTRAST;                          
+#else
                           hud_keysstr[i++] = '0'+CR_BLUE;
+#endif
                           hud_keysstr[i++] = 'B';
                           hud_keysstr[i++] = 'C';
                           hud_keysstr[i++] = ' ';
                           break;
                         case 1:
+#ifdef CONTRASTHUD
+                          hud_keysstr[i++] = '0'+CR_CONTRAST;                          
+#else
                           hud_keysstr[i++] = '0'+CR_GOLD;
+#endif
                           hud_keysstr[i++] = 'Y';
                           hud_keysstr[i++] = 'C';
                           hud_keysstr[i++] = ' ';
                           break;
                         case 2:
+#ifdef CONTRASTHUD
+                          hud_keysstr[i++] = '0'+CR_CONTRAST;                          
+#else
                           hud_keysstr[i++] = '0'+CR_RED;
+#endif
                           hud_keysstr[i++] = 'R';
                           hud_keysstr[i++] = 'C';
                           hud_keysstr[i++] = ' ';
                           break;
                         case 3:
+#ifdef CONTRASTHUD
+                          hud_keysstr[i++] = '0'+CR_CONTRAST;                          
+#else
                           hud_keysstr[i++] = '0'+CR_BLUE;
+#endif
                           hud_keysstr[i++] = 'B';
                           hud_keysstr[i++] = 'S';
                           hud_keysstr[i++] = ' ';
                           break;
                         case 4:
+#ifdef CONTRASTHUD
+                          hud_keysstr[i++] = '0'+CR_CONTRAST;                          
+#else
                           hud_keysstr[i++] = '0'+CR_GOLD;
+#endif
                           hud_keysstr[i++] = 'Y';
                           hud_keysstr[i++] = 'S';
                           hud_keysstr[i++] = ' ';
                           break;
                         case 5:
+#ifdef CONTRASTHUD
+                          hud_keysstr[i++] = '0'+CR_CONTRAST;                          
+#else
                           hud_keysstr[i++] = '0'+CR_RED;
+#endif
                           hud_keysstr[i++] = 'R';
                           hud_keysstr[i++] = 'S';
                           hud_keysstr[i++] = ' ';
@@ -1247,11 +1336,17 @@ void HU_Drawer(void)
               HUlib_clearTextLine(&w_monsec);
               //jff 3/26/98 use ESC not '\' for paths
               // build the init string with fixed colors
+#ifndef CONTRASTHUD
               sprintf(hud_monsecstr, "STS \x1b\x36K \x1b\x33%d/%d"
 		      " \x1b\x37I \x1b\x33%d/%d \x1b\x35S \x1b\x33%d/%d",
+#else
+              sprintf(hud_monsecstr, "STS K %d/%d"
+		      " I %d/%d S %d/%d",
+#endif
 		      plr->killcount,totalkills,
 		      plr->itemcount,totalitems,
 		      plr->secretcount,totalsecret);
+
               // transfer the init string to the widget
               s = hud_monsecstr;
               while (*s)
