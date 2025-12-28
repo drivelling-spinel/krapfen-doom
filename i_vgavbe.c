@@ -125,6 +125,11 @@ int vesa_version=-1; // initially -1, then 0 if fail, in case of success: 1 2 or
 int vesa_mode_320x200=0;
 int vesa_mode_640x400=0;
 int vesa_mode_640x480=0;
+int vesa_mode_800x600=0;
+int vesa_mode_1024x768=0;
+int vesa_mode_1366x768=0;
+int vesa_mode_1280x1024=0;
+int vesa_mode_1600x1200=0;
 int vesa_PM_enable=0;
 unsigned long mode_LFB_PTR=0;
 unsigned char backingbuf[16]; // for both blast_C and clear_banks
@@ -704,7 +709,12 @@ int vesa_find_modes(int lfb_disable)
            if ((mode_info.XResolution == 320) && (mode_info.YResolution == 200)) {vesa_mode_320x200=mode_list[c]+mode_LFB*0x4000; found++;}
       else if ((mode_info.XResolution == 640) && (mode_info.YResolution == 400)) {vesa_mode_640x400=mode_list[c]+mode_LFB*0x4000; found++;}
       else if ((mode_info.XResolution == 640) && (mode_info.YResolution == 480)) {vesa_mode_640x480=mode_list[c]+mode_LFB*0x4000; found++;}
-	  if (found>=3) return found;
+      else if ((mode_info.XResolution == 1600) && (mode_info.YResolution == 1200)) {vesa_mode_1600x1200=mode_list[c]+mode_LFB*0x4000; found++;}
+      else if ((mode_info.XResolution == 1280) && (mode_info.YResolution == 1024)) {vesa_mode_1280x1024=mode_list[c]+mode_LFB*0x4000; found++;}
+      else if ((mode_info.XResolution == 800) && (mode_info.YResolution == 600)) {vesa_mode_800x600=mode_list[c]+mode_LFB*0x4000; found++;}
+      else if ((mode_info.XResolution == 1024) && (mode_info.YResolution == 768)) {vesa_mode_1024x768=mode_list[c]+mode_LFB*0x4000; found++;}
+      else if ((mode_info.XResolution == 1366) && (mode_info.YResolution == 768)) {vesa_mode_1366x768=mode_list[c]+mode_LFB*0x4000; found++;}
+	  if (found>=8) return found;
    }
    return found; 
 }

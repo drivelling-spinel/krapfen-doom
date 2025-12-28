@@ -39,7 +39,7 @@ static const char rcsid[] = "$Id: r_main.c,v 1.2 2000-08-12 21:29:30 fraggle Exp
 #include "v_video.h"
 
 // Fineangles in the SCREENWIDTH wide window.
-#define FIELDOFVIEW 2048    
+#define FIELDOFVIEW 2048
 
 // killough: viewangleoffset is a legacy from the pre-v1.2 days, when Doom
 // had Left/Mid/Right viewing. +/-ANG90 offsets were placed here on each
@@ -56,6 +56,10 @@ angle_t  viewangle;
 fixed_t  viewcos, viewsin;
 player_t *viewplayer;
 extern lighttable_t **walllights;
+
+#ifdef ASPECTCORRECT
+int      aspect_correct;
+#endif
 
 //
 // precalculated math tables

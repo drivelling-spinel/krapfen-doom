@@ -451,7 +451,9 @@ void M_DrawCompactGeneral(void);
 void M_Trans(void);       // killough 10/98
 #endif
 void M_ResetMenu(void);   // killough 10/98
-
+#ifdef ASPECTCORRECT
+void M_RefreshViewSize(void);
+#endif
 menu_t NewDef;                                              // phares 5/04/98
 
 // end of prototypes added to support Setup Menus and Extended HELP screens
@@ -3228,6 +3230,9 @@ enum {
 #ifdef USEVESA
   general_vesa,
 #endif
+#ifdef ASPECTCORRECT
+  general_aspect,
+#endif
 #ifdef HIRES
   general_hires,
 #endif
@@ -3283,6 +3288,11 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 #ifdef USEVESA 
   {"VESA modes", S_YESNO|S_PRGWARN, m_null, G_X, G_Y + general_vesa*8,
    {"usevesa"}, 0, 0 },
+#endif
+
+#ifdef ASPECTCORRECT 
+  {"Aspect correction", S_YESNO, m_null, G_X, G_Y + general_aspect*8,
+   {"aspect_correct"}, 0, 0 },
 #endif
 
 #ifdef HIRES
@@ -3431,6 +3441,13 @@ void M_Trans(void) // To reset translucency after setting it in menu
 }
 #endif
 
+#ifdef ASPECTCORRECT
+void M_RefreshViewSize(void)
+{
+  R_SetViewSize (screenblocks);
+}
+#endif
+
 #ifndef COMPACTMNU
 // Setting up for the General screen. Turn on flags, set pointers,
 // locate the first item on the screen where the cursor is allowed to
@@ -3477,9 +3494,9 @@ void M_DrawGeneral(void)
 
 #define GC_X 250
 #define GC_Y  44
-#define GC_Y2 (GC_Y+58)
-#define GC_Y3 (GC_Y+84)
-#define GC_Y4 (GC_Y+128)
+#define GC_Y2 (GC_Y+56)
+#define GC_Y3 (GC_Y+80)
+#define GC_Y4 (GC_Y+122)
 
 setup_menu_t gen_settings3[] = { // General Settings screen
 
@@ -3488,6 +3505,11 @@ setup_menu_t gen_settings3[] = { // General Settings screen
 #ifdef USEVESA 
   {"VESA modes", S_YESNO|S_PRGWARN, m_null, GC_X, GC_Y + general_vesa*8,
    {"usevesa"}, 0, 0 },
+#endif
+
+#ifdef ASPECTCORRECT 
+  {"Aspect correction", S_YESNO, m_null, GC_X, GC_Y + general_aspect*8,
+   {"aspect_correct"}, 0, 0 },
 #endif
 
   {"Use Page-Flipping", S_YESNO, m_null, GC_X, GC_Y + general_pageflip*8,

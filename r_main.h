@@ -110,12 +110,21 @@ void R_InitLightTables(void);                // killough 8/9/98
 extern boolean setsizeneeded;
 void R_ExecuteSetViewSize(void);
 
+#ifdef ASPECTCORRECT
+extern int aspect_correct;
+#define ASPECT_CORRECT(x) (aspect_correct ? (x) * 6 / 5 : (x))
+#define ASPECT_REVERSE(x) (aspect_correct ? (x) * 5 / 6 : (x))
+#else
+#define ASPECT_CORRECT(x) (x)
+#define ASPECT_REVERSE(x) (x)
+#endif
+
 #endif
 
 //----------------------------------------------------------------------------
 //
 // $Log: r_main.h,v $
-// Revision 1.2  2000-08-12 21:29:30  fraggle
+// Revision 1.2  2000-08-12 21:29:30  fifraggle
 // change license header
 //
 // Revision 1.1.1.1  2000/07/29 13:20:39  fraggle

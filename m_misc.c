@@ -81,6 +81,10 @@ extern int showMessages;
 extern int slimeopt;
 #endif
 
+#ifdef ASPECTCORRECT
+extern int aspect_correct;
+#endif
+
 extern char *chat_macros[]
 #ifdef PRELOAD
 , *wad_files[], *deh_files[]
@@ -213,6 +217,14 @@ default_t defaults[] = {
     "tran_filter_pct",
     &tran_filter_pct, NULL,
     66, {0,100}, number, ss_gen, wad_yes,
+    "set percentage of foreground/background translucency mix"
+  },
+#endif
+#ifdef ASPECTCORRECT
+  { 
+    "aspect_correct",
+    &aspect_correct, NULL,
+    0, {0,1}, number, ss_gen, wad_no,
     "set percentage of foreground/background translucency mix"
   },
 #endif

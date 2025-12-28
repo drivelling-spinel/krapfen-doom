@@ -41,6 +41,11 @@ extern int vesa_version;
 extern int vesa_mode_320x200;
 extern int vesa_mode_640x400;
 extern int vesa_mode_640x480;
+extern int vesa_mode_1280x1024;
+extern int vesa_mode_800x600;
+extern int vesa_mode_1024x768;
+extern int vesa_mode_1366x768;
+extern int vesa_mode_1600x1200;
 extern unsigned long screen_base_addr;
 extern unsigned long mode_LFB_PTR;
 

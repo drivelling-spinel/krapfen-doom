@@ -46,6 +46,10 @@
 // COMPACTMNU   - try to push all menu items under General into one sceen
 #define COMPACTMNU
 
+// ASPECTCORRECT - adjust renderer output for widescreen displays
+#define ASPECTCORRECT
+
+
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
 #endif

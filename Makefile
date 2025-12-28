@@ -135,29 +135,29 @@ OBJS=	\
         $(O)/d_deh.o	    \
  	$(O)/emu8kmid.o	    
 
-doom all: $(O)/krfn.exe
-	exe2coff $(O)\krfn.exe
-	copy /y /b $(O)\cwsdstub.exe + $(O)\krfn $(O)\krfn.exe
-	upx -9 $(O)\krfn.exe
+doom all: $(O)/buck.exe
+	exe2coff $(O)\buck.exe
+	copy /y /b $(O)\cwsdstub.exe + $(O)\buck $(O)\buck.exe
+	upx -9 $(O)\buck.exe
 
 debug:
 	$(MAKE) MODE=DEBUG
 
 clean:
-	$(RM) krfn.exe
+	$(RM) buck.exe
 	$(RM) $(O_RELEASE)\*.exe
 	$(RM) $(O_DEBUG)\*.exe
 	$(RM) $(O_RELEASE)\*.o
 	$(RM) $(O_DEBUG)\*.o
 
-$(O)/krfn.exe: $(OBJS) $(O)/version.o
+$(O)/buck.exe: $(OBJS) $(O)/version.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(O)/version.o -o $@ $(LIBS)
 	$(RM) $(O)\version.o
 
 $(O)/%.o:   %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(O)/%.o:   %.s
+$(O)/%.o:   %.S
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Very important that all sources #include this one
