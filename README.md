@@ -1,24 +1,19 @@
-## Krapfen Doom
-(abbreviated _krfn._) is Doom source port for DOS and x86 compatible computers
-originating from Marine's Best Friend and aiming for a more conservative set of features,
-while retaining stability and performance improvements.
+## Buck
+... is limit removing Doom source port for DOS and x86 compatible computers
+forked from Marine's Best Friend and dropping many _"advanced"_ features, while retaining stability and performance improvements.
 
-The method for achieving this is by annotating source code with C preprocessor
-\#ifdef blocks controlled by a set of macrodefs, allowing for inclusion/exclusion
-of features during the build time.
-  
+The method for achieving this is via annotating source code with C preprocessor \#ifdef blocks controlled by a set of macrodefs, 
+allowing for inclusion/exclusion of features during the build time.
 
-The port will generally _not_ include anything new except for
-a limited set of changes from other ports/forks (see [PATCHES.H](FEATURES/PATCHES.H)),
-patches for better demo playback compatibility with vanilla Doom,
-or better hardware/OS compatibility.
+Included is a limited set of features from other ports (see [PATCHES.H](FEATURES/PATCHES.H)),
+amd patches for better demo playback compatibility with vanilla Doom,
+and better hardware/OS compatibility.
 
-It also retains what has become to be regarded as a "modern sensibility".
-The port should run on any machinve compatible with MBF 2.04 as of 2024,
-e.g. 80486-based and above.
+The port should run on any machinve compatible with MBF 2.04 as of 2025, e.g. 80486-based and above. 
+Notable are `-noasm` and `-noasmx` command line arguments (originating from MBF 2.04) to use compiler optimized C-versions of renderer loop and blast functions.
 
-The set of "features" is fluid and documentation will not be updated every time
-something changes. Rather please examine header file contents under [FEATURES](FEATURES).
+The set of "features" is fluid and documentation will not be updated every time something changes. 
+Please examine header files under [FEATURES](FEATURES).
 
 ## Credits
 
@@ -46,14 +41,12 @@ something changes. Rather please examine header file contents under [FEATURES](F
 * Lee Killough
 * Joel Murdoch
   
-
-   
+  
 * Simon Howard
 * Colin Phipps
 * Andrey Budko
 * @gerwin
   
-
    
 * @sakitoshi
 * @CRVS

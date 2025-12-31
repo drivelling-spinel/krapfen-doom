@@ -112,9 +112,18 @@ void R_ExecuteSetViewSize(void);
 
 #ifdef ASPECTCORRECT
 extern int aspect_correct;
-#define ASPECT_CORRECT(x) (aspect_correct ? (x) * 6 / 5 : (x))
+
+#define ASPECT_CONST (10)
+#ifdef ASPECT16x9 
+#undef ASPECT_CONST
+#define ASPECT_CONST (9)
+#endif
+
+#define ASPECT_RATIO(x) ((x) * 12 / ASPECT_CONST)
+#define INVERSE_RATIO(x) ((x) * ASPECT_CONST / 12)
+#define ASPECT_CORRECT(x) (aspect_correct ? ASPECT_RATIO(x) : (x))
 #define ASPECT_CORRECT_PS(x, p) ((!p) ? ASPECT_CORRECT(x) : aspect_correct > 1 ? ASPECT_CORRECT(x) : (x))
-#define ASPECT_INVERSE(x) (aspect_correct ? (x) * 5 / 6 : (x))
+#define ASPECT_INVERSE(x) (aspect_correct ? INVERSE_RATIO(x) : (x))
 #define ASPECT_INVERSE_PS(x, p) ((!p) ? ASPECT_INVERSE(x) : aspect_correct > 1 ? ASPECT_INVERSE(x) : (x))
 #else
 #define ASPECT_CORRECT(x) (x)
