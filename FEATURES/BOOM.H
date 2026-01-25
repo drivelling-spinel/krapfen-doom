@@ -87,6 +87,10 @@
 //this is intentionally not set
 //depends on HIRES being set, also deliberatey not defined (see MBF.H)
 
+// SAFEWRITE   - write then copy configuration files when enabled,
+//               write directly otherwise
+//#define SAFEWRITE
+
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif

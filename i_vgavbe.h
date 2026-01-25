@@ -8,6 +8,12 @@
 #ifndef __IVGAVBE__
 #define __IVGAVBE__
 
+#ifdef DISKICON
+#define TRANSP 0
+void blit_planar(void *dest, unsigned char *buf, int x, int y, int width, int height);
+void vesa_blit_banked(unsigned char *buffer, int x, int y, int width, int height, int scroll_offset);
+#endif
+
 void blast_C(void *dest, unsigned char *src, int ymax);
 int  vesa_get_mode_info(int mode);
 int  vesa_set_mode(int mode);

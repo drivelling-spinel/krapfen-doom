@@ -28,8 +28,8 @@
 //#define MAXCORPSE
 
 // DISKICON    - whether to flash disk icon during IO operations
-//               (currently defunct)
-//#define DISKICON
+//               (modified from original MBF)
+#define DISKICON
 
 // FRIENDMOBJ  - flags, features and code pointers related to friendly
 //             monster behavior

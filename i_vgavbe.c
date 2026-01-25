@@ -228,6 +228,35 @@ void blast_C(void *dest, unsigned char *src, int ymax)
 }   
 #endif // CALT
 
+#ifdef DISKICON
+void blit_planar(void *dest, unsigned char *buf, int x, int y, int width, int height)
+{
+   int i, j, plane;
+   for (plane=0;plane<4;plane++) 
+   {                                      // four planes in mode-X
+      outportb(SC_INDEX, 0x02);           // write plane enable
+      outportb(SC_DATA,  0x01 << plane);  // select plane
+
+      for (i=0;i<height;i++)                // go downwards
+      {
+         unsigned char *src=buf + width*i + plane;
+         unsigned char *dst=dest + 80*(y+i) + x / 4;
+         int c=plane;
+         for (j=0 ; j < width ; j ++)
+         {
+             while (c < width)
+             {
+                if(*src != TRANSP) *dst = *src;
+                dst+=1;
+                src+=4;
+                c+=4;
+             }
+         }
+      }
+   }
+}
+
+#endif
 //-----------------------------------------------------------------------------
 // Mode X - Credits: brackeen.com / killough / GB 2014
 // Original Doom used Mode X, but drew directly to video memory.
@@ -503,7 +532,10 @@ int vesa_get_mode_info(int mode)
 int vesa_get_screen_base_addr(int close)
 {
    if (screen_base_addr_set > 0)
+   {
       __dpmi_free_physical_address_mapping(&mapping); 
+      screen_base_addr_set = 0;
+   }
    if (close) return 0; // just cleanup
 
    if (mode_LFB_PTR==0) return 1;  // fail
@@ -512,7 +544,18 @@ int vesa_get_screen_base_addr(int close)
    if (__dpmi_physical_address_mapping(&mapping) != 0) return 1; // fail, back to banked mode
      else screen_base_addr=mapping.address + __djgpp_conventional_base;
    screen_base_addr_set=1;
-
+#ifdef DISKICON
+   if(_go32_dpmi_lock_data (&screen_base_addr, sizeof(screen_base_addr)))
+   {
+     vesa_get_screen_base_addr(1);
+     return 1;
+   }
+   if(_go32_dpmi_lock_data (&screen_base_addr_set, sizeof(screen_base_addr_set)))
+   {
+     vesa_get_screen_base_addr(1);
+     return 1;
+   }
+#endif
    // GB 2014: for PM displaystart, need to clear this up?:
    //__dpmi_set_segment_base_address(selector, mapping.address);
    //__dpmi_set_segment_limit(selector, mapping.size-1);
@@ -568,6 +611,54 @@ void vesa_blitscreen_banked(unsigned char *memory_buffer, int size, int scroll_o
       bank_number++;
    }
 }
+
+#ifdef DISKICON
+void vesa_blit_banked(unsigned char *buffer, int x, int y, int width, int height, int scroll_offset)
+{
+   int bank_number=0, copy_size=width;
+   int offset = mode_BPS*scroll_offset + mode_BPS*y + x;
+   int size = height * mode_BPS + width;
+
+   // Preparation part 1, calculate offset:
+   offset=mode_BPS*scroll_offset;
+   // Some cards have no 640x400 (Intel, Cirrus), use 640x480 with black bars on top and bottom:
+   if (screen_h==480) offset+=mode_BPS*40;
+
+   // Preparation part 2, calculate starting bank:
+   while (offset>=mode_banksize)
+   {
+      bank_number++;
+      offset-=mode_banksize;
+   }
+
+   while (size>0)
+   {
+      int j = 0;
+      vesa_set_bank(bank_number);
+      // copy a whole bank or just the leftovers:
+      if (offset + copy_size>mode_banksize) copy_size=mode_banksize - offset;
+      for(j = 0; j < copy_size ; j++)
+         if(buffer[j] != TRANSP)
+            dosmemput(&buffer[j], 1, 0xA0000+offset+j); // transfer the data
+      size -= copy_size;
+      buffer += copy_size;
+      if (copy_size < width)
+      {
+        copy_size = width - copy_size;
+      }
+      else
+      {
+        size-=mode_BPS;
+        offset+=mode_BPS;
+      }
+      while (offset>=mode_banksize)
+      {
+         bank_number++;
+         offset-=mode_banksize;
+      }
+   }
+}
+#endif
 
 //-----------------------------------------------------------------------------
 // GB 2014: Done once for for 640x480 mode init

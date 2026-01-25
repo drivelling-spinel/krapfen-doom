@@ -219,8 +219,8 @@ char mode_string[128];
 int  modeswitched=0;
 #ifdef DISKICON
 // Disk icon:
-int disk_icon;
-static BITMAP *diskflash, *old_data;
+int disk_icon=0;
+static byte *diskflash=0, *old_data=0;
 #endif
 #ifdef USEVESA
 int usevesa;
@@ -393,6 +393,69 @@ void I_FinishUpdate(void)
    if (in_page_flip) vesa_set_displaystart(0, scroll_offset, use_vsync); // hires hardware page-flipping (VBE 2.0 Only, Do not waste frames on 1.2)
 }
 
+#ifdef DISKICON
+
+//-----------------------------------------------------------------------------
+void I_Blit(byte * buffer, int x, int y, int width, int height)
+{ 
+   int ymax=SCREENHEIGHT;
+   if (noblit || !in_graphics_mode) return;
+
+   if (y + height > ymax) height = ymax - y;
+   if (height <= 0) return;
+
+   if (in_page_flip) // mode-X blast goes first
+      if (!in_hires && (current_mode<256))
+      {
+         byte * zascreen=(byte *) __djgpp_conventional_base + 0xA0000 + screen_base_addr;
+         blit_planar(zascreen, buffer, x, y, width, height);
+         return;
+      }
+
+   if (!linear || safeparm)
+   {
+      if (current_mode>255)
+      {
+         vesa_blit_banked(buffer, x, y, width, height, scroll_offset); 
+      }
+      else
+      {
+         int i;
+         int vmem = 0xA0000 + SCREENWIDTH * y + x;
+         for(i = 0 ; i < height ; i++, vmem += SCREENWIDTH, buffer += width)
+         {
+            int j = 0;
+            for(j = 0; j < width; j++)
+            {
+              if(buffer[j]!=TRANSP) dosmemput(&buffer[j], 1, vmem+j);
+            }
+         }
+      }
+   }
+   else
+   {
+      int i;
+      byte * zascreen = dascreen;
+      int bps_local = SCREENWIDTH; // fixme: HIRES?
+      if (current_mode>255)
+      {
+         bps_local = mode_BPS;
+         zascreen = (byte *) screen_base_addr + scroll_offset*bps_local + blackband*bps_local;
+      }
+      zascreen += y*bps_local + x;
+      for(i = 0 ; i < height ; i++, zascreen += bps_local, buffer += width)
+      {
+         int j = 0;
+         for(j = 0; j < width; j++)
+         {
+           if(buffer[j]!=TRANSP) zascreen[j]=buffer[j];
+         }
+      }
+   }
+}
+
+#endif
+
 //-----------------------------------------------------------------------------
 // I_ReadScreen
 void I_ReadScreen(byte *scr)
@@ -411,53 +474,62 @@ void I_ReadScreen(byte *scr)
 // and the new libraries lack a universal read-from and blit-to screen procedure.
 static void I_InitDiskFlash(void)
 {
+  if(diskflash) free(diskflash);
+  diskflash = 0;
+  old_data = 0;
 
-  byte temp[32*32];
+  if(!disk_icon)
+     return;
 
-  if (diskflash)
-    {
-      destroy_bitmap(diskflash);
-      destroy_bitmap(old_data);
-    }
-
-  diskflash = create_bitmap_ex(8, 16<<hires, 16<<hires);
-  old_data = create_bitmap_ex(8, 16<<hires, 16<<hires);
-
-  V_GetBlock(0, 0, 0, 16, 16, temp);
+  if (_go32_dpmi_lock_data (&dascreen, sizeof(dascreen))) {
+     return;
+  }
+  diskflash = calloc(32 * 32, 2);
+  if (_go32_dpmi_lock_data (diskflash, 2 * 32 * 32)) {
+     free(diskflash);
+     diskflash = 0;
+     return;
+  }
+  memset(diskflash, TRANSP, 32 * 32 * 2);
+  old_data = diskflash + (32 * 32);
+  V_GetBlock(0, 0, 0, 16, 16, old_data);
   V_DrawPatchDirect(0, 0, 0, W_CacheLumpName(M_CheckParm("-cdrom") ?
                                              "STCDROM" : "STDISK", PU_CACHE));
-  V_GetBlock(0, 0, 0, 16, 16, diskflash->line[0]);
-  V_DrawBlock(0, 0, 0, 16, 16, temp);
-
+  V_GetBlock(0, 0, 0, 16, 16, diskflash);
+  V_DrawBlock(0, 0, 0, 16, 16, old_data); 
 }
 
 //-----------------------------------------------------------------------------
 // killough 10/98: draw disk icon
 void I_BeginRead(void)
 {
-  if (!disk_icon || !in_graphics_mode || noblit || safeparm) // GB 2014: added noblit
+  if (!old_data || !in_graphics_mode || noblit || safeparm) // GB 2014: added noblit
     return;
 
-  blit(screen, old_data,
-       (SCREENWIDTH-16) << hires,
-       scroll_offset + ((SCREENHEIGHT-16)<<hires),
-       0, 0, 16 << hires, 16 << hires);
-
-  blit(diskflash, screen, 0, 0, (SCREENWIDTH-16) << hires,
-       scroll_offset + ((SCREENHEIGHT-16)<<hires), 16 << hires, 16 << hires);
-
+#ifdef HIRES
+  //fixme: no hires support
+  V_GetBlock((SCREENWIDTH-16) << hires, (SCREENHEIGHT-16) << hires,
+             0, 16 << hires, 16 << hires, old_data);
+#else
+  V_GetBlock(SCREENWIDTH-16, SCREENHEIGHT-16, 0, 16, 16, old_data);
+  I_Blit(diskflash, SCREENWIDTH-16, SCREENHEIGHT-16, 16, 16);
+#endif
 }
 
 //-----------------------------------------------------------------------------
 // killough 10/98: erase disk icon
 void I_EndRead(void)
 {
-  if (!disk_icon || !in_graphics_mode || noblit || safeparm) // GB 2014: added noblit
+  if (!old_data || !in_graphics_mode || noblit || safeparm) // GB 2014: added noblit
     return;
 
-  blit(old_data, screen, 0, 0, (SCREENWIDTH-16) << hires,
-       scroll_offset + ((SCREENHEIGHT-16)<<hires), 16 << hires, 16 << hires);
 
+#ifdef HIRES
+  //fixme: no support just yet
+#else
+  //fixme no need to blit back before I_FinishUpdate unless building translucency table
+  //I_Blit(old_data, SCREENWIDTH-16, SCREENHEIGHT-16, 16, 16); 
+#endif
 }
 #endif
 

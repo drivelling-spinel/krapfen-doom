@@ -2018,8 +2018,12 @@ void M_SaveDefaults (void)
   if (!defaults_loaded || !defaultfile)
     return;
 
+#ifdef SAFEWRITE
   sprintf(tmpfile, "%s/tmp%.5s.cfg", D_DoomExeDir(), D_DoomExeName());
   NormalizeSlashes(tmpfile);
+#else
+  sprintf(tmpfile,"%s", defaultfile);
+#endif
 
   errno = 0;
   if (!(f = fopen(tmpfile, "w")))  // killough 9/21/98
@@ -2106,12 +2110,13 @@ void M_SaveDefaults (void)
 	      tmpfile, errno ? strerror(errno): "(Unknown Error)",defaultfile);
       return;
     }
-
+#ifdef SAFEWRITE
   remove(defaultfile);
 
   if (rename(tmpfile, defaultfile))
     I_Error("Could not write defaults to %s: %s\n", defaultfile,
 	    errno ? strerror(errno): "(Unknown Error)");
+#endif
 }
 
 //
