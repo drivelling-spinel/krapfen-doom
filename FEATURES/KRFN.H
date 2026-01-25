@@ -50,7 +50,7 @@
 #define ASPECTCORRECT
 
 // ASPECT16x9    - tailor output to a 16x9 screen; when not defined use 16x10
-#define ASPECT16x9
+//#define ASPECT16x9
 
 // CONTRASTHUD   - make BOOM-stlye widgets more contrast by default 
 #define CONTRASTHUD
