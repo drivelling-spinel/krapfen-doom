@@ -136,6 +136,7 @@ enum {
   comp_respawnfix,
   comp_soulbounce,
   comp_airteleport,
+  comp_bruiseropt,
   COMP_TOTAL=32  // Some extra room for additional variables
 };
 

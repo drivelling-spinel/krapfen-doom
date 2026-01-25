@@ -12,6 +12,10 @@
 //                teleport bug, also adds comp_airteleport to toggle
 #define AIRTELEPT
 
+// BRUISEROPT   - whether to include compatibility with pre-Final Doom
+//                behavior of E1M8 completion trigger
+#define BRUISEROPT
+
 // USEVESA      - adds option to enable/disable search for VESA modes
 #define USEVESA
 
@@ -66,7 +70,6 @@
 #if defined(CONTRASTHUD) && !defined(HUDBOOM)
 #define HUDBOOM
 #endif
-
 
 #if defined(ASEPCT16x9) && !defined(ASPECTCORRECT)
 #define ASPECTCORRECT

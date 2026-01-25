@@ -799,6 +799,15 @@ default_t defaults[] = {
   },
 #endif
 
+#ifdef BRUISEROPT
+  {
+    "comp_bruiseropt",
+    &default_comp[comp_bruiseropt], &comp[comp_bruiseropt],
+    1, {0,1}, number, ss_comp, wad_yes,
+    "Finish E1M8 upon death of Barons' only, not any other boss type"
+  },
+#endif
+
 
   // For key bindings, the values stored in the key_* variables       // phares
   // are the internal Doom Codes. The values stored in the default.cfg

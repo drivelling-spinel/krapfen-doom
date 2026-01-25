@@ -2332,7 +2332,10 @@ void A_BossDeath(mobj_t *mo)
         case 1:
           if (gamemap != 8)
             return;
-
+#ifdef BRUISEROPT
+          if ((demo_version > 109 || (demo_version == 109 && gamemode == retail))
+	      && comp[comp_bruiseropt])
+#endif
           if (mo->type != MT_BRUISER)
             return;
           break;

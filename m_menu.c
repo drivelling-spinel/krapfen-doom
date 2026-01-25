@@ -3657,6 +3657,9 @@ enum
 #ifdef AIRTELEPT
   compat_airteleport,
 #endif
+#ifdef BRUISEROPT
+  compat_bruiseropt,
+#endif
 };
 
 setup_menu_t comp_settings1[] =  // Compatibility Settings screen #1
@@ -3747,9 +3750,18 @@ setup_menu_t comp_settings2[] =  // Compatibility Settings screen #2
   {"Teleporters can send above the ground", S_YESNO, m_null, C_X,
    C_Y + compat_airteleport * COMP_SPC, {"comp_airteleport"}},
 #endif
+
+#ifdef BRUISEROPT
+  {"Only count Barons towards E1M8 victory", S_YESNO, m_null, C_X,
+   C_Y + compat_bruiseropt * COMP_SPC, {"comp_bruiseropt"}},
+#endif
+
   //FIXME: need more space sadly -- LP 2024
   {"<- PREV", S_SKIP|S_PREV, m_null, KB_PREV, C_Y+C_NEXTPREV
-#ifdef AIRTELEPT
+#if defined(AIRTELEPT)
+    + COMP_SPC
+#endif
+#if defined(BRUISEROPT)
     + COMP_SPC
 #endif
   ,{comp_settings1}},
