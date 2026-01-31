@@ -619,10 +619,10 @@ void vesa_blit_banked(unsigned char *buffer, int x, int y, int width, int height
    int offset = mode_BPS*scroll_offset + mode_BPS*y + x;
    int size = height * mode_BPS + width;
 
-   // Preparation part 1, calculate offset:
-   offset=mode_BPS*scroll_offset;
+#ifdef HIRES
    // Some cards have no 640x400 (Intel, Cirrus), use 640x480 with black bars on top and bottom:
    if (screen_h==480) offset+=mode_BPS*40;
+#endif
 
    // Preparation part 2, calculate starting bank:
    while (offset>=mode_banksize)

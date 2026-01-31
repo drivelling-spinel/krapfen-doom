@@ -736,10 +736,18 @@ void M_Episode(int choice)
       return;
     }
 
+#ifdef SAKITOSHI
+  // LP 2026: Not original Sakitoshi code; to run sigil with registered version
+  if (choice < EpiDef.numitems)
+    {
+      choice = EpiDef.menuitems[choice].name[5] - '1';
+    }
+  else
+#else
   // Yet another hack...
   if (gamemode == registered && choice > 2)
+#endif
     choice = 0;         // killough 8/8/98
-   
   epi = choice;
   M_SetupNextMenu(&NewDef);
 }
@@ -6144,16 +6152,24 @@ void M_Init(void)
     case retail:
       {
       // Check until which episode are there maps available
-      int c1 = 0, c2 = 0, i;
+      int c1 = 0, c2 = 0, i, l, j;
       EpiDef.numitems = 0;
 #ifdef DGONDOS
-      for(i = 5; i >= 0; i--) {
+      l = 5;
 #else
-      for(i = 4; i >= 0; i--) {
+      l = 4;
 #endif
+      for(i = l; i >= 0; i--) {
         char mapname[9];
         sprintf(mapname, "E%uM1", i + 1);
-        if (W_CheckNumForName(mapname) != -1) {
+        if (W_CheckNumForName(mapname) == -1) {
+	   // LP 2006 - allow to continue when only episode 4 is missing
+	   for(j = i; j < l ; j++) {
+	       EpiDef.menuitems[j].name[5] += 1;
+	       EpiDef.menuitems[j].alphaKey = EpiDef.menuitems[j+1].alphaKey;
+	   }
+           if(i == 3) continue;
+	} else {
            c2 += i + 1;
            EpiDef.numitems += 1;
         }

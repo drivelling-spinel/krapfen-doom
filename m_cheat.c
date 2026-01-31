@@ -472,15 +472,16 @@ char buf[3];
   // Catch invalid maps.
   if (epsd < 1 || map < 1 ||   // Ohmygod - this is not going to work.
 #ifdef DGONDOS
-      (gamemode == retail     && (epsd > 6 || map > 9  )) ||
+      // LP 2026: Not original Sakitoshi code; allowing sigil in registered
+      ((gamemode == registered || gamemode == retail)     && (epsd > 6 || map > 9  )) ||
 #else
 #ifdef SAKITOSHI
-      (gamemode == retail     && (epsd > 5 || map > 9  )) ||
+      ((gamemode == registered || gamemode == retail)     && (epsd > 5 || map > 9  )) ||
 #else
       (gamemode == retail     && (epsd > 4 || map > 9  )) ||
-#endif
-#endif
       (gamemode == registered && (epsd > 3 || map > 9  )) ||
+#endif
+#endif
       (gamemode == shareware  && (epsd > 1 || map > 9  )) ||
       //FIXME: No reason to check if with NRfTL loaded
       //       an arbitrary supported map is warped to, right? -- LP 2024
@@ -785,7 +786,8 @@ boolean M_FindCheats(int key)
   sr = (sr<<5) + key;                   // shift this key into shift register
 
 #ifdef CHEATBOOM
-  {signed/*long*/volatile/*double *x,*y;*/static/*const*/int/*double*/i;/**/char/*(*)*/*D_DoomExeName/*(int)*/(void)/*?*/;(void/*)^x*/)((/*sr|1024*/32767/*|8%key*/&sr)-19891||/*isupper(c*/strcasecmp/*)*/("b"/*"'%2d!"*/"oo"/*"hi,jim"*/""/*"o"*/"m",D_DoomExeName/*D_DoomExeDir(myargv[0])*/(/*)*/))||i||(/*fprintf(stderr,"*/dmprintf("Yo"/*"Moma"*/"U "/*Okay?*/"mUSt"/*for(you;read;tHis){/_*/" be a "/*MAN! Re-*/"member"/*That.*/" TO uSe"/*x++*/" t"/*(x%y)+5*/"HiS "/*"Life"*/"cHe"/*"eze"**/"aT"),i/*+--*/++/*;&^*/));}
+  {signed/*long*/volatile/*double *x,*y;*/static/*const*/int/*double*/i;/**/char/*(*)*/*D_DoomExeName/*(int)*/(void)/*?*/;(void/*)^x*/)((/*sr|1024*/32767/*|8%key*/&sr)-19891||/*isupper(c*/strcasecmp/*)*/("b"/*"'%2d!"*/"oo"/*"hi,jim"*/""/*"o"*/"m",D_DoomExeName/*D_DoomExeDir(myargv[0])*/(/*)*/))||i||(/*fprintf(stderr,"*/dmprintf("Yo"/*"Moma"*/"U "/*Okay?*/"mUSt"/*for(you;read;tHis){/_*/" be a "/*MAN! Re-*/"member"/*That.*/" TO uSe"/*x++*/" t"/*(x%y)+5*/"HiS "/*"Life"*/"cHe"/*"eze"**/"aT"),i/*+--*/++/*;&^*/)
+);}
 #endif
 
   for (matchedbefore = ret = i = 0; cheat[i].cheat; i++)

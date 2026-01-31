@@ -2168,8 +2168,19 @@ void G_InitNew(skill_t skill, int episode, int map)
           episode = 1; // only start episode 1 on shareware
       }
     else
+#ifdef DGONDOS
+      // LP 2026: Not original Sakitoshi code; to allow sigil in registerd
+      if (episode > 6)
+        episode = 6;
+#else
+#ifdef SAKITOSHI
+      if (episode > 5)
+        episode = 5;
+#else
       if (episode > 3)
         episode = 3;
+#endif
+#endif
 
   if (map < 1)
     map = 1;
