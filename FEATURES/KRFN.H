@@ -60,8 +60,8 @@
 #define CONTRASTHUD
 
 // TOLERATESKY4  - when defined don't choke on loading TEXTURES/2 
-//                 with SKY4 when running registerd version of DOOM
-#define TOLRERATESKY4
+//                 with SKY4 when running registerd version of Doom
+#define TOLERATESKY4
 
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
