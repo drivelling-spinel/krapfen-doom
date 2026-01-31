@@ -839,7 +839,7 @@ void R_InitBuffer(int width, int height)
   //  e.g. smaller view windows
   //  with border and/or status bar.
 
-  viewwindowx = SCREENWIDTH-width;  // killough 11/98
+  viewwindowx = (SCREENWIDTH-width)>>1;  // killough 11/98
 
   // Column offset. For windows.
 

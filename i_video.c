@@ -399,10 +399,12 @@ void I_FinishUpdate(void)
 void I_Blit(byte * buffer, int x, int y, int width, int height)
 { 
    int ymax=SCREENHEIGHT;
+   byte TRANSP;
    if (noblit || !in_graphics_mode) return;
 
    if (y + height > ymax) height = ymax - y;
    if (height <= 0) return;
+   TRANSP = *buffer;
 
    if (in_page_flip) // mode-X blast goes first
       if (!in_hires && (current_mode<256))
@@ -474,6 +476,8 @@ void I_ReadScreen(byte *scr)
 // and the new libraries lack a universal read-from and blit-to screen procedure.
 static void I_InitDiskFlash(void)
 {
+  byte TRANSP = 0;
+
   if(diskflash) free(diskflash);
   diskflash = 0;
   old_data = 0;
@@ -490,9 +494,10 @@ static void I_InitDiskFlash(void)
      diskflash = 0;
      return;
   }
-  memset(diskflash, TRANSP, 32 * 32 * 2);
   old_data = diskflash + (32 * 32);
+  memset(diskflash, TRANSP, 32 * 32 * 2);
   V_GetBlock(0, 0, 0, 16, 16, old_data);
+  V_DrawBlock(0, 0, 0, 16, 16, diskflash);
   V_DrawPatchDirect(0, 0, 0, W_CacheLumpName(M_CheckParm("-cdrom") ?
                                              "STCDROM" : "STDISK", PU_CACHE));
   V_GetBlock(0, 0, 0, 16, 16, diskflash);
@@ -530,6 +535,7 @@ void I_EndRead(void)
   //fixme no need to blit back before I_FinishUpdate unless building translucency table
   //I_Blit(old_data, SCREENWIDTH-16, SCREENHEIGHT-16, 16, 16); 
 #endif
+  statusbar_dirty = 2;
 }
 #endif
 

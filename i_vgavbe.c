@@ -232,6 +232,8 @@ void blast_C(void *dest, unsigned char *src, int ymax)
 void blit_planar(void *dest, unsigned char *buf, int x, int y, int width, int height)
 {
    int i, j, plane;
+   unsigned char TRANSP = *buf;
+
    for (plane=0;plane<4;plane++) 
    {                                      // four planes in mode-X
       outportb(SC_INDEX, 0x02);           // write plane enable
@@ -618,6 +620,7 @@ void vesa_blit_banked(unsigned char *buffer, int x, int y, int width, int height
    int bank_number=0, copy_size=width;
    int offset = mode_BPS*scroll_offset + mode_BPS*y + x;
    int size = height * mode_BPS + width;
+   unsigned char TRANSP = *buffer;
 
 #ifdef HIRES
    // Some cards have no 640x400 (Intel, Cirrus), use 640x480 with black bars on top and bottom:

@@ -601,6 +601,10 @@ void R_InitTextures (void)
               printf("\nR_InitTextures: Missing patch %d in texture %.8s",
                      SHORT(mpatch->patch), texture->name); // killough 4/17/98
               ++errors;
+#ifdef TOLERATESKY4
+              if(gamemode == registered && !strnicmp(texture->name, "SKY4", 4))
+              --errors;
+#endif
             }
         }
 

@@ -9,7 +9,6 @@
 #define __IVGAVBE__
 
 #ifdef DISKICON
-#define TRANSP 0
 void blit_planar(void *dest, unsigned char *buf, int x, int y, int width, int height);
 void vesa_blit_banked(unsigned char *buffer, int x, int y, int width, int height, int scroll_offset);
 #endif

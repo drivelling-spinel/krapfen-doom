@@ -59,6 +59,10 @@
 // CONTRASTHUD   - make BOOM-stlye widgets more contrast by default 
 #define CONTRASTHUD
 
+// TOLERATESKY4  - when defined don't choke on loading TEXTURES/2 
+//                 with SKY4 when running registerd version of DOOM
+#define TOLRERATESKY4
+
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
 #endif

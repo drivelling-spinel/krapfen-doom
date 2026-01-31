@@ -1275,7 +1275,7 @@ void D_DoomMain(void)
   ssgparm                     = M_CheckParm ("-ssg");    // GB 2013
 #endif
   nolfbparm                   = M_CheckParm ("-nolfb");  // GB 2014
-  nopmparm                    = M_CheckParm ("-nopm");   // GB 2014
+  nopmparm                    = safeparm || M_CheckParm ("-nopm");   // GB 2014
 #ifdef CALT
   noasmparm                   = M_CheckParm ("-noasm");  // GB 2014
   noasmxparm                  = M_CheckParm ("-noasmx"); // GB 2014
