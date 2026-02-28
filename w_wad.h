@@ -76,6 +76,9 @@ typedef struct
 
   int handle;
   int position;
+#ifdef PRECISEVCOORD
+  int sub_size;
+#endif
 } lumpinfo_t;
 
 // killough 1/31/98: predefined lumps
@@ -110,6 +113,11 @@ void ExtractFileBase(const char *, char *);       // killough
 unsigned W_LumpNameHash(const char *s);           // killough 1/31/98
 
 void I_BeginRead(void), I_EndRead(void); // killough 10/98
+
+#ifdef PRECISEVCOORD
+int     W_CheckSubstreamForNum (int lump);
+void*   W_ReadLumpSubstream (int lump, int tag); 
+#endif
 
 #ifndef KRFNSLIM
 // Function to write all predefined lumps to a PWAD if requested

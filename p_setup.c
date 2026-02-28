@@ -43,10 +43,17 @@ rcsid[] = "$Id: p_setup.c,v 1.2 2000-08-12 21:29:29 fraggle Exp $";
 #include "p_enemy.h"
 #include "s_sound.h"
 
+#ifdef PRECISEVCOORD
+#include "r_segs.h"
+#endif
 //
 // MAP related Lookup tables.
 // Store VERTEXES, LINEDEFS, SIDEDEFS, etc.
 //
+
+#ifdef PRECISEVCOORD
+static boolean precise_coords;
+#endif
 
 int      numvertexes;
 vertex_t *vertexes;
@@ -144,6 +151,28 @@ void P_LoadVertexes (int lump)
 
   // Free buffer memory.
   Z_Free (data);
+
+#ifdef PRECISEVCOORD
+  i = W_CheckSubstreamForNum(lump);
+  if(precise_coords = (i == numvertexes * sizeof(mapvertex_t)))
+    {
+      int pc=0;
+      data = W_ReadLumpSubstream(lump, PU_STATIC);
+      for (i=0; i<numvertexes; i++)
+        {
+          vertexes[i].x |= (FRACUNIT-1) & ((mapvertex_t *) data)[i].x;
+          vertexes[i].y |= (FRACUNIT-1) & ((mapvertex_t *) data)[i].y;
+          if(((mapvertex_t *) data)[i].x || ((mapvertex_t *) data)[i].y) pc++;
+        }
+      if(debugfile)
+        {
+          fprintf(debugfile, "Non zero fractional part loaded for %d vertices of %d\n",
+                  pc, numvertexes);
+          fflush(debugfile);
+        }
+      Z_Free (data);
+    }
+#endif
 }
 
 //
@@ -155,6 +184,9 @@ void P_LoadSegs (int lump)
 {
   int  i;
   byte *data;
+#ifdef PRECISEVCOORD
+  int  pc=0;
+#endif
 
   numsegs = W_LumpLength(lump) / sizeof(mapseg_t);
   segs = Z_Malloc(numsegs*sizeof(seg_t),PU_LEVEL,0);
@@ -163,6 +195,9 @@ void P_LoadSegs (int lump)
 
   for (i=0; i<numsegs; i++)
     {
+#ifdef PRECISEVCOORD
+      fixed_t dx, dy;
+#endif
       seg_t *li = segs+i;
       mapseg_t *ml = (mapseg_t *) data + i;
 
@@ -188,8 +223,38 @@ void P_LoadSegs (int lump)
                                                                 )
         li->backsector = sides[ldef->sidenum[side^1]].sector;
       else
-	li->backsector = 0;
+        li->backsector = 0;
+
+#ifdef PRECISEVCOORD
+      if(!precise_coords) continue;
+
+      dx = li->v2->x - li->v1->x;
+      dy = li->v2->y - li->v1->y;
+      
+      if((li->linedef->dx > 0 && dx > 0) || (li->linedef->dx < 0 && dx < 0))
+        li->offset = R_PointToDist2(li->linedef->v1->x, li->linedef->v1->y, li->v1->x, li->v1->y);
+      else if(li->linedef->dx < 0)
+        li->offset = R_PointToDist2(li->linedef->v2->x, li->linedef->v2->y, li->v1->x, li->v1->y);
+      else if(dx < 0)
+        li->offset = R_PointToDist2(li->linedef->v2->x, li->linedef->v2->y, li->v1->x, li->v1->y);
+      else if((li->linedef->dy > 0 && dy > 0) || (li->linedef->dy < 0 && dy < 0))
+        li->offset = R_PointToDist2(li->linedef->v1->x, li->linedef->v1->y, li->v1->x, li->v1->y);
+      else if(li->linedef->dy < 0)
+        li->offset = R_PointToDist2(li->linedef->v2->x, li->linedef->v2->y, li->v1->x, li->v1->y);
+      else
+        li->offset = R_PointToDist2(li->linedef->v2->x, li->linedef->v2->y, li->v1->x, li->v1->y);
+      li->angle = R_PointToAngle2(li->v1->x, li->v1->y, li->v2->x, li->v2->y);
+      pc ++;
+#endif
     }
+
+#ifdef PRECISEVCOORD
+  if(debugfile && pc)
+    {
+      fprintf(debugfile, "Recalculated angle and offset on %d segs\n", pc);
+      fflush(debugfile);
+    }
+#endif
 
   Z_Free (data);
 }
@@ -973,6 +1038,9 @@ void P_SetupLevel(int episode, int map, int playermask, skill_t skill)
   lumpnum = W_GetNumForName(lumpname);
 
   leveltime = 0;
+#ifdef PRECISEVCOORD
+  precise_coords = false;
+#endif
 
   // note: most of this ordering is important
 

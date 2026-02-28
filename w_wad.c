@@ -132,6 +132,10 @@ void NormalizeSlashes(char *str)
 // LUMP BASED ROUTINES.
 //
 
+#ifdef PRECISEVCOORD
+static int W_LumpComp(const void * _e1, const void * _e2);
+#endif
+
 //
 // W_AddFile
 // All files are optional, but at least one file must be
@@ -180,6 +184,10 @@ static void W_AddFile(const char *name) // killough 1/31/98: static, const
 
   startlump = numlumps;
 
+#ifdef PRECISEVCOORD
+  memset(&header, 0, sizeof(header));
+#endif
+
   // killough:
   if (strlen(filename)<=4 || strcasecmp(filename+strlen(filename)-4, ".wad" ))
     {
@@ -222,10 +230,37 @@ static void W_AddFile(const char *name) // killough 1/31/98: static, const
 #ifdef WADNAMESPACE
         lump_p->namespace = ns_global;              // killough 4/17/98
 #endif
+#ifdef PRECISEVCOORD
+        lump_p->sub_size = 0;
+#endif
         strncpy (lump_p->name, fileinfo->name, 8);
       }
 
+
     free(fileinfo2free);      // killough
+
+#ifdef PRECISEVCOORD
+    if (header.infotableofs && numlumps > startlump)
+      {
+        lumpinfo_t ** sorted = malloc((numlumps-startlump)*sizeof(lumpinfo_t *));
+        lump_p = &lumpinfo[startlump];
+        for (i=startlump ; i<numlumps ; i++,lump_p++) sorted[i-startlump]=lump_p;
+        qsort(sorted, numlumps-startlump, sizeof(*sorted), W_LumpComp);
+
+        for (i=startlump ; i<numlumps ; i++)
+          {
+            int l = header.infotableofs;
+            lump_p = sorted[i - startlump];
+            if (i < numlumps - 1) l = sorted[i - startlump + 1]->position;
+            l -= lump_p->position + lump_p->size;
+            //LP 2026: original ID WAD-s seem to have lump boundaries  
+            //    alinged to DWORD-s so allowing substream size below DWORD 
+            //    is impractical
+            if(l >= 4) lump_p->sub_size = l; 
+          }
+        free(sorted);
+      }
+#endif
 }
 
 #ifdef WADNAMESPACE
@@ -619,6 +654,73 @@ void WritePredefinedLumpWad(const char *filename)
  I_Error("Cannot open predefined lumps wad %s for output\n", filename);
 }
 #endif
+
+
+#ifdef PRECISEVCOORD
+int W_CheckSubstreamForNum (int lump)
+{
+  lumpinfo_t *l = lumpinfo + lump;
+
+#ifdef RANGECHECK
+  if ((unsigned)lump >= numlumps)
+    I_Error ("W_CheckSubstreamForNum: %i >= numlumps",lump);
+#endif
+
+  return l->sub_size;
+}
+
+void* W_ReadLumpSubstream (int lump, int tag)
+{
+  lumpinfo_t *l = lumpinfo + lump;
+  void * d;
+  int c;
+
+#ifdef RANGECHECK
+  if ((unsigned)lump >= numlumps)
+    I_Error ("W_ReadLumpSubstream: %i >= numlumps",lump);
+#endif
+
+  if (l->data)     // killough 1/31/98: predefined lump data
+    I_Error ("W_ReadLumpSubstream: called for predefined lump %i",lump);
+
+  if (!l->sub_size) 
+    I_Error ("W_ReadLumpSubstream: for lump %i missing substream",lump);
+
+#ifdef DISKICON
+  I_BeginRead();
+#endif
+  d = Z_Malloc(l->sub_size, tag, NULL);
+  lseek(l->handle, l->position + l->size, SEEK_SET);
+  c = read(l->handle, d, l->sub_size);
+  if (c < l->sub_size)
+      I_Error("W_ReadLumpSubstream: only read %i of %i on lump %i", c, l->sub_size, lump);
+#ifdef DISKICON
+  I_EndRead();
+#endif
+  return d;
+}
+
+static int W_LumpComp(const void * _e1, const void * _e2)
+{
+  if(!_e1 && !_e2) return 0;
+  if(!_e1) return -1;
+  if(_e2)
+  {
+    lumpinfo_t *l1 = *(lumpinfo_t **)_e1;
+    lumpinfo_t *l2 = *(lumpinfo_t **)_e2;
+    if(!l1 && !l2) return 0;
+    if(!l1) return -1;
+    if(l2)
+    {
+      if(l1->position == l2->position) return 0;
+      if(l1->position < l2->position) return -1;
+    }     
+  } 
+  return 1;
+}
+
+#endif
+
 //----------------------------------------------------------------------------
 //
 // $Log: w_wad.c,v $
