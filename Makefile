@@ -167,6 +167,8 @@ $(OBJS): Makefile
 features.h: features/mbf.h features/boom.h features/krfn.h features/patches.h
 	$(TOUCH) features.h
 
+$(O)/draw_col.o: features.h
+
 $(O)/doomdef.o: doomdef.c doomdef.h z_zone.h m_swap.h version.h features.h
 
 $(O)/doomstat.o: doomstat.c doomstat.h doomdata.h doomtype.h d_net.h \

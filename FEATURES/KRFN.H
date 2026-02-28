@@ -47,6 +47,10 @@
 //                run `deusf -apend` or `nwt -merge`
 #define WADMERGE
 
+// FIXDOTS       - on loading screen show texture and sprites loading
+//                 progress more accurately if WADMERGE is enabled
+#define FIXDOTS
+
 // COMPACTMNU   - try to push all menu items under General into one sceen
 #define COMPACTMNU
 

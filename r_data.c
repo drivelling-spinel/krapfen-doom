@@ -543,19 +543,34 @@ void R_InitTextures (void)
   totalwidth = 0;
 
   {  // Really complex printing shit...
+#if !defined(FIXDOTS)
     int temp1 = W_GetNumForName("S_START");
     int temp2 = W_GetNumForName("S_END") - 1;
-
+#endif
     // 1/18/98 killough:  reduce the number of initialization dots
     // and make more accurate
 
-    int temp3 = 8+(temp2-temp1+255)/128 + (numtextures+255)/128;  // killough
-    putchar('[');
-    for (i = 0; i < temp3; i++)
-      putchar(' ');
-    putchar(']');
-    for (i = 0; i < temp3; i++)
-      putchar('\x8');
+    int temp3 = 
+#ifdef TRANSLUCENT
+                (general_translucency?8:0)+
+#endif
+#ifndef FIXDOTS
+                  (temp2-temp1+255)/128 + (numtextures+255)/128;  // killough
+#else
+                  (R_EstimateNumSprites()+127)/128 + (numtextures+127)/128;
+  if(temp3 <= 40) 
+#endif
+    {
+      putchar('[');
+      for (i = 0; i < temp3; i++)
+        putchar(' ');
+      putchar(']');
+      for (i = 0; i < temp3; i++)
+        putchar('\x8');
+#ifdef FIXDOTS
+        putchar('\x8');
+#endif
+    }
   }
 
   for (i=0 ; i<numtextures ; i++, directory++)
@@ -708,24 +723,11 @@ void R_InitSpriteLumps(void)
   int i;
 #ifndef WADMERGE
   patch_t *patch;
-#else
-  int s;
 #endif
 
-  firstspritelump = 
-#ifdef WADMERGE
-                    W_FirstNumForName("S_START")
-#else
-                    W_GetNumForName("S_START")
+#ifndef FIXDOTS
+  R_EstimateNumSprites();
 #endif
-                                                + 1;
-  lastspritelump = W_GetNumForName("S_END") - 1;
-#ifdef WADMERGE
-  s =  W_CheckNumForName("SS_END") - 1;
-  if(s > lastspritelump)
-    lastspritelump = s;
-#endif
-  numspritelumps = lastspritelump - firstspritelump + 1;
 
   // killough 4/9/98: make columnd offsets 32-bit;
   // clean up malloc-ing to use sizeof
@@ -737,13 +739,13 @@ void R_InitSpriteLumps(void)
 
   for (i=0 ; i< numspritelumps ; i++)
     {
-      if (!(i&127))            // killough
-        putchar ('.');
 #ifdef WADMERGE
       spritewidth[i] = -1;
       spriteoffset[i] = -1;
       spritetopoffset[i] = -1;
 #else
+      if (!(i&127))            // killough
+        putchar ('.');
       patch = W_CacheLumpNum(firstspritelump+i, PU_CACHE);
       spritewidth[i] = SHORT(patch->width)<<FRACBITS;
       spriteoffset[i] = SHORT(patch->leftoffset)<<FRACBITS;
@@ -1086,6 +1088,76 @@ void R_PrecacheLevel(void)
       }
   free(hitlist);
 }
+
+int R_EstimateNumSprites()
+{
+#ifdef WADMERGE
+  int s;
+#endif
+
+  firstspritelump = 
+#ifdef WADMERGE
+                    W_FirstNumForName("S_START")
+#else
+                    W_GetNumForName("S_START")
+#endif
+                                                + 1;
+  lastspritelump = W_GetNumForName("S_END") - 1;
+#ifdef WADMERGE
+  s =  W_CheckNumForName("SS_END") - 1;
+  if(s > lastspritelump)
+    lastspritelump = s;
+#endif
+  numspritelumps = lastspritelump - firstspritelump + 1;
+
+#if !defined(WADMERGE) && !defined(FIXDOTS)
+  return numspritelumps;
+#else
+  //LP2026: a direcy copy and paste job from r_things code
+  {
+    size_t numentries = lastspritelump-firstspritelump+1;
+    int numspr;
+    struct { int index, next; } *hash;
+    int i;
+    int estimated = 0;
+
+    for (numspr=0; sprnames[numspr]; numspr++) ;
+ 
+    // Create hash table based on just the first four letters of each sprite
+    // killough 1/31/98
+
+    hash = malloc(sizeof(*hash)*numentries); // allocate hash table
+
+    for (i=0; i<numentries; i++)             // initialize hash table as empty
+      hash[i].index = -1;
+
+#define _SpriteNameHash(s) ((unsigned)((s)[0]-((s)[1]*3-(s)[3]*2-(s)[2])*2))
+
+    for (i=0; i<numentries; i++)             // Prepend each sprite to hash chain
+      {                                      // prepend so that later ones win
+        int j = _SpriteNameHash(lumpinfo[i+firstspritelump].name) % numentries;
+        hash[i].next = hash[j].index;
+        hash[j].index = i;
+      }
+
+    for (i=0 ; i<numspr ; i++)
+      {
+        const char *spritename = sprnames[i];
+        int j = hash[_SpriteNameHash(spritename) % numentries].index;
+        if (j >= 0)
+          do 
+            {
+              estimated++;
+            }
+          while ((j = hash[j].next) >= 0);
+      }
+
+    free(hash);
+    return estimated;
+  }
+#endif
+}
+
 
 //-----------------------------------------------------------------------------
 //

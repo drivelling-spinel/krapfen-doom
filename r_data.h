@@ -62,6 +62,8 @@ void R_InitColormaps(void);   // killough 8/9/98
 extern byte *main_tranmap, *tranmap;
 #endif
 
+int R_EstimateNumSprites();
+
 #endif
 
 //----------------------------------------------------------------------------

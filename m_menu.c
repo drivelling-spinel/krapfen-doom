@@ -450,7 +450,7 @@ void M_DrawGeneral(void); // killough 10/98
 #ifdef COMPACTMNU
 void M_DrawCompactGeneral(void);
 #endif
-#ifdef TRANSLUCENCY
+#ifdef TRANSLUCENT
 void M_Trans(void);       // killough 10/98
 #endif
 void M_ResetMenu(void);   // killough 10/98
@@ -3449,7 +3449,7 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
 };
 #endif
 
-#ifdef TRANSLUCENCY
+#ifdef TRANSLUCENT
 void M_Trans(void) // To reset translucency after setting it in menu
 {
   if (general_translucency)

@@ -1126,7 +1126,9 @@ void P_Init (void)
 {
   P_InitSwitchList();
   P_InitPicAnims();
+#ifndef WADMERGE
   R_InitSprites(sprnames);
+#endif
 }
 
 //----------------------------------------------------------------------------

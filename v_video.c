@@ -714,14 +714,13 @@ void V_DrawRect(int scrn, int x1,int y1, int x2, int y2, byte color)
       for(i=top_offset;i<=bottom_offset;i+=(scrw)) memset(&screens[scrn][i],color,w);
    } 
    else
-#else
+#endif
    {
       w=x2-x1+1;
       top_offset=(y1<<8)+(y1<<6)+x1;
       bottom_offset=(y2<<8)+(y2<<6)+x1;
       for(i=top_offset;i<=bottom_offset;i+=scrw)   memset(&screens[scrn][i],color,w);
    }
-#endif
 }
 
 //-----------------------------------------------------------------------------

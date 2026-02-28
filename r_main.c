@@ -431,6 +431,9 @@ extern int screenblocks;
 void R_Init (void)
 {
   R_InitData();
+#ifdef WADMERGE
+  R_InitSprites(sprnames);
+#endif
   puts("\nR_InitData");
   R_SetViewSize(screenblocks);
   R_InitPlanes();

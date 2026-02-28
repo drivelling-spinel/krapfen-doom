@@ -161,6 +161,9 @@ void R_InitSpriteDefs(char **namelist)
   size_t numentries = lastspritelump-firstspritelump+1;
   struct { int index, next; } *hash;
   int i;
+#ifdef WADMERGE
+  int inst_ctr = 0;
+#endif
 
   if (!numentries || !*namelist)
     return;
@@ -204,6 +207,10 @@ void R_InitSpriteDefs(char **namelist)
             {
               register lumpinfo_t *lump = lumpinfo + j + firstspritelump;
 
+#ifdef WADMERGE
+              if (!(inst_ctr++&127))
+                putchar ('.');
+#endif
               // Fast portable comparison -- killough
               // (using int pointer cast is nonportable):
 
@@ -230,13 +237,14 @@ void R_InitSpriteDefs(char **namelist)
                       frame = lump->name[6] - 'A';
                       rotation = lump->name[7] - '0';
                       if(good = (frame >= 0 && frame < MAX_SPRITE_FRAMES &&
-                                 rotation >= 0 && rotation < 9))
+                                 rotation >= 0 && rotation < 9)) {
 #endif
                     R_InstallSpriteLump(j+firstspritelump,
                                         lump->name[6] - 'A',
                                         lump->name[7] - '0',
                                         true);
 #ifdef WADMERGE
+                      }
                     }
 #endif
                 }

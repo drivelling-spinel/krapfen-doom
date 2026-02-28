@@ -13,6 +13,7 @@
 // 11/98 killough: added hires support
 //
 //================
+#include "features.h"
 
  .text
  .align 8
