@@ -18,18 +18,15 @@ CP = copy
 TOUCH = touch
 
 # options common to all builds
-#CFLAGS_COMMON = -Wall
-CFLAGS_COMMON = -Wall -Winline -Wno-parentheses
-
-CFLAGS_NEWFEATURES = 
+CFLAGS_COMMON = -Winline -Wno-parentheses -O1 -ffast-math -m486 -fexpensive-optimizations
 
 # debug options
-CFLAGS_DEBUG = -g -O2 -DRANGECHECK -DINSTRUMENTED
+# debug preprocessor defines to consider: -DRANGECHECK -DINSTRUMENTED
+CFLAGS_DEBUG = -g 
 LDFLAGS_DEBUG =
 
 # optimized (release) options
-# CFLAGS_RELEASE =-O3 -ffast-math -m486 
-CFLAGS_RELEASE=-O1 -ffast-math -m486 -fexpensive-optimizations
+CFLAGS_RELEASE =
 
 # GCC 2.7: -ffast-math makes no difference
 # GCC 2.7: -fomit-frame-pointer gives a few FPS less 
@@ -48,9 +45,13 @@ LDFLAGS_RELEASE = -s
 LIBS = -lalleg -lm -lemu
 
 # this selects flags based on debug and release tagets
-MODE = RELEASE
-CFLAGS = $(CFLAGS_COMMON) $(CFLAGS_$(MODE)) $(CFLAGS_NEWFEATURES)
-LDFLAGS = $(LDFLAGS_COMMON) $(LDFLAGS_$(MODE))
+ifneq ($(DEBUG),)
+  MODE = DEBUG
+else
+  MODE = RELEASE
+endif
+CFLAGS = $(CFLAGS_COMMON) $(CFLAGS_$(MODE)) 
+LDFLAGS = $(LDFLAGS_COMMON) $(LDFLAGS_$(MODE)) -Wl,-Map=$(O)/buck.map
 
 # subdirectory for objects (depends on target, to allow you
 # to build debug and release versions simultaneously)
@@ -131,20 +132,37 @@ OBJS=	\
         $(O)/d_deh.o	    \
  	$(O)/emu8kmid.o	    
 
-doom all: $(O)/buck.exe
+all: $(O)/buck.exe
 #	exe2coff $(O)\buck.exe
 #	copy /y /b $(O)\cwsdstub.exe + $(O)\buck $(O)\buck.exe
 #	upx -9 $(O)\buck.exe
 
-debug:
-	$(MAKE) MODE=DEBUG
-
 clean:
-	$(RM) buck.exe
+	$(RM) $(O)\buck.exe
+	$(RM) $(O)\*.map
+	$(RM) $(O)\*.o
+
+prune:
 	$(RM) $(O_RELEASE)\*.exe
 	$(RM) $(O_DEBUG)\*.exe
+	$(RM) $(O_RELEASE)\*.map
+	$(RM) $(O_DEBUG)\*.map
 	$(RM) $(O_RELEASE)\*.o
 	$(RM) $(O_DEBUG)\*.o
+	$(RM) $(O_RELEASE)\*.DSG
+	$(RM) $(O_DEBUG)\*.DSG
+	$(RM) $(O_RELEASE)\debug0.txt
+	$(RM) $(O_DEBUG)\debug0.txt
+	$(RM) $(O_RELEASE)\DOOM.WAD
+	$(RM) $(O_DEBUG)\DOOM.WAD
+	$(RM) $(O_RELEASE)\DOOM2.WAD
+	$(RM) $(O_DEBUG)\DOOM2.WAD
+	$(RM) $(O_RELEASE)\DOOM1.WAD
+	$(RM) $(O_DEBUG)\DOOM1.WAD
+	$(RM) $(O_RELEASE)\TNT.WAD
+	$(RM) $(O_DEBUG)\TNT.WAD
+	$(RM) $(O_RELEASE)\PLUTONIA.WAD
+	$(RM) $(O_DEBUG)\PLUTOINA.WAD
 
 $(O)/buck.exe: $(OBJS) $(O)/version.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) $(O)/version.o -o $@ $(LIBS)
@@ -507,7 +525,7 @@ $(O)/version.o: version.c version.h z_zone.h
 $(O)/emu8kmid.o: emu8kmid.c emu8k.h internal.h interndj.h 
 
 $(O)/keyboard.o: keyboard.c internal.h interndj.h 
-	$(CC) $(CFLAGS_COMMON) -O $(CFLAGS_NEWFEATURES) -c $< -o $@
+	$(CC) $(CFLAGS_COMMON) -O -c $< -o $@
 
 
 ###############################################################################
