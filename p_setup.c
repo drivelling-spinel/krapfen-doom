@@ -154,7 +154,7 @@ void P_LoadVertexes (int lump)
 
 #ifdef PRECISEVCOORD
   i = W_CheckSubstreamForNum(lump);
-  if(precise_coords = (i == numvertexes * sizeof(mapvertex_t)))
+  if(precise_coords |= (i == numvertexes * sizeof(mapvertex_t)))
     {
       int pc=0;
       data = W_ReadLumpSubstream(lump, PU_STATIC);
@@ -383,6 +383,44 @@ void P_LoadNodes (int lump)
     }
 
   Z_Free (data);
+
+#ifdef PRECISEVCOORD
+  i = W_CheckSubstreamForNum(lump);
+  if(precise_coords |= (i == numnodes * sizeof(node_t)))
+    {
+      int pc=0;
+      data = W_ReadLumpSubstream(lump, PU_STATIC);
+      for (i=0; i<numnodes; i++)
+        {
+          node_t *no = nodes + i;
+          mapnode_t *mn = (mapnode_t *) data + i;
+          int j;
+
+          no->x |= (FRACUNIT-1) & mn->x;
+          no->y |= (FRACUNIT-1) & mn->y;
+          no->dx |= (FRACUNIT-1) & mn->dx;
+          no->dy |= (FRACUNIT-1) & mn->dy;
+          if(mn->x || mn->y || mn->dx || mn->dy) pc++;
+
+          for (j=0 ; j<2 ; j++)
+            {
+              int k;
+              for (k=0 ; k<4 ; k++)
+                 no->bbox[j][k] |= (FRACUNIT-1) & mn->bbox[j][k];
+            }
+
+        }
+ 
+     if(debugfile)
+        {
+          fprintf(debugfile, "Non zero fractional part loaded for %d nodes of %d\n",
+                  pc, numnodes);
+          fflush(debugfile);
+        }
+      Z_Free (data);
+    }
+#endif
+
 }
 
 
