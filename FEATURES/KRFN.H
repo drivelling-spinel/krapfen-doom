@@ -63,9 +63,9 @@
 //                 with SKY4 when running registerd version of Doom
 #define TOLERATESKY4
 
-// PRECISEVCOORD - when enabled loads vertext coordinate fraction bit
-//                 from custom data block embedded in WAD file
-#define PRECISEVCOORD
+// PRECISECOORD  - when enabled loads fractional parts for level attributes
+//                 from custom data blocks embedded in WAD files
+#define PRECISECOORD
 
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR

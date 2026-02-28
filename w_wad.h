@@ -76,7 +76,7 @@ typedef struct
 
   int handle;
   int position;
-#ifdef PRECISEVCOORD
+#ifdef PRECISECOORD
   int sub_size;
 #endif
 } lumpinfo_t;
@@ -114,7 +114,7 @@ unsigned W_LumpNameHash(const char *s);           // killough 1/31/98
 
 void I_BeginRead(void), I_EndRead(void); // killough 10/98
 
-#ifdef PRECISEVCOORD
+#ifdef PRECISECOORD
 int     W_CheckSubstreamForNum (int lump);
 void*   W_ReadLumpSubstream (int lump, int tag); 
 #endif

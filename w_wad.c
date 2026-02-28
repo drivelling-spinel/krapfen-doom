@@ -132,7 +132,7 @@ void NormalizeSlashes(char *str)
 // LUMP BASED ROUTINES.
 //
 
-#ifdef PRECISEVCOORD
+#ifdef PRECISECOORD
 static int W_LumpComp(const void * _e1, const void * _e2);
 #endif
 
@@ -184,7 +184,7 @@ static void W_AddFile(const char *name) // killough 1/31/98: static, const
 
   startlump = numlumps;
 
-#ifdef PRECISEVCOORD
+#ifdef PRECISECOORD
   memset(&header, 0, sizeof(header));
 #endif
 
@@ -230,7 +230,7 @@ static void W_AddFile(const char *name) // killough 1/31/98: static, const
 #ifdef WADNAMESPACE
         lump_p->namespace = ns_global;              // killough 4/17/98
 #endif
-#ifdef PRECISEVCOORD
+#ifdef PRECISECOORD
         lump_p->sub_size = 0;
 #endif
         strncpy (lump_p->name, fileinfo->name, 8);
@@ -239,7 +239,7 @@ static void W_AddFile(const char *name) // killough 1/31/98: static, const
 
     free(fileinfo2free);      // killough
 
-#ifdef PRECISEVCOORD
+#ifdef PRECISECOORD
     if (header.infotableofs && numlumps > startlump)
       {
         lumpinfo_t ** sorted = malloc((numlumps-startlump)*sizeof(lumpinfo_t *));
@@ -656,7 +656,7 @@ void WritePredefinedLumpWad(const char *filename)
 #endif
 
 
-#ifdef PRECISEVCOORD
+#ifdef PRECISECOORD
 int W_CheckSubstreamForNum (int lump)
 {
   lumpinfo_t *l = lumpinfo + lump;

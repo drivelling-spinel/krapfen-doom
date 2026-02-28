@@ -120,7 +120,16 @@ int R_PointOnSide(fixed_t x, fixed_t y, node_t *node)
   // Try to quickly decide by looking at sign bits.
   if ((node->dy ^ node->dx ^ x ^ y) < 0)
     return (node->dy ^ x) < 0;  // (left is negative)
+
+#ifdef PRECISECOORD
+  {
+    long long _x = ((long long) x) * node->dy;
+    long long _y = ((long long) y) * node->dx;
+    return _y >= _x;
+  }
+#else  
   return FixedMul(y, node->dx>>FRACBITS) >= FixedMul(node->dy>>FRACBITS, x);
+#endif
 }
 
 // killough 5/2/98: reformatted

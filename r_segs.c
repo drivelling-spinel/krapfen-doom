@@ -786,22 +786,6 @@ void R_StoreWallRange(const int start, const int stop)
   ds_p++;
 }
 
-#ifdef PRECISEVCOORD
-fixed_t R_PointToDist2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2)
-{
-  fixed_t dx = abs(x2 - x1);
-  fixed_t dy = abs(y2 - y1);
-  if (dy > dx)
-    {
-      fixed_t t = dx;
-      dx = dy;
-      dy = t;
-    }
-  return dx ? FixedDiv(dx, finesine[(tantoangle[FixedDiv(dy,dx) >> DBITS]
-                           + ANG90) >> ANGLETOFINESHIFT]) : 0;
-}
-#endif
-
 //----------------------------------------------------------------------------
 //
 // $Log: r_segs.c,v $

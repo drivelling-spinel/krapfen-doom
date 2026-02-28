@@ -29,9 +29,6 @@
 
 void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2);
 void R_StoreWallRange(int start, int stop);
-#ifdef PRECISEVCOORD
-fixed_t R_PointToDist2(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2);
-#endif
 
 #endif
 
