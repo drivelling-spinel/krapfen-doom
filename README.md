@@ -29,6 +29,7 @@ whose code has been included in Buck's.
 * Reading soundcard configuration from Doom's own DEFAULT.CFG file,   
   defined using ID's own SETUP.EXE
 * Higher fidelity FM music playback and loading of OPL instruments from WAD-s
+* Switching on the fly between normal and low-detail rendering modes with ``[F12]``
 * Small touches here and there to closer match original Doom, 
   or for more player-friendly experience
 
@@ -135,16 +136,20 @@ With ```PERIDOT``` defined requires this [patched version](https://github.com/dr
 * Dave Taylor
 
 
+
    
 * Bernd Kreimeier
+
 
 
    
 * Chi Hoang
 
 
+
    
 * Phill Harvey-Smith
+
 
 
    
@@ -155,9 +160,11 @@ With ```PERIDOT``` defined requires this [patched version](https://github.com/dr
 * Stan Gula
 
 
+
    
 * Lee Killough
 * Joel Murdoch
+
 
 
    
@@ -167,11 +174,13 @@ With ```PERIDOT``` defined requires this [patched version](https://github.com/dr
 * @gerwin
 
 
+
    
 * @sakitoshi
 * @CRVS
 * @dgondos
 * @Ludicrous_peridot
+
 
 
 ## License
