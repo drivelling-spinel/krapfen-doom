@@ -109,6 +109,13 @@ Worth noting is that internally Buck, unlike MBF and Boom, does not categorize W
 
 The port should run on any machine compatible with MBF 2.04 as of 2020-s, e.g. 80486-based and above. 
 
+Out of the box Buck does not support digitized sound playback via PCI sound cards, so to play on a modern PC,
+a TSR sound driver is recommended such as:
+* [VSBCMI](https://github.com/drivelling-spinel/VSBCMI)
+* [VSBHDA](https://github.com/Baron-von-Riedesel/VSBHDA) 
+
+
+One can use liballegro ASETUP.EXE to fine tune sound settings when required.
 
 Notable are `-noasm` and `-noasmx` command line arguments (originating from MBF 2.04)
 that instruct the enigine to use compiler optimized C-versions of column rendering and blast functions,
