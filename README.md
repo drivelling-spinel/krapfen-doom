@@ -16,11 +16,11 @@ whose code has been included in Buck's.
 * Support for direct loading of WADS created with NWT (New WAD Tool),
   such as The Trooper's Playground, Mordeth or Obituary
 * Support for loading of high precision map data for "fireline"-free experience  
-  (when used in conjunction wtih [this node builder](https://github.com/drivelling-spinel/BSP))
+  (when used in conjunction with [this node builder](https://github.com/drivelling-spinel/BSP))
 * Aspect correcting renderer output for more coherent resulting image on modern displays
 * Support for placing Doom II monster spawner with Doom WAD-s loaded
 * Relaxed E1M8 [victory condition check](https://doomwiki.org/wiki/Tag_666#Difference_in_behaviour_between_Doom1_and_Ultimate_Doom) 
-  for compatibiltiy with pre-Ultumate Doom WAD-s 
+  for compatibilty with pre-Ultimate Doom WAD-s 
 * Smarter handling of Doom stair building method for compatibility with Final Doom demos
 * Compatibility with pre-Ultimate Doom demos [lost souls bouncing](https://doomwiki.org/wiki/Demo_desyncing_caused_by_bouncing_lost_souls)
 * Compatibility with Final Doom demos [teleporter behavior](https://doomwiki.org/wiki/Final_Doom_teleporters_do_not_set_Z_coordinate)
@@ -69,7 +69,7 @@ deep (i.e. "overhead") water effect and possibility for sectors to use light lev
 
 Also version 2.04 introduced features are out: Doom 1.2 demo compatibility, super shotgun in Doom 1
 
-### Whcih WAD-s is Buck compatible with
+### Which WAD-s is Buck compatible with
 
 Generally, WADs from 1994 - 1997 should work, as well as those from later, which are earnestly described as
 "vanilla compatible" or as requiring "limit removing" source port. Maps that have been produced by Master Levels for Doom II authors,
@@ -84,9 +84,9 @@ Issues will likely be experienced with WAD-s that:
   (e.g. MAP07 from [Strain](https://doomwiki.org/w/index.php?title=STRAIN)) 
 * include sound, music or image media in modern formats (``OGG``, ``WAV``, ``RIFF MIDI``, ``PNG`` and so on) 
 
-Some WAD-s are presented as "limit removing" or "vanilla comptible", yet have only beeen tested with modern source ports.
+Some WAD-s are presented as "limit removing" or "vanilla compatible", yet have only been tested with modern source ports.
 When a WAD includes non power-of-two sized textures, screen fonts which are not 8 pixel high, unexpected MIDI data chunks,
-or uses "blank" values for _defautl_ sounds, music or inside texture definitions, Buck will most likely not load it correctly.
+or uses "blank" values for _default_ sounds, music or inside texture definitions, Buck will most likely not load it correctly.
 
 
 ## Technical notes
