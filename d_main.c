@@ -67,6 +67,10 @@ static const char rcsid[] = "$Id: d_main.c,v 1.3 2000-08-12 21:29:25 fraggle Exp
 #include "d_main.h"
 #include "d_deh.h"  // Ty 04/08/98 - Externalizations
 
+#ifdef EXTSTAT
+#include <sys/nearptr.h>
+#endif
+
 
 // DEHacked support - Ty 03/09/97
 // killough 10/98:
@@ -1600,9 +1604,14 @@ void D_DoomMain(void)
   puts("I_Init: Setting up machine state.");
   I_Init();
 
+#ifdef EXTCONTROL
+  I_CheckExternDriver();
+#endif
+
   puts("D_CheckNetGame: Checking network game status.");
   D_CheckNetGame();
 
+#ifndef KRFNSLIM
        if (key[KEY_RSHIFT]) {puts("Shift key is pressed, press Enter to continue..."); readkey(); } // GB 2015
   else if (key[KEY_LSHIFT]) {puts("Shift key is pressed, press Enter to continue..."); readkey(); } // GB 2015
 
@@ -1610,6 +1619,8 @@ void D_DoomMain(void)
 //  if (key[KEY_RSHIFT] || key[KEY_LSHIFT]) {puts("Shift key is pressed, waiting..."); do {clear_keybuf(); rest(50);}  while (key[KEY_RSHIFT] || key[KEY_LSHIFT]); } // GB 2014
 
 // rest(3000);
+#endif
+
   puts("S_Init: Setting up sound.");
   S_Init(snd_SfxVolume /* *8 */, snd_MusicVolume /* *8*/ );
 
@@ -1629,8 +1640,11 @@ void D_DoomMain(void)
 
       // killough 5/2/98: this takes a memory
       // address as an integer on the command line!
-
+#ifdef EXTSTAT
+      statcopy = (void*)(atoi(myargv[p+1]) + (unsigned char *)__djgpp_conventional_base);
+#else
       statcopy = (void*) atoi(myargv[p+1]);
+#endif
       puts("External statistics registered.");
     }
 

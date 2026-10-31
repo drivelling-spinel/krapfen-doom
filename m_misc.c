@@ -72,7 +72,9 @@ extern int viewwidth;
 extern int viewheight;
 extern int mouseSensitivity_horiz,mouseSensitivity_vert;  // killough
 extern int realtic_clock_rate;         // killough 4/13/98: adjustable timer
+#ifdef BOOMKEYS
 extern int leds_always_off;            // killough 3/6/98
+#endif
 extern int tran_filter_pct;            // killough 2/21/98
 extern int screenblocks;
 extern int showMessages;
@@ -437,12 +439,14 @@ default_t defaults[] = {
     "1 to use Doom's main menu ordering"
   },
 
+#ifdef BOOMKEYS
   { // killough 3/6/98
     "leds_always_off",
     &leds_always_off, NULL,
     0, {0,1}, number, ss_gen, wad_no,
     "1 to keep keyboard LEDs turned off"
   },
+#endif
 
   { //jff 4/3/98 allow unlimited sensitivity
     "mouse_sensitivity_horiz",
@@ -479,12 +483,14 @@ default_t defaults[] = {
     "1 to enable message display"
   },
 
+#ifdef BOOMKEYS
   { // killough 3/6/98: preserve autorun across games
     "autorun",
     &autorun, NULL,
     0, {0,1}, number, ss_none, wad_no,
     "1 to enable autorun"
   },
+#endif
 
   { // killough 2/21/98: default to 10
     "screenblocks",
@@ -1041,12 +1047,14 @@ default_t defaults[] = {
     "key to pause the game"
   },
 
+#ifdef BOOMKEYS
   {
     "key_autorun",
     &key_autorun, NULL,
     KEYD_CAPSLOCK, {0,255}, number, ss_keys, wad_no,
     "key to toggle always run mode"
   },
+#endif
 
   {
     "key_chat",
@@ -1153,12 +1161,14 @@ default_t defaults[] = {
     "key to toggle grid display over automap"
   },
 
+#ifdef BOOMKEYS
   {
     "key_reverse",
     &key_reverse, NULL,
     '/', {0,255}, number, ss_keys, wad_no,
     "key to spin 180 instantly"
   },
+#endif
 
   {
     "key_zoomin",

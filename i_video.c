@@ -97,11 +97,16 @@ void I_JoystickEvents()
   D_PostEvent(&event);
 }
 
+#ifdef EXTCONTROL
+void I_ReadExternDriver(void);
+#endif
+
 //-----------------------------------------------------------------------------
 // I_StartFrame
 void I_StartFrame (void)
 {
   I_JoystickEvents(); // Obtain joystick data                 phares 4/3/98
+  I_ReadExternDriver();
 }
 
 /////////////////////////////////////////////////////////////////////////////

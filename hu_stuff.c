@@ -1421,7 +1421,13 @@ void HU_Ticker(void)
       reviewing_message = message_list_on = false;
 #ifdef ONEOFFREVIEW
       if (hud_msg_oneoff)
-        message_list = false;
+        {
+          extern boolean setsizeneeded;
+          message_list = false;
+          HU_Erase();
+          if (scaledviewheight<200)
+          setsizeneeded = true;
+        }
 #endif
 #ifdef MESSAGEBG
       if (hud_list_bgon && scaledviewheight<200)  // killough 11/98
@@ -1619,7 +1625,7 @@ boolean HU_Responder(event_t *ev)
 		  message_on && reviewing_message)
 #ifdef ONEOFFREVIEW
               {
-#endif
+#else
 		if (!(message_list = !message_list))
 		  {
 #ifdef MESSAGEBG
@@ -1638,6 +1644,7 @@ boolean HU_Responder(event_t *ev)
 		      setsizeneeded = true;
 #endif
 		  }
+#endif
 #ifdef ONEOFFREVIEW
               }
               else if(hud_msg_oneoff)

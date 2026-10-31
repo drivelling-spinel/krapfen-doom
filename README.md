@@ -32,6 +32,7 @@ whose code has been included in Buck's.
 * Switching on the fly between normal and low-detail rendering modes with ``[F12]``
 * Small touches here and there to closer match original Doom, 
   or for more player-friendly experience
+* Talks to external controls and statistics driver TSRs
 
 ### What Buck retains from MBF (and BOOM)
 
@@ -66,9 +67,10 @@ monsters chasing last enemy, generalized "special events" system, prorietary ass
 screenshots in PCX format, silent teleporters and additional BOOM triggers, combined keycard+skullkey status display,
 textured messages widget, hall of mirrors indicator, definition of switch and animated textures per WAD,
 status bar numbers coloring, advanced scrolling textures support, variable floor friction, pushable map objects,
-deep (i.e. "overhead") water effect and possibility for sectors to use light level from other sectors, variable pitch for sound effects.
+deep (i.e. "overhead") water effect and possibility for sectors to use light level from other sectors, variable pitch for sound effects,
+180-degree turnaround and always run keys.
 
-Also version 2.04 introduced features are out: Doom 1.2 demo compatibility, super shotgun in Doom 1
+Also version 2.04 introduced features are out: Doom 1.2 demo compatibility, super shotgun in Doom 1, pausing engine startup holding Shift key.
 
 ### Which WAD-s is Buck compatible with
 
@@ -139,6 +141,12 @@ With ```PERIDOT``` defined requires this [patched version](https://github.com/dr
 
    
 * Bernd Kreimeier
+
+
+
+   
+* Ben Gokey
+* Chris Rhinehart
 
 
 

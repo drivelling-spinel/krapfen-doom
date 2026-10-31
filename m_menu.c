@@ -164,8 +164,10 @@ menu_t* currentMenu; // current menudef
 // jff 3/24/98
 extern int defaultskill; // config file specified skill
 
+#ifdef BOOMKEYS
 // killough 3/6/98: preserve autorun across games
 extern int autorun;      // always running?
+#endif
 extern int key_right;                                              
 extern int key_left;
 extern int key_up;
@@ -186,8 +188,10 @@ extern int key_speed;
 extern int key_escape;
 extern int key_savegame;
 extern int key_loadgame;
+#ifdef BOOMKEYS
 extern int key_autorun;
 extern int key_reverse;
+#endif
 extern int key_zoomin;
 extern int key_zoomout;
 extern int key_chat;
@@ -2507,10 +2511,13 @@ setup_menu_t keys_settings1[] =  // Key Binding screen strings
   {"STRAFE LEFT" ,S_KEY       ,m_scrn,KB_X,KB_Y+6*8,{&key_strafeleft}},
   {"STRAFE RIGHT",S_KEY       ,m_scrn,KB_X,KB_Y+7*8,{&key_straferight}},
   {"STRAFE"      ,S_KEY       ,m_scrn,KB_X,KB_Y+8*8,{&key_strafe},&mousebstrafe,&joybstrafe},
+#ifndef BOOMKEYS
+  {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y+9*8,{&key_use},&mousebforward,&joybuse},
+#else
   {"AUTORUN"     ,S_KEY       ,m_scrn,KB_X,KB_Y+9*8,{&key_autorun}},
   {"180 TURN"    ,S_KEY       ,m_scrn,KB_X,KB_Y+10*8,{&key_reverse}},
   {"USE"         ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_use},&mousebforward,&joybuse},
-
+#endif
   {"MENUS"       ,S_SKIP|S_TITLE,m_null,KB_X,KB_Y+12*8},
   {"NEXT ITEM"   ,S_KEY       ,m_menu,KB_X,KB_Y+13*8,{&key_menu_down}},
   {"PREV ITEM"   ,S_KEY       ,m_menu,KB_X,KB_Y+14*8,{&key_menu_up}},
@@ -3380,7 +3387,9 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
 enum {
   general_mouse,
   general_joy,
+#ifdef BOOMKEYS
   general_leds
+#endif
 };
 
 #ifdef PRELOAD
@@ -3414,8 +3423,10 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Enable Joystick", S_YESNO, m_null, G_X,
    G_Y + general_joy*8, {"use_joystick"}},
 
+#ifdef BOOMKEYS
   {"Keyboard LEDs Always Off", S_YESNO, m_null, G_X,
    G_Y + general_leds*8, {"leds_always_off"}, 0, 0, I_ResetLEDs},
+#endif
 #ifdef PRELOAD
   {"Files Preloaded at Game Startup",S_SKIP|S_TITLE, m_null, G_X,
    G_Y3 - 12},
@@ -3550,8 +3561,10 @@ setup_menu_t gen_settings3[] = { // General Settings screen
   {"Enable Joystick", S_YESNO, m_null, GC_X,
    GC_Y3 + general_joy*8, {"use_joystick"}},
 
+#ifdef BOOMKEYS
   {"Keyboard LEDs Always Off", S_YESNO, m_null, GC_X,
    GC_Y3 + general_leds*8, {"leds_always_off"}, 0, 0, I_ResetLEDs},
+#endif
 
   {"Miscellaneous"  ,S_SKIP|S_TITLE, m_null, GC_X, GC_Y4 - 12},
 
@@ -4474,9 +4487,13 @@ setup_menu_t helpstrings[] =  // HELP screen strings
   {"STRAFE LEFT" ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 6*8,{&key_strafeleft}},
   {"STRAFE RIGHT",S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 7*8,{&key_straferight}},
   {"STRAFE"      ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 8*8,{&key_strafe},&mousebstrafe,&joybstrafe},
+#ifndef BOOMKEYS
+  {"USE"         ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 9*8,{&key_use},&mousebforward,&joybuse},
+#else
   {"AUTORUN"     ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+ 9*8,{&key_autorun}},
   {"180 TURN"    ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+10*8,{&key_reverse}},
   {"USE"         ,S_SKIP|S_KEY,m_null,KT_X3,KT_Y3+11*8,{&key_use},&mousebforward,&joybuse},
+#endif
 
   {"GAME"        ,S_SKIP|S_TITLE,m_null,KT_X2,KT_Y1},
   {"SAVE"        ,S_SKIP|S_KEY,m_null,KT_X2,KT_Y1+ 1*8,{&key_savegame}},
@@ -4864,12 +4881,13 @@ boolean M_Responder (event_t* ev)
 
   if (!menuactive)                                            // phares
     {                                                               //  |
+#ifdef BOOMKEYS
       if (ch == key_autorun)      // Autorun                          //  V
 	{
 	  autorun = !autorun;
 	  return true;
 	}
-
+#endif
       if (ch == key_help)      // Help key
 	{
 	  M_StartControlPanel ();

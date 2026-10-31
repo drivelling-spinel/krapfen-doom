@@ -92,8 +92,10 @@ extern int  key_speed;
 extern int  key_escape;                                             // phares
 extern int  key_savegame;                                           //    |
 extern int  key_loadgame;                                           //    V
+#ifdef BOOMKEYS
 extern int  key_autorun;
 extern int  key_reverse;
+#endif
 extern int  key_zoomin;
 extern int  key_zoomout;
 extern int  key_chat;
@@ -141,7 +143,9 @@ extern int  key_map_clear;                                          //    |
 extern int  key_map_grid;                                           // phares
 extern int  key_screenshot;    // killough 2/22/98 -- add key for screenshot
 extern int  key_setup;         // killough 10/98: shortcut to setup menu
+#ifdef BOOMKEYS
 extern int  autorun;           // always running?                   // phares
+#endif
 #ifdef LOWDET
 extern int  key_lowdet;
 #endif

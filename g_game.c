@@ -100,7 +100,9 @@ boolean         precache = true;      // if true, load all graphics at start
 wbstartstruct_t wminfo;               // parms for world map / intermission
 boolean         haswolflevels = false;// jff 4/18/98 wolf levels present
 byte            *savebuffer;
+#ifdef BOOMKEYS
 int             autorun = false;      // always running?          // phares
+#endif
 
 //
 // controls (have defaults)
@@ -126,8 +128,10 @@ int     key_speed;
 int     key_escape = KEYD_ESCAPE;                           // phares 4/13/98
 int     key_savegame;                                               // phares
 int     key_loadgame;                                               //    |
+#ifdef BOOMKEYS
 int     key_autorun;                                                //    V
 int     key_reverse;
+#endif
 int     key_zoomin;
 int     key_zoomout;
 int     key_chat;
@@ -189,7 +193,9 @@ int     joybspeed;
 #define MAXPLMOVE   (forwardmove[1])
 #define TURBOTHRESHOLD  0x32
 #define SLOWTURNTICS  6
+#ifdef BOOMKEYS
 #define QUICKREVERSE 32768 // 180 degree reverse                    // phares
+#endif
 #define NUMKEYS   256
 
 fixed_t forwardmove[2] = {0x19, 0x32};
@@ -259,7 +265,11 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 
   strafe = gamekeydown[key_strafe] || mousebuttons[mousebstrafe]
     || joybuttons[joybstrafe];
-  speed = autorun || gamekeydown[key_speed] || joybuttons[joybspeed]; // phares
+  speed =
+#ifdef BOOMKEYS
+  autorun ||
+#endif
+  gamekeydown[key_speed] || joybuttons[joybspeed]; // phares
 
   forward = side = 0;
 
@@ -276,6 +286,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   else
     tspeed = speed;
 
+#ifdef BOOMKEYS
   // turn 180 degrees in one keystroke?                           // phares
                                                                   //    |
   if (gamekeydown[key_reverse])                                   //    V
@@ -283,7 +294,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
       cmd->angleturn += QUICKREVERSE;                             //    ^
       gamekeydown[key_reverse] = false;                           //    |
     }                                                             // phares
-
+#endif
   // let movement keys cancel each other out
 
   if (strafe)

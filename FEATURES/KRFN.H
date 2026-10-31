@@ -71,6 +71,13 @@
 //                 from custom data blocks embedded in WAD files
 #define PRECISECOORD
 
+// EXTCONTROL    - restore Doom external control driver (-control),
+//                 also restores -nomouse command line argument
+#define EXTCONTROL
+
+// EXTSTAT       - restores support of external stats server (-statcopy)
+#define EXTSTAT
+
 #if defined(STAIRVERSION) && !defined(COMPSTAIR)
 #define COMPSTAIR
 #endif

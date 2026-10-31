@@ -91,6 +91,9 @@
 //               write directly otherwise
 //#define SAFEWRITE
 
+// BOOMKEYS    - BOOM specific movement keys (autorun, single key turn)
+//#define BOOMKEYS
+
 #if (defined(PUSHERS) || defined(FRICTION) || defined(SCROLLBOOM)) && !defined(GENERALIZED)
 #define GENERALIZED
 #endif

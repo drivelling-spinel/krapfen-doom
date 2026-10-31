@@ -55,9 +55,29 @@ extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 #include <sys/stat.h>
 #endif
 
+#ifdef EXTCONTROL
+#include <dpmi.h>
+#include <sys/nearptr.h>
+
+static boolean useexterndriver=false;
+
+typedef struct
+{
+  int vector;
+  ticcmd_t cmd;
+} externdata_t;
+
+static externdata_t *i_ExternData;
+#endif
+
 ticcmd_t *I_BaseTiccmd(void)
 {
   static ticcmd_t emptycmd; // killough
+#ifdef EXTCONTROL
+  if(useexterndriver)
+    return &(i_ExternData->cmd);
+  else
+#endif
   return &emptycmd;
 }
 
@@ -121,8 +141,10 @@ int mousepresent;
 int joystickpresent;                                         // phares 4/3/98
 
 static int orig_key_shifts;  // killough 3/6/98: original keyboard shift state
+#ifdef BOOMKEYS
 extern int autorun;          // Autorun state
 int leds_always_off;         // Tells it not to update LEDs
+#endif
 
 void I_Shutdown(void)
 {
@@ -137,6 +159,7 @@ void I_Shutdown(void)
   remove_timer();
 }
 
+#ifdef BOOMKEYS
 void I_ResetLEDs(void)
 {
   // Either keep the keyboard LEDs off all the time, or update them
@@ -146,6 +169,7 @@ void I_ResetLEDs(void)
 
   set_leds(leds_always_off ? 0 : -1);
 }
+#endif
 
 #ifdef DEFAULTCFG
 
@@ -303,7 +327,9 @@ void I_GenerateAllegroCfg(char * fname)
 
 void I_Init(void)
 {
+#ifdef BOOMKEYS
   extern int key_autorun;
+#endif
   int clock_rate = realtic_clock_rate, p;
 
   if ((p = M_CheckParm("-speed")) && p < myargc-1 &&
@@ -341,6 +367,7 @@ void I_Init(void)
 
   key_shifts = 0;        // turn off all shifts by default
 
+#ifdef BOOMKEYS
   if (autorun)  // if autorun is on initially, turn on any corresponding shifts
     switch (key_autorun)
       {
@@ -358,7 +385,13 @@ void I_Init(void)
   I_ResetLEDs();
 
   // killough 3/6/98: end of keyboard / autorun state changes
+#endif
 
+#ifdef EXTCONTROL
+  if(M_CheckParm("-nomouse"))
+    mousepresent = -1;
+  else
+#endif
   //init the mouse
   mousepresent=install_mouse();
   if (mousepresent!=-1)
@@ -369,6 +402,11 @@ void I_Init(void)
   // For now, we'll require that joystick data is present in allegro.cfg.
   // The ASETUP program can be used to obtain the joystick data.
 
+#ifdef EXTCONTROL
+  if(M_CheckParm("-nojoy"))
+    joystickpresent = false;
+  else
+#endif
   if (load_joystick_data(NULL) == 0)
     joystickpresent = true;
   else
@@ -473,6 +511,52 @@ void I_EndDoom(void)
     }
 #endif
 }
+
+#ifdef EXTCONTROL
+// LP2026 - taken from Heretic source code
+
+int i_Vector;
+
+//=========================================================================
+//
+// I_CheckExternDriver
+//
+//		Checks to see if a vector, and an address for an external driver
+//			have been passed.
+//=========================================================================
+
+void I_CheckExternDriver(void)
+{
+	int i;
+
+	if(!(i = M_CheckParm("-control")) || i >= myargc-1)
+	{
+		return;
+	}
+	i_ExternData = (externdata_t *)(atoi(myargv[i+1]) + (unsigned char *)__djgpp_conventional_base);
+	i_Vector = i_ExternData->vector;
+
+	useexterndriver = true;
+	puts("Using external control API");
+}
+
+//=========================================================================
+//
+// I_ReadExternDriver
+//
+//		calls the external interrupt, which should then update i_ExternDriver
+//=========================================================================
+
+static __dpmi_regs ext_regs;
+
+void I_ReadExternDriver(void)
+{
+	if(useexterndriver)
+	{
+		__dpmi_simulate_real_mode_interrupt(i_Vector, &ext_regs);
+	}
+}
+#endif
 
 //----------------------------------------------------------------------------
 //
