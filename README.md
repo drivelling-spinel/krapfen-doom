@@ -58,7 +58,7 @@ whose code has been included in Buck's.
 ### Which MBF (and BOOM) features have been removed
 
 Dogs, "press release beta" support, friendly monsters, monsters helping others and more monster intelligence improvements,
-sliding, dropoff torque, bouncing and other advanced physics, grenades, mushroom explosion and other MBF-specific code pointers,
+sliding, dropoff torque, bouncing, sticky objects and other advanced physics, grenades, mines, mushroom explosion and other MBF-specific code pointers,
 additional MBF and BOOM cheat codes, slime trail and texture assignment errors doctoring, specters alternative "fuzzy" effect,
 gradual light changes when opening doors, transucency and high resolution (640x400) supoprt,
 per sector sky texture customization, weapons preferences list, firing recoil, screen bobbing tweaking,
